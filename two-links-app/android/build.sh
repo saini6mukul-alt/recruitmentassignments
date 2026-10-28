@@ -15,7 +15,7 @@ rm -rf "$OUT" && mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/dex"
 
 "$BT/aapt2" compile --dir res -o "$OUT/res.zip"
 "$BT/aapt2" link -o "$OUT/unsigned.apk" -I "$PLATFORM" \
-  --manifest AndroidManifest.xml --java "$OUT/gen" "$OUT/res.zip" --auto-add-overlay
+  --manifest AndroidManifest.xml -A assets --java "$OUT/gen" "$OUT/res.zip" --auto-add-overlay
 
 javac --release 11 -nowarn -encoding UTF-8 \
   -classpath "$PLATFORM" -d "$OUT/classes" \

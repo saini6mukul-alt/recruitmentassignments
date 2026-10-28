@@ -10,18 +10,22 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -29,18 +33,28 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.util.Locale;
 
 /**
- * Two-tab WebView app. Each tab keeps its own WebView alive, so switching
- * tabs does not reload the page or stop navigation history.
+ * Tabs: Home (categories + recommendations built from both sites), and the two
+ * sites themselves. Channels opened from Home play in a separate player screen.
+ * Every WebView goes through the same ad blocking and pop-up/redirect rules.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements CatalogLoader.Listener {
 
-    private static final String[] TITLES = {"Live TV Hub", "StreamFlex TV"};
+    private static final String HOME_URL = "file:///android_asset/home.html";
+    private static final String[] TITLES = {"Home", "Live TV Hub", "StreamFlex TV"};
     private static final String[] URLS = {
+            HOME_URL,
             "https://allinonelivetv.pages.dev/",
             "https://streamflexsmm.in/Game/"
+    };
+
+    /** Pop-up windows are only allowed to load when they point at one of these (or their subdomains). */
+    private static final String[] CONTENT_DOMAINS = {
+            "pages.dev", "allinonereborn2.online", "streamflexsmm.in", "jio.com", "sonyliv.com",
+            "fancode.com", "youtube.com", "t.me", "telegram.me", "whatsapp.com"
     };
 
     private static final int COLOR_BG = Color.parseColor("#0D0F15");
@@ -48,13 +62,19 @@ public class MainActivity extends Activity {
     private static final int COLOR_ACTIVE = Color.parseColor("#00E5FF");
     private static final int COLOR_IDLE = Color.parseColor("#8A93A6");
 
-    private final WebView[] webViews = new WebView[URLS.length];
+    private final WebView[] tabViews = new WebView[URLS.length];
     private final TextView[] tabs = new TextView[URLS.length];
     private int current = 0;
 
     private FrameLayout root;
     private LinearLayout chrome;
     private ProgressBar progress;
+
+    private LinearLayout player;
+    private WebView playerView;
+    private TextView playerTitle;
+
+    private CatalogLoader catalog;
 
     // Fullscreen video state
     private View customView;
@@ -64,110 +84,101 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WebView.setWebContentsDebuggingEnabled(false);
 
         root = new FrameLayout(this);
         root.setBackgroundColor(COLOR_BG);
 
         chrome = new LinearLayout(this);
         chrome.setOrientation(LinearLayout.VERTICAL);
-
-        progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        progress.setMax(100);
-        ClipDrawable fill = new ClipDrawable(new ColorDrawable(COLOR_ACTIVE), Gravity.START, ClipDrawable.HORIZONTAL);
-        LayerDrawable bar = new LayerDrawable(new android.graphics.drawable.Drawable[]{new ColorDrawable(COLOR_BG), fill});
-        bar.setId(0, android.R.id.background);
-        bar.setId(1, android.R.id.progress);
-        progress.setProgressDrawable(bar);
-        chrome.addView(progress, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(3)));
-
         FrameLayout pages = new FrameLayout(this);
         for (int i = 0; i < URLS.length; i++) {
-            webViews[i] = createWebView(i);
-            webViews[i].setVisibility(i == current ? View.VISIBLE : View.GONE);
-            pages.addView(webViews[i], new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            tabViews[i] = createWebView(true);
+            pages.addView(tabViews[i], matchParent());
         }
+        tabViews[0].addJavascriptInterface(new HomeBridge(), "App");
         chrome.addView(pages, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         chrome.addView(createTabBar(), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        root.addView(chrome, matchParent());
 
-        root.addView(chrome, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        player = createPlayer();
+        player.setVisibility(View.GONE);
+        root.addView(player, matchParent());
+
+        // Thin loading bar drawn over whichever screen is showing.
+        progress = createProgressBar();
+        root.addView(progress, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(3), Gravity.TOP));
+
         setContentView(root);
 
-        if (savedInstanceState != null) {
-            current = savedInstanceState.getInt("current", 0);
-            for (int i = 0; i < webViews.length; i++) {
-                Bundle state = savedInstanceState.getBundle("web" + i);
-                if (state == null || webViews[i].restoreState(state) == null) {
-                    webViews[i].loadUrl(URLS[i]);
-                }
-            }
-        } else {
-            for (int i = 0; i < webViews.length; i++) {
-                webViews[i].loadUrl(URLS[i]);
+        catalog = new CatalogLoader(this, root, this);
+
+        if (savedInstanceState != null) current = savedInstanceState.getInt("current", 0);
+        for (int i = 0; i < URLS.length; i++) {
+            Bundle state = savedInstanceState == null ? null : savedInstanceState.getBundle("web" + i);
+            if (i == 0 || state == null || tabViews[i].restoreState(state) == null) {
+                tabViews[i].loadUrl(URLS[i]);
             }
         }
         selectTab(current);
+        catalog.refresh();
     }
 
+    // ------------------------------------------------------------------ WebViews
+
     @SuppressLint("SetJavaScriptEnabled")
-    private WebView createWebView(final int index) {
-        WebView web = new WebView(this);
+    private WebView createWebView(final boolean showsProgress) {
+        final WebView web = new WebView(this);
         web.setBackgroundColor(COLOR_BG);
+        configure(web);
 
-        WebSettings s = web.getSettings();
-        s.setJavaScriptEnabled(true);
-        s.setDomStorageEnabled(true);
-        s.setDatabaseEnabled(true);
-        s.setMediaPlaybackRequiresUserGesture(false);
-        s.setLoadWithOverviewMode(true);
-        s.setUseWideViewPort(true);
-        s.setBuiltInZoomControls(false);
-        s.setJavaScriptCanOpenWindowsAutomatically(false);
-        s.setSupportMultipleWindows(false);
-        s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-
-        CookieManager cookies = CookieManager.getInstance();
-        cookies.setAcceptCookie(true);
-        cookies.setAcceptThirdPartyCookies(web, true);
-
-        web.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return handleUrl(request.getUrl());
-            }
-
-            @SuppressWarnings("deprecation")
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                return handleUrl(Uri.parse(url));
-            }
-
+        web.setWebViewClient(new BlockingClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                if (index == current) progress.setVisibility(View.VISIBLE);
+                if (showsProgress && isShowing(view)) progress.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                if (index == current) progress.setVisibility(View.GONE);
-                CookieManager.getInstance().flush();
+                super.onPageFinished(view, url);
+                if (showsProgress && isShowing(view)) progress.setVisibility(View.GONE);
             }
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                if (request.isForMainFrame()) showOfflinePage(view, index);
+                if (request.isForMainFrame()) showOfflinePage(view, request.getUrl().toString());
             }
         });
 
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
-                if (index == current) {
+                if (isShowing(view)) {
                     progress.setProgress(newProgress);
                     progress.setVisibility(newProgress < 100 ? View.VISIBLE : View.GONE);
                 }
+            }
+
+            @Override
+            public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
+                // Pop-unders open new windows without a tap; drop those outright. For a tapped
+                // link that wants a new window, peek at its URL and open it in place if it is content.
+                if (!isUserGesture) return false;
+                final WebView parent = view;
+                WebView probe = new WebView(view.getContext());
+                probe.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest request) {
+                        Uri uri = request.getUrl();
+                        if (isContentDomain(uri) && !AdBlocker.isBlocked(uri)) parent.loadUrl(uri.toString());
+                        v.destroy();
+                        return true;
+                    }
+                });
+                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+                transport.setWebView(probe);
+                resultMsg.sendToTarget();
+                return true;
             }
 
             @Override
@@ -183,37 +194,246 @@ public class MainActivity extends Activity {
         return web;
     }
 
-    /** Web links stay inside the app; anything else (intent:, tel:, whatsapp:, …) opens externally. */
-    private boolean handleUrl(Uri uri) {
-        String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
-        if (scheme.equals("http") || scheme.equals("https") || scheme.equals("about")
-                || scheme.equals("data") || scheme.equals("blob") || scheme.equals("javascript")) {
+    @SuppressLint("SetJavaScriptEnabled")
+    static void configure(WebView web) {
+        WebSettings s = web.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setDatabaseEnabled(true);
+        s.setMediaPlaybackRequiresUserGesture(false);
+        s.setLoadWithOverviewMode(true);
+        s.setUseWideViewPort(true);
+        s.setBuiltInZoomControls(false);
+        s.setJavaScriptCanOpenWindowsAutomatically(false);
+        s.setSupportMultipleWindows(true);
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+
+        CookieManager cookies = CookieManager.getInstance();
+        cookies.setAcceptCookie(true);
+        cookies.setAcceptThirdPartyCookies(web, true);
+    }
+
+    /** Ad blocking + redirect rules shared by every WebView in the app. */
+    static class BlockingClient extends WebViewClient {
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            return AdBlocker.isBlocked(request.getUrl()) ? AdBlocker.emptyResponse() : null;
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            return handleNavigation(view, request.getUrl(), request.hasGesture());
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            view.evaluateJavascript(AdBlocker.HIDE_AD_SLOTS_JS, null);
+        }
+    }
+
+    /**
+     * Returns true when the navigation is handled here (blocked or sent to another app).
+     * Ad hosts and app/intent redirects (the ones that used to throw the user into Chrome)
+     * are blocked; only a few chat/store links the user tapped open outside the app.
+     */
+    static boolean handleNavigation(WebView view, Uri uri, boolean userTapped) {
+        String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
+        if (scheme.equals("http") || scheme.equals("https")) {
+            if (AdBlocker.isBlocked(uri)) return true;
+            if (isExternalAppLink(uri) && userTapped) {
+                openExternally(view, uri);
+                return true;
+            }
             return false;
         }
-        try {
-            Intent intent = scheme.equals("intent")
-                    ? Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME)
-                    : new Intent(Intent.ACTION_VIEW, uri);
-            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-            intent.setComponent(null);
-            startActivity(intent);
-        } catch (ActivityNotFoundException | java.net.URISyntaxException e) {
-            Toast.makeText(this, "Is link ke liye koi app nahi mili", Toast.LENGTH_SHORT).show();
+        if (scheme.equals("about") || scheme.equals("data") || scheme.equals("blob")
+                || scheme.equals("javascript") || scheme.equals("file")) {
+            return false;
         }
+        if (userTapped && (scheme.equals("tg") || scheme.equals("whatsapp") || scheme.equals("mailto")
+                || scheme.equals("tel"))) {
+            openExternally(view, uri);
+        }
+        // intent:, market:, googlechrome: and the rest are ad redirects: swallow them.
         return true;
     }
 
-    private void showOfflinePage(WebView view, int index) {
+    private static boolean isExternalAppLink(Uri uri) {
+        String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
+        return host.equals("t.me") || host.equals("telegram.me") || host.endsWith("whatsapp.com")
+                || host.endsWith("instagram.com") || host.endsWith("facebook.com")
+                || host.endsWith("youtube.com") || host.equals("youtu.be");
+    }
+
+    private static void openExternally(WebView view, Uri uri) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            view.getContext().startActivity(intent);
+        } catch (ActivityNotFoundException ignored) {
+            // Nothing installed to handle it; stay put.
+        }
+    }
+
+    private static boolean isContentDomain(Uri uri) {
+        String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
+        for (String d : CONTENT_DOMAINS) {
+            if (host.equals(d) || host.endsWith("." + d)) return true;
+        }
+        return false;
+    }
+
+    private boolean isShowing(WebView view) {
+        if (player.getVisibility() == View.VISIBLE) return view == playerView;
+        return view == tabViews[current];
+    }
+
+    private void showOfflinePage(WebView view, String failedUrl) {
+        if (failedUrl.startsWith("file:")) return;
         String html = "<html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head>"
                 + "<body style='margin:0;height:100vh;display:flex;align-items:center;justify-content:center;"
                 + "background:#0D0F15;color:#E8EDF2;font-family:sans-serif;text-align:center'>"
                 + "<div><div style='font-size:48px'>&#128225;</div>"
                 + "<h3>Internet connection check karein</h3>"
-                + "<p style='color:#8A93A6'>" + TITLES[index] + " load nahi ho paya.</p>"
-                + "<a href='" + URLS[index] + "' style='display:inline-block;margin-top:12px;padding:12px 28px;"
-                + "background:#00E5FF;color:#0D0F15;border-radius:24px;text-decoration:none;font-weight:bold'>"
-                + "Dobara try karein</a></div></body></html>";
-        view.loadDataWithBaseURL(URLS[index], html, "text/html", "UTF-8", URLS[index]);
+                + "<p style='color:#8A93A6'>Page load nahi ho paya.</p>"
+                + "<a href='" + TextUtils.htmlEncode(failedUrl) + "' style='display:inline-block;margin-top:12px;"
+                + "padding:12px 28px;background:#00E5FF;color:#0D0F15;border-radius:24px;text-decoration:none;"
+                + "font-weight:bold'>Dobara try karein</a></div></body></html>";
+        view.loadDataWithBaseURL(failedUrl, html, "text/html", "UTF-8", failedUrl);
+    }
+
+    // ------------------------------------------------------------------ Home bridge + catalog
+
+    /** Exposed to the local Home page only (file:///android_asset/home.html). */
+    private class HomeBridge {
+        @JavascriptInterface
+        public void open(final String url, final String title) {
+            final Uri uri = Uri.parse(url);
+            if (!"https".equals(uri.getScheme()) && !"http".equals(uri.getScheme())) return;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    openPlayer(url, title);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public String getCatalog() {
+            return catalog.cachedJson();
+        }
+
+        @JavascriptInterface
+        public void refresh() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    catalog.refresh();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onCatalogChanged(String json) {
+        tabViews[0].evaluateJavascript("window.onCatalog && window.onCatalog(" + quote(json) + ")", null);
+    }
+
+    @Override
+    public void onCatalogLoading(boolean loading) {
+        tabViews[0].evaluateJavascript("window.onCatalogStatus && window.onCatalogStatus(" + loading + ")", null);
+    }
+
+    private static String quote(String s) {
+        return org.json.JSONObject.quote(s);
+    }
+
+    // ------------------------------------------------------------------ Player screen
+
+    private LinearLayout createPlayer() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setBackgroundColor(COLOR_BG);
+
+        LinearLayout bar = new LinearLayout(this);
+        bar.setBackgroundColor(COLOR_BAR);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView back = new TextView(this);
+        back.setText("←");
+        back.setTextSize(24);
+        back.setTextColor(COLOR_ACTIVE);
+        back.setGravity(Gravity.CENTER);
+        back.setContentDescription("Back");
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closePlayer();
+            }
+        });
+        bar.addView(back, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
+
+        playerTitle = new TextView(this);
+        playerTitle.setTextColor(Color.WHITE);
+        playerTitle.setTextSize(16);
+        playerTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        playerTitle.setSingleLine(true);
+        playerTitle.setEllipsize(TextUtils.TruncateAt.END);
+        bar.addView(playerTitle, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView reload = new TextView(this);
+        reload.setText("↻");
+        reload.setTextSize(22);
+        reload.setTextColor(COLOR_IDLE);
+        reload.setGravity(Gravity.CENTER);
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playerView.reload();
+            }
+        });
+        bar.addView(reload, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
+
+        box.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52)));
+        playerView = createWebView(true);
+        box.addView(playerView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        return box;
+    }
+
+    private void openPlayer(String url, String title) {
+        playerTitle.setText(title);
+        playerView.clearHistory();
+        playerView.loadUrl(url);
+        player.setVisibility(View.VISIBLE);
+        chrome.setVisibility(View.GONE);
+    }
+
+    /** The player's history can start with the about:blank left by the previous closePlayer(). */
+    private boolean playerCanGoBack() {
+        android.webkit.WebBackForwardList list = playerView.copyBackForwardList();
+        int prev = list.getCurrentIndex() - 1;
+        return prev >= 0 && !"about:blank".equals(list.getItemAtIndex(prev).getUrl());
+    }
+
+    private void closePlayer() {
+        playerView.stopLoading();
+        playerView.loadUrl("about:blank");
+        player.setVisibility(View.GONE);
+        chrome.setVisibility(View.VISIBLE);
+    }
+
+    // ------------------------------------------------------------------ Tabs
+
+    private ProgressBar createProgressBar() {
+        ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        bar.setMax(100);
+        ClipDrawable fill = new ClipDrawable(new ColorDrawable(COLOR_ACTIVE), Gravity.START, ClipDrawable.HORIZONTAL);
+        LayerDrawable layers = new LayerDrawable(new Drawable[]{new ColorDrawable(COLOR_BG), fill});
+        layers.setId(0, android.R.id.background);
+        layers.setId(1, android.R.id.progress);
+        bar.setProgressDrawable(layers);
+        return bar;
     }
 
     private LinearLayout createTabBar() {
@@ -226,13 +446,13 @@ public class MainActivity extends Activity {
             TextView tab = new TextView(this);
             tab.setText(TITLES[i]);
             tab.setGravity(Gravity.CENTER);
-            tab.setTextSize(15);
+            tab.setTextSize(14);
             tab.setTypeface(Typeface.DEFAULT_BOLD);
             tab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (index == current) {
-                        webViews[index].loadUrl(URLS[index]); // tap active tab again = go to its home page
+                    if (index == current && index != 0) {
+                        tabViews[index].loadUrl(URLS[index]); // tap active tab again = go to its home page
                     } else {
                         selectTab(index);
                     }
@@ -251,24 +471,26 @@ public class MainActivity extends Activity {
         reload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                webViews[current].reload();
+                tabViews[current].reload();
             }
         });
-        bar.addView(reload, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
+        bar.addView(reload, new LinearLayout.LayoutParams(dp(48), ViewGroup.LayoutParams.MATCH_PARENT));
         return bar;
     }
 
     private void selectTab(int index) {
         current = index;
-        for (int i = 0; i < webViews.length; i++) {
+        for (int i = 0; i < tabViews.length; i++) {
             boolean active = i == index;
-            webViews[i].setVisibility(active ? View.VISIBLE : View.GONE);
+            tabViews[i].setVisibility(active ? View.VISIBLE : View.GONE);
             tabs[i].setTextColor(active ? COLOR_ACTIVE : COLOR_IDLE);
         }
-        int p = webViews[index].getProgress();
+        int p = tabViews[index].getProgress();
         progress.setProgress(p);
         progress.setVisibility(p < 100 ? View.VISIBLE : View.GONE);
     }
+
+    // ------------------------------------------------------------------ Fullscreen video
 
     private void enterFullscreen(View view, WebChromeClient.CustomViewCallback callback) {
         if (customView != null) {
@@ -279,9 +501,7 @@ public class MainActivity extends Activity {
         customViewCallback = callback;
         savedOrientation = getRequestedOrientation();
 
-        chrome.setVisibility(View.GONE);
-        root.addView(view, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        root.addView(view, matchParent());
         setSystemBarsHidden(true);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -294,16 +514,15 @@ public class MainActivity extends Activity {
         if (customViewCallback != null) customViewCallback.onCustomViewHidden();
         customViewCallback = null;
 
-        chrome.setVisibility(View.VISIBLE);
         setSystemBarsHidden(false);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(savedOrientation);
     }
 
     @SuppressWarnings("deprecation")
-    private void setSystemBarsHidden(boolean on) {
+    private void setSystemBarsHidden(boolean hidden) {
         View decor = getWindow().getDecorView();
-        if (on) {
+        if (hidden) {
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -315,13 +534,17 @@ public class MainActivity extends Activity {
         }
     }
 
+    // ------------------------------------------------------------------ Lifecycle
+
     @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (customView != null) {
             exitFullscreen();
-        } else if (webViews[current].canGoBack()) {
-            webViews[current].goBack();
+        } else if (player.getVisibility() == View.VISIBLE) {
+            if (playerCanGoBack()) playerView.goBack(); else closePlayer();
+        } else if (tabViews[current].canGoBack()) {
+            tabViews[current].goBack();
         } else if (current != 0) {
             selectTab(0);
         } else {
@@ -333,9 +556,9 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("current", current);
-        for (int i = 0; i < webViews.length; i++) {
+        for (int i = 1; i < tabViews.length; i++) {
             Bundle state = new Bundle();
-            webViews[i].saveState(state);
+            tabViews[i].saveState(state);
             outState.putBundle("web" + i, state);
         }
     }
@@ -343,25 +566,28 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        for (WebView w : webViews) w.onPause();
+        for (WebView w : tabViews) w.onPause();
+        playerView.onPause();
         CookieManager.getInstance().flush();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        for (WebView w : webViews) w.onResume();
+        for (WebView w : tabViews) w.onResume();
+        playerView.onResume();
     }
 
     @Override
     protected void onDestroy() {
-        for (WebView w : webViews) {
-            if (w != null) {
-                w.stopLoading();
-                w.destroy();
-            }
-        }
+        catalog.cancel();
+        for (WebView w : tabViews) w.destroy();
+        playerView.destroy();
         super.onDestroy();
+    }
+
+    private FrameLayout.LayoutParams matchParent() {
+        return new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     private int dp(int value) {

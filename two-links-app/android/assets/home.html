@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>My Live TV</title>
+<style>
+  :root {
+    --bg: #0d0f15; --card: #171a23; --card2: #1f2330; --text: #e8edf2; --muted: #8a93a6;
+    --accent: #00e5ff; --accent2: #ff2fb9; --live: #ff3b4e;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { padding-bottom: 24px; }
+
+  header { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 16px 8px; }
+  .top { display: flex; align-items: center; gap: 10px; }
+  h1 { font-size: 20px; margin: 0; flex: 1; letter-spacing: .2px; }
+  h1 span { color: var(--accent); }
+  .icon-btn { border: 0; background: var(--card); color: var(--text); width: 38px; height: 38px;
+    border-radius: 12px; font-size: 18px; }
+  .search { margin-top: 10px; display: flex; align-items: center; gap: 8px; background: var(--card);
+    border-radius: 14px; padding: 0 12px; }
+  .search input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--text);
+    font-size: 15px; padding: 11px 0; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; border: 1px solid #2a3040; background: var(--card); color: var(--muted);
+    padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #0d0f15; }
+  .chips.small .chip { padding: 5px 11px; font-size: 12px; }
+  .chips.small .chip.on { background: transparent; color: var(--accent); border-color: var(--accent); }
+
+  section { margin-top: 14px; }
+  .sec-title { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px; }
+  .sec-title h2 { font-size: 16px; margin: 0; }
+  .sec-title small { color: var(--muted); }
+  .row { display: flex; gap: 10px; overflow-x: auto; padding: 10px 16px 2px; scrollbar-width: none; }
+  .row::-webkit-scrollbar { display: none; }
+  .row .tile { width: 112px; flex: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; padding: 10px 16px; }
+
+  .tile { background: var(--card); border-radius: 14px; padding: 10px 8px; text-align: center;
+    position: relative; overflow: hidden; }
+  .tile:active { transform: scale(.97); background: var(--card2); }
+  .logo { width: 64px; height: 64px; margin: 4px auto 8px; border-radius: 12px; background: #fff1;
+    display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .logo b { font-size: 20px; color: #fff; }
+  .name { font-size: 12.5px; font-weight: 600; line-height: 1.25; height: 2.5em; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .meta { font-size: 10.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; }
+  .src { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 700; padding: 1px 5px;
+    border-radius: 6px; background: #0008; color: var(--accent); }
+
+  .event { width: 220px !important; text-align: left; padding: 14px;
+    background: linear-gradient(135deg, #2a0f2a, #0f2330); }
+  .event .live { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
+    color: var(--live); }
+  .event .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--live); }
+  .event h3 { margin: 6px 0 2px; font-size: 15px; }
+  .event p { margin: 0; color: var(--muted); font-size: 12px; }
+
+  .state { text-align: center; color: var(--muted); padding: 40px 24px; }
+  .state .spin { width: 34px; height: 34px; border: 3px solid #2a3040; border-top-color: var(--accent);
+    border-radius: 50%; margin: 0 auto 14px; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .more { display: block; margin: 6px auto 0; border: 0; background: var(--card); color: var(--accent);
+    padding: 10px 22px; border-radius: 20px; font-weight: 700; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>My <span>Live TV</span></h1>
+    <button class="icon-btn" id="refresh" title="Channel list refresh karein">&#x21bb;</button>
+  </div>
+  <label class="search">
+    <span>&#128269;</span>
+    <input id="q" type="search" placeholder="Channel search karein…" autocomplete="off">
+  </label>
+</header>
+
+<div class="chips" id="cats"></div>
+<div class="chips small" id="srcs"></div>
+
+<div id="home">
+  <section id="sec-continue" class="hidden">
+    <div class="sec-title"><h2>&#9654;&#65039; Continue Watching</h2></div>
+    <div class="row" id="row-continue"></div>
+  </section>
+  <section id="sec-rec">
+    <div class="sec-title"><h2>&#11088; Recommended for you</h2><small id="rec-why"></small></div>
+    <div class="row" id="row-rec"></div>
+  </section>
+  <section id="sec-events">
+    <div class="sec-title"><h2>&#127942; Live Sports &amp; Matches</h2></div>
+    <div class="row" id="row-events"></div>
+  </section>
+</div>
+
+<section>
+  <div class="sec-title"><h2 id="list-title">Sab Channels</h2><small id="count"></small></div>
+  <div class="grid" id="grid"></div>
+  <div class="state hidden" id="state"></div>
+  <button class="more hidden" id="more">Aur dikhayein</button>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  var CATEGORIES = ['All', 'Sports', 'News', 'Movies', 'Entertainment', 'Music', 'Kids',
+                    'Devotional', 'Infotainment', 'Business', 'Regional', 'Others'];
+  var SOURCES = { jtv: 'JioTV+', sony: 'SonyLiv', sf: 'StreamFlex' };
+  var EVENTS = [
+    { n: 'SonyLiv Live Events', d: 'Cricket, Football — live & upcoming', u: 'https://allinonereborn2.online/events/' },
+    { n: 'FanCode Matches', d: 'Cricket & Football matches', u: 'https://allinonereborn2.online/fcw/' },
+    { n: 'Allinone Sports', d: 'Saare sports, live matches', u: 'https://allinone-sports.pages.dev/' }
+  ];
+  var POPULAR = ['sony ten 1 hd', 'sony hd', 'aaj tak', 'star gold hd', 'colors hd', 'sony max hd',
+                 'dd sports', 'sab hd', 'zee cinema hd', 'abp news', 'sony ten 3 hd', 'b4u movies',
+                 'mtv', 'discovery', 'cartoon network', 'india tv', 'zee tv hd', 'sony pix hd'];
+  var LANGUAGES = ['tamil', 'telugu', 'malayalam', 'malyalam', 'bengali', 'punjabi', 'gujarati', 'kannada',
+                   'marathi', 'assamese', 'odia', 'urdu', 'bhojpuri', 'nepali', 'french'];
+  var PAGE = 60;
+
+  var all = [];          // every channel from every source
+  var byKey = {};
+  var cat = 'All', src = 'all', query = '', shown = PAGE;
+
+  // ---------- category mapping ----------
+  function has(re, s) { return re.test(s); }
+  function categorize(name, raw) {
+    var n = name.toLowerCase(), r = (raw || '').toLowerCase();
+    if (has(/sport|\bten ?\d|cricket|eurosport|\bwwe\b|football|\bt20\b|\bsports18\b/, n) || r === 'sports') return 'Sports';
+    if (r.indexOf('business') >= 0 || has(/cnbc|\bet now\b|business|ndtv profit|bloomberg|awaaz/, n)) return 'Business';
+    if (r === 'news' || has(/news|aaj tak|\btak\b|ndtv|times now|republic|\bcnn\b|al ?jazeera|\bdw\b|sansad|\babp\b|india tv|\btv9\b|wion|\bibc\b|zee 24|\bntv\b|polimer|sakshi|\babn\b|mirror now|india today|\brt\b|nhk world|firstpost|headlines|samachar|tv5 monde|\botv\b|france 24|khabar|soochna|24x7|\bbbc\b|euronews/, n)) return 'News';
+    if (r === 'kids' || has(/kids|cartoon|pogo|\bnick|disney|hungama|\byay\b|chotu|baby ?tv|sonic|cbeebies|animax|hoopla|hi dost|toons/, n)) return 'Kids';
+    if (r === 'movies' || has(/movie|cinema|\bpix\b|\bmax\b|max ?2|\bgold\b|talkies|filmy|cineplex|\bflix|\bhits\b|romedy|lionsgate|\bhbo\b|\bpictures\b/, n)) return 'Movies';
+    if (r === 'music' || has(/music|\bmtv\b|\b9x|zing|\be24\b|mastiii|\btunes|bajao|ramdhenu|concerts|djazz/, n)) return 'Music';
+    if (r === 'devotional' || has(/aastha|sanskar|bhakti|satsang|ishwar|\bparas\b|disha tv|sadhna tv|shubh|jinvani|shalom|peace tv|madani|subhavaartha|nambikkai|shraddha|vedic|darshan|gurbani|dharma|god tv|sharnam|prarthana|angel tv|bhakthi|vani|sandesh|mandir|sadhguru|jagannath|\bom tv\b|grace tv/, n)) return 'Devotional';
+    if (['infotainment', 'lifestyle', 'education', 'educational'].indexOf(r) >= 0 ||
+        has(/discovery|history|nat ?geo|national geographic|animal planet|travel|\bfood|\btlc\b|\bfyi\b|earth|\bepic\b|curiosity|gyan|vidya|kisan|good times|living|swayam prabha|science|brainiacs|\bftv\b|fashion|luxe/, n)) return 'Infotainment';
+    if (LANGUAGES.indexOf(r) >= 0 || has(/^dd (?!national|india|news|sports|kisan|bharati)/, n)) return 'Regional';
+    if (r === 'entertainment' || r === 'dd channels' || has(/colors|zee tv|star plus|\bsab\b|^sony (hd|pal|aath|wah)|\b&tv|and tv|rishtey|dangal|bharati|dd national|zee cafe|comedy central|star bharat|\brang\b|mazhavil|flower/, n)) return 'Entertainment';
+    return 'Others';
+  }
+
+  // ---------- storage (watch history) ----------
+  function load(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function keyOf(ch) { return ch.s + '|' + ch.n.toLowerCase(); }
+
+  function recordWatch(ch) {
+    var hist = load('ml_hist', []).filter(function (k) { return k !== ch.k; });
+    hist.unshift(ch.k);
+    save('ml_hist', hist.slice(0, 30));
+    var counts = load('ml_cat', {});
+    counts[ch.c] = (counts[ch.c] || 0) + 1;
+    save('ml_cat', counts);
+  }
+
+  // ---------- data ----------
+  function setCatalog(map) {
+    all = []; byKey = {};
+    Object.keys(SOURCES).forEach(function (s) {
+      var entry = map[s];
+      if (!entry || !entry.items) return;
+      entry.items.forEach(function (it) {
+        if (/^test\d*\b/i.test(it.n)) return;
+        var ch = { s: s, n: it.n, l: it.l, u: it.u, raw: it.c, c: categorize(it.n, it.c) };
+        ch.k = keyOf(ch);
+        if (byKey[ch.k]) return;
+        byKey[ch.k] = ch;
+        all.push(ch);
+      });
+    });
+    render();
+  }
+
+  window.onCatalog = function (json) {
+    try { setCatalog(JSON.parse(json)); } catch (e) {}
+  };
+  window.onCatalogStatus = function (loading) {
+    document.getElementById('refresh').style.opacity = loading ? .4 : 1;
+    if (!all.length) renderState(loading);
+  };
+
+  function open(ch) {
+    recordWatch(ch);
+    App.open(ch.u, ch.n);
+    setTimeout(render, 300);
+  }
+
+  // ---------- rendering ----------
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  var COLORS = ['#e53935', '#8e24aa', '#3949ab', '#00897b', '#f4511e', '#6d4c41', '#1e88e5', '#c0ca33'];
+  function initials(n) {
+    var parts = n.replace(/[^A-Za-z0-9 ]/g, '').split(' ').filter(Boolean);
+    return ((parts[0] || '?')[0] + ((parts[1] || '')[0] || '')).toUpperCase();
+  }
+  function tile(ch) {
+    var t = el('div', 'tile');
+    var color = COLORS[ch.n.length % COLORS.length];
+    var logo = ch.l
+      ? '<img loading="lazy" src="' + esc(ch.l) + '" onerror="this.parentNode.innerHTML=\'<b>' + esc(initials(ch.n)) + '</b>\'">'
+      : '<b>' + esc(initials(ch.n)) + '</b>';
+    t.innerHTML = '<span class="src">' + SOURCES[ch.s] + '</span>' +
+      '<div class="logo" style="' + (ch.l ? '' : 'background:' + color) + '">' + logo + '</div>' +
+      '<div class="name">' + esc(ch.n) + '</div><div class="meta">' + esc(ch.c) + '</div>';
+    t.onclick = function () { open(ch); };
+    return t;
+  }
+
+  function filtered() {
+    var q = query.toLowerCase();
+    return all.filter(function (ch) {
+      return (cat === 'All' || ch.c === cat) && (src === 'all' || ch.s === src) &&
+             (!q || ch.n.toLowerCase().indexOf(q) >= 0 || (ch.raw || '').toLowerCase().indexOf(q) >= 0);
+    });
+  }
+
+  function hdFirst(a, b) {
+    return (/\bhd\b/i.test(b.n) - /\bhd\b/i.test(a.n)) || (!!b.l - !!a.l);
+  }
+
+  function recommendations() {
+    var hist = load('ml_hist', []);
+    var counts = load('ml_cat', {});
+    var recent = {};
+    hist.slice(0, 6).forEach(function (k) { recent[k] = 1; });
+    var topCats = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 3);
+    var picks = [], seen = {};
+    function add(ch) {
+      var name = ch.n.toLowerCase().replace(/\s+/g, ' ');
+      if (recent[ch.k] || seen[name] || picks.length >= 16) return;
+      seen[name] = 1; picks.push(ch);
+    }
+    if (topCats.length) {
+      topCats.forEach(function (c) {
+        all.filter(function (ch) { return ch.c === c; }).sort(hdFirst).slice(0, 7).forEach(add);
+      });
+    }
+    POPULAR.forEach(function (p) {
+      for (var i = 0; i < all.length; i++) if (all[i].n.toLowerCase() === p) { add(all[i]); break; }
+    });
+    all.filter(function (ch) { return ch.c === 'Sports'; }).sort(hdFirst).slice(0, 6).forEach(add);
+    return { items: picks, why: topCats.length ? 'Aapki pasand: ' + topCats.join(', ') : 'Popular channels' };
+  }
+
+  function fillRow(id, items) {
+    var row = document.getElementById(id);
+    row.innerHTML = '';
+    items.forEach(function (ch) { row.appendChild(tile(ch)); });
+  }
+
+  function renderHome() {
+    var homeVisible = cat === 'All' && src === 'all' && !query && all.length > 0;
+    document.getElementById('home').classList.toggle('hidden', !homeVisible);
+    if (!homeVisible) return;
+
+    var cont = load('ml_hist', []).map(function (k) { return byKey[k]; }).filter(Boolean).slice(0, 10);
+    document.getElementById('sec-continue').classList.toggle('hidden', !cont.length);
+    fillRow('row-continue', cont);
+
+    var rec = recommendations();
+    document.getElementById('rec-why').textContent = rec.why;
+    fillRow('row-rec', rec.items);
+  }
+
+  function renderEvents() {
+    var row = document.getElementById('row-events');
+    row.innerHTML = '';
+    EVENTS.forEach(function (ev) {
+      var t = el('div', 'tile event',
+        '<span class="live"><i></i>LIVE</span><h3>' + esc(ev.n) + '</h3><p>' + esc(ev.d) + '</p>');
+      t.onclick = function () { App.open(ev.u, ev.n); };
+      row.appendChild(t);
+    });
+  }
+
+  function renderState(loading) {
+    var st = document.getElementById('state');
+    st.classList.remove('hidden');
+    st.innerHTML = loading
+      ? '<div class="spin"></div>Dono sites se channels laaye ja rahe hain…<br><small>Pehli baar 20–30 second lag sakte hain</small>'
+      : 'Channels load nahi ho paaye. Internet check karke &#x21bb; dabaayein.';
+  }
+
+  function renderList() {
+    var list = filtered();
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    list.slice(0, shown).forEach(function (ch) { grid.appendChild(tile(ch)); });
+    document.getElementById('list-title').textContent =
+      query ? 'Search: "' + query + '"' : (cat === 'All' ? 'Sab Channels' : cat);
+    document.getElementById('count').textContent = all.length ? list.length + ' channels' : '';
+    document.getElementById('more').classList.toggle('hidden', list.length <= shown);
+    var st = document.getElementById('state');
+    if (!all.length) return renderState(true);
+    st.classList.toggle('hidden', list.length > 0);
+    if (!list.length) st.innerHTML = 'Is filter mein koi channel nahi mila.';
+  }
+
+  function renderChips() {
+    var counts = {};
+    all.forEach(function (ch) { counts[ch.c] = (counts[ch.c] || 0) + 1; });
+    var box = document.getElementById('cats');
+    box.innerHTML = '';
+    CATEGORIES.forEach(function (c) {
+      if (c !== 'All' && all.length && !counts[c]) return;
+      var b = el('button', 'chip' + (c === cat ? ' on' : ''), esc(c) + (c !== 'All' && counts[c] ? ' · ' + counts[c] : ''));
+      b.onclick = function () { cat = c; shown = PAGE; render(); window.scrollTo(0, 0); };
+      box.appendChild(b);
+    });
+    var sbox = document.getElementById('srcs');
+    sbox.innerHTML = '';
+    [['all', 'Sab sources']].concat(Object.keys(SOURCES).map(function (s) { return [s, SOURCES[s]]; }))
+      .forEach(function (p) {
+        var b = el('button', 'chip' + (p[0] === src ? ' on' : ''), esc(p[1]));
+        b.onclick = function () { src = p[0]; shown = PAGE; render(); };
+        sbox.appendChild(b);
+      });
+  }
+
+  function render() { renderChips(); renderHome(); renderList(); }
+
+  // ---------- wiring ----------
+  var qInput = document.getElementById('q'), timer;
+  qInput.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () { query = qInput.value.trim(); shown = PAGE; render(); }, 200);
+  });
+  document.getElementById('more').onclick = function () { shown += PAGE; renderList(); };
+  document.getElementById('refresh').onclick = function () { App.refresh(); };
+
+  renderEvents();
+  render();
+  try { window.onCatalog(App.getCatalog()); } catch (e) {}
+})();
+</script>
+</body>
+</html>

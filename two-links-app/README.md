@@ -18,15 +18,28 @@ Ek simple Android app jisme do websites do tabs mein khulti hain:
 
 Requirement: Android 5.0 ya usse naya.
 
-## App ke features
+## App ke features (v2.0)
 
-- Neeche 2 tabs: dono websites alag-alag chalti rehti hain, tab badalne par page reload nahi hota.
-- Active tab par dobara tap = us website ka home page.
-- ↻ button = current page reload.
-- Video fullscreen karne par phone apne aap landscape mein ghoomega, screen on rahegi.
-- Back button: pehle fullscreen band, phir pichla page, phir pehla tab, phir app band.
-- Internet na ho to "Dobara try karein" wala page dikhta hai.
-- WhatsApp / Telegram / Play Store jaise links unki apni app mein khulte hain.
+**Home tab (naya)**
+- Dono links ke saare channels ek jagah: JioTV+ aur SonyLiv (Live TV Hub se), aur StreamFlex. Lagbhag 2,000+ channels.
+- **Categories:** Sports, News, Movies, Entertainment, Music, Kids, Devotional, Infotainment, Business, Regional. Category chuniye, to dono sites ke us category ke channels aa jaayenge.
+- **Source filter:** sirf JioTV+, sirf SonyLiv ya sirf StreamFlex ke channels.
+- **Search:** naam se channel dhoondhein.
+- **Recommended for you:** jo aap dekhte hain uski category ke hisaab se channels suggest hote hain. Shuru mein popular channels dikhte hain.
+- **Continue Watching:** haal mein dekhe gaye channels.
+- **Live Sports & Matches:** SonyLiv Events, FanCode aur Allinone Sports ke shortcuts.
+- Channel par tap karte hi uska player seedha app ke andar khulta hai.
+
+**Ad-blocker**
+- Pop-up / pop-under ad networks (jinki wajah se Chrome khul jaata tha) aur Google ads block hote hain.
+- `intent://` aur app-redirect wale ad links block hote hain, isliye ab Chrome nahi khulega.
+- Bina tap ke khulne wali nayi windows band; tap karke khulne wale links sirf jaane-pehchane content domains par chalte hain.
+
+**Baaki**
+- "Live TV Hub" aur "StreamFlex TV" tabs pehle jaise poori website dikhate hain (ab ad-block ke saath).
+- Video fullscreen karne par phone apne aap landscape ho jaata hai aur screen on rehti hai.
+- Back button: fullscreen band → pichla page → player band → Home.
+- Home par ↻ dabane se channel list dobara laayi jaati hai. List cache hoti hai, isliye agli baar turant khulti hai.
 
 ## iPhone (iOS) par
 
@@ -49,7 +62,12 @@ ANDROID_HOME=/path/to/android-sdk ./build.sh
 # Output: android/build/MyLiveTV.apk
 ```
 
-Links ya tab ke naam badalne ke liye `android/src/com/mukul/mylivetv/MainActivity.java` mein `TITLES` aur `URLS` edit karein.
+Kaun si files kya karti hain:
+- `MainActivity.java`: tabs, player screen, fullscreen, pop-up/redirect rules
+- `AdBlocker.java`: block kiye gaye ad domains ki list
+- `CatalogLoader.java`: channel lists chupke se (hidden WebView mein) load karta hai
+- `assets/extract.js`: har site se channel ka naam, category, logo aur player link padhta hai
+- `assets/home.html`: Home screen (categories, recommendations, search)
 App ka naam `android/res/values/strings.xml` mein hai.
 
 > Note: `build.sh` pehli baar `~/.android/mylivetv.keystore` banata hai. Kisi doosre computer par build ki gayi APK alag key se sign hogi, isliye update se pehle purani app uninstall karni padegi.
