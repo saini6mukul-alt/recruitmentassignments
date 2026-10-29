@@ -70,7 +70,13 @@
     current = el;
     if (!el) return;
     el.classList.add(FOCUS_CLASS);
-    try { el.focus({ preventScroll: true }); } catch (e) {}
+    var tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+      // Just passing over a text box must not pop up the TV keyboard; OK opens it.
+      if (document.activeElement && document.activeElement !== el) document.activeElement.blur();
+    } else {
+      try { el.focus({ preventScroll: true }); } catch (e) {}
+    }
     el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }
 
@@ -100,6 +106,7 @@
       var main, side;
       if (dir === 'down') { main = c.r.top - from.bottom + 1; side = Math.abs(cx - fx); if (cy <= fy) return; }
       else if (dir === 'up') { main = from.top - c.r.bottom + 1; side = Math.abs(cx - fx); if (cy >= fy) return; }
+      else if (c.r.bottom <= from.top || c.r.top >= from.bottom) return; // left/right stays on the same row
       else if (dir === 'right') { main = c.r.left - from.right + 1; side = Math.abs(cy - fy); if (cx <= fx) return; }
       else { main = from.left - c.r.right + 1; side = Math.abs(cy - fy); if (cx >= fx) return; }
       var score = Math.max(main, 0) + side * 2.5;
@@ -122,6 +129,13 @@
     current.click();
   }
 
+  function atEdge(input, dir) {
+    try {
+      if (input.selectionStart !== input.selectionEnd) return false;
+      return dir === 'left' ? input.selectionStart === 0 : input.selectionEnd === input.value.length;
+    } catch (e) { return true; } // inputs without a caret (e.g. checkboxes)
+  }
+
   var KEYS = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
   document.addEventListener('keydown', function (e) {
     if (document.fullscreenElement || document.webkitFullscreenElement) return; // let the player use the keys
@@ -129,7 +143,8 @@
     var typing = current && (current.tagName === 'INPUT' || current.tagName === 'TEXTAREA') &&
                  document.activeElement === current;
     if (dir) {
-      if (typing && (dir === 'left' || dir === 'right')) return; // move the text cursor
+      if (typing && (dir === 'left' || dir === 'right') && !atEdge(current, dir)) return; // move the text cursor
+      if (typing) current.blur();
       e.preventDefault();
       e.stopPropagation();
       if (!move(dir) && window.MLTv) MLTv.focusTabs();
@@ -140,7 +155,7 @@
     }
   }, true);
 
-  window.__mlNav = { first: first, focusIn: function () {
+  window.__mlNav = { first: first, select: setCurrent, focusIn: function () {
     if (current && document.contains(current) && visible(current)) setCurrent(current); else first();
   }, togglePlay: function () {
     var v = document.querySelector('video');

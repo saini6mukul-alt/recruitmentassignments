@@ -24,7 +24,7 @@ Requirement: Android 5.0 ya usse naya.
 - Dono links ke saare channels ek jagah: JioTV+ aur SonyLiv (Live TV Hub se), aur StreamFlex. Lagbhag 2,000+ channels.
 - **Categories:** Sports, News, Movies, Entertainment, Music, Kids, Devotional, Infotainment, Business, Regional. Category chuniye, to dono sites ke us category ke channels aa jaayenge.
 - **Source filter:** sirf JioTV+, sirf SonyLiv ya sirf StreamFlex ke channels.
-- **Search:** naam se channel dhoondhein.
+- **Search:** right-top corner mein; naam se channel dhoondhein.
 - **Recommended for you:** jo aap dekhte hain uski category ke hisaab se channels suggest hote hain. Shuru mein popular channels dikhte hain.
 - **Continue Watching:** haal mein dekhe gaye channels.
 - **Live Sports & Matches:** SonyLiv Events, FanCode aur Allinone Sports ke shortcuts.
@@ -49,6 +49,7 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 - **↑ ↓ ← →**: channels, buttons aur tabs ke beech ghoomein. Jo chuna hua hai uske chaaron taraf neela border dikhta hai.
 - **OK / Select**: chuna hua channel ya button kholein.
 - **Page ke sabse upar ↑ dabaayein**: upar wale tabs (Home, Live TV Hub, StreamFlex TV) par pahunch jaayenge. Wahan se **↓** dabaane par wapas page par.
+- **Search**: Home screen ke **right-top corner** mein hai. Page ke upar jaakar **→** dabaayein, phir **OK** se TV keyboard khulega. Remote ka **Search / 🎤 button** dabaane par seedha search box khul jaata hai. Likhne ke baad **↓** se results par jaayein.
 - **Back**: fullscreen band → pichla page → player band → Home.
 - **Play/Pause button** (ya fullscreen mein OK): video roko ya chalaao.
 - Website par koi pop-up box khule (jaise "Only India Stream"), to remote usi box ke andar chalta hai.

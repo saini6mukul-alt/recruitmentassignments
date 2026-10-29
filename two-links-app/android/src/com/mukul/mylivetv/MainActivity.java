@@ -610,6 +610,16 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         boolean playKey = code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || code == KeyEvent.KEYCODE_MEDIA_PLAY
                 || code == KeyEvent.KEYCODE_MEDIA_PAUSE
                 || (customView != null && (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER));
+        if (code == KeyEvent.KEYCODE_SEARCH && customView == null) {
+            // The remote's Search/mic button jumps straight to the Home search box.
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                if (player.getVisibility() == View.VISIBLE) closePlayer();
+                selectTab(0);
+                tabViews[0].requestFocus();
+                tabViews[0].evaluateJavascript("window.scrollTo(0,0); window.focusSearch && focusSearch()", null);
+            }
+            return true;
+        }
         if (playKey) {
             if (event.getAction() == KeyEvent.ACTION_UP) {
                 visibleWebView().evaluateJavascript("window.__mlNav && __mlNav.togglePlay()", null);

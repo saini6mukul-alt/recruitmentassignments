@@ -16,14 +16,17 @@
 
   header { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 16px 8px; }
   .top { display: flex; align-items: center; gap: 10px; }
-  h1 { font-size: 20px; margin: 0; flex: 1; letter-spacing: .2px; }
+  h1 { font-size: 20px; margin: 0 auto 0 0; letter-spacing: .2px; white-space: nowrap; }
   h1 span { color: var(--accent); }
   .icon-btn { border: 0; background: var(--card); color: var(--text); width: 38px; height: 38px;
     border-radius: 12px; font-size: 18px; }
-  .search { margin-top: 10px; display: flex; align-items: center; gap: 8px; background: var(--card);
-    border-radius: 14px; padding: 0 12px; }
-  .search input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--text);
-    font-size: 15px; padding: 11px 0; }
+  /* Search sits in the top-right corner so a TV remote reaches it with Up/Right. */
+  .search { flex: 0 1 340px; min-width: 0; display: flex; align-items: center; gap: 6px;
+    background: var(--card); border-radius: 12px; padding: 0 10px; height: 38px; }
+  .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text);
+    font-size: 14px; padding: 0; height: 100%; }
+  .search:focus-within, .search:has(input.__ml_focus) { box-shadow: 0 0 0 3px var(--accent); }
+  .search input.__ml_focus { outline: none !important; box-shadow: none !important; transform: none !important; }
   .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 4px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip { flex: none; border: 1px solid #2a3040; background: var(--card); color: var(--muted);
@@ -77,11 +80,11 @@
   <div class="top">
     <h1>My <span>Live TV</span></h1>
     <button class="icon-btn" id="refresh" title="Channel list refresh karein">&#x21bb;</button>
+    <label class="search">
+      <span>&#128269;</span>
+      <input id="q" type="search" placeholder="Search channel…" autocomplete="off">
+    </label>
   </div>
-  <label class="search">
-    <span>&#128269;</span>
-    <input id="q" type="search" placeholder="Channel search karein…" autocomplete="off">
-  </label>
 </header>
 
 <div class="chips" id="cats"></div>
@@ -343,6 +346,10 @@
     clearTimeout(timer);
     timer = setTimeout(function () { query = qInput.value.trim(); shown = PAGE; render(); }, 200);
   });
+  window.focusSearch = function () {
+    if (window.__mlNav) __mlNav.select(qInput);
+    qInput.focus();
+  };
   document.getElementById('more').onclick = function () { shown += PAGE; renderList(); };
   document.getElementById('refresh').onclick = function () { App.refresh(); };
 
