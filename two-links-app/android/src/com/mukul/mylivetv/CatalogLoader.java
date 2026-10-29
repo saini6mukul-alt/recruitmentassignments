@@ -17,13 +17,16 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Builds the Home catalog by opening each source page in a hidden WebView and
  * reading its channel list with assets/extract.js. Results are cached, so Home
- * shows the last good list instantly and refreshes in the background.
+ * shows the last good list instantly. To keep playback smooth on slow TVs,
+ * sources load one at a time, only when their cache is stale (or on a manual
+ * refresh), and loading is paused while a channel is playing.
  */
 final class CatalogLoader {
 
@@ -40,6 +43,7 @@ final class CatalogLoader {
             {"sf", "https://streamflexsmm.in/Game/"}
     };
     private static final long TIMEOUT_MS = 45_000;
+    private static final long MAX_AGE_MS = 12L * 60 * 60 * 1000;
     private static final int MAX_PAYLOAD_CHARS = 2_000_000;
 
     private final Activity activity;
@@ -49,6 +53,8 @@ final class CatalogLoader {
     private final Handler main = new Handler(Looper.getMainLooper());
     private final Map<String, WebView> running = new HashMap<>();
     private final Map<String, Runnable> timeouts = new HashMap<>();
+    private final ArrayDeque<String[]> queue = new ArrayDeque<>();
+    private boolean paused;
     private String extractJs;
 
     CatalogLoader(Activity activity, ViewGroup host, Listener listener) {
@@ -73,18 +79,73 @@ final class CatalogLoader {
         return out.toString();
     }
 
+    /** Reloads every source (the Home ↻ button). */
     void refresh() {
-        if (!running.isEmpty()) return;
-        if (extractJs == null) extractJs = readAsset(activity, "extract.js");
-        listener.onCatalogLoading(true);
-        for (String[] source : SOURCES) start(source[0], source[1]);
+        for (String[] source : SOURCES) enqueue(source);
+        next();
+    }
+
+    /** Reloads only sources that never loaded or are older than {@link #MAX_AGE_MS}. */
+    void refreshIfStale() {
+        long now = System.currentTimeMillis();
+        for (String[] source : SOURCES) {
+            long ts = 0;
+            try {
+                String raw = prefs.getString(source[0], null);
+                if (raw != null) ts = new JSONObject(raw).optLong("ts", 0);
+            } catch (JSONException ignored) {
+                // Treat as never loaded.
+            }
+            if (now - ts > MAX_AGE_MS) enqueue(source);
+        }
+        next();
+    }
+
+    /** Stops background loading (e.g. while a channel plays); unfinished sources resume later. */
+    void pause() {
+        paused = true;
+        for (String[] source : SOURCES) {
+            if (running.containsKey(source[0])) {
+                stop(source[0]);
+                queue.addFirst(source);
+            }
+        }
+    }
+
+    void resume() {
+        paused = false;
+        next();
     }
 
     void cancel() {
-        for (WebView web : running.values()) destroy(web);
-        running.clear();
-        timeouts.clear();
+        queue.clear();
+        for (String[] source : SOURCES) stop(source[0]);
         main.removeCallbacksAndMessages(null);
+    }
+
+    private void enqueue(String[] source) {
+        if (running.containsKey(source[0])) return;
+        for (String[] queued : queue) if (queued[0].equals(source[0])) return;
+        queue.add(source);
+    }
+
+    private void next() {
+        if (paused || !running.isEmpty()) return;
+        String[] source = queue.poll();
+        if (source == null) {
+            listener.onCatalogLoading(false);
+            return;
+        }
+        if (extractJs == null) extractJs = readAsset(activity, "extract.js");
+        listener.onCatalogLoading(true);
+        start(source[0], source[1]);
+    }
+
+    private void stop(String id) {
+        WebView web = running.remove(id);
+        Runnable timeout = timeouts.remove(id);
+        if (timeout != null) main.removeCallbacks(timeout);
+        if (web != null) destroy(web);
     }
 
     private void start(final String id, String url) {
@@ -112,7 +173,7 @@ final class CatalogLoader {
 
         // Laid out but invisible: some pages only render their lists once attached.
         web.setVisibility(View.INVISIBLE);
-        host.addView(web, 0, new FrameLayout.LayoutParams(1080, 1920));
+        host.addView(web, 0, new FrameLayout.LayoutParams(720, 1280));
         running.put(id, web);
         web.loadUrl(url);
 
@@ -127,11 +188,8 @@ final class CatalogLoader {
     }
 
     private void finish(String id, String itemsJson) {
-        WebView web = running.remove(id);
-        if (web == null) return;
-        Runnable timeout = timeouts.remove(id);
-        if (timeout != null) main.removeCallbacks(timeout);
-        destroy(web);
+        if (!running.containsKey(id)) return;
+        stop(id);
 
         if (itemsJson != null) {
             try {
@@ -147,7 +205,7 @@ final class CatalogLoader {
                 // Keep the previous cached list for this source.
             }
         }
-        if (running.isEmpty()) listener.onCatalogLoading(false);
+        next();
     }
 
     private void destroy(WebView web) {

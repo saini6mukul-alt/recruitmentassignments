@@ -193,11 +193,17 @@
     if (!all.length) renderState(loading);
   };
 
+  // Home is hidden while a channel plays; refresh "Continue Watching" only when it is
+  // shown again, so nothing re-renders in the background during playback.
+  var stale = false;
   function open(ch) {
     recordWatch(ch);
+    stale = true;
     App.open(ch.u, ch.n);
-    setTimeout(render, 300);
   }
+  window.onHomeShown = function () {
+    if (stale) { stale = false; render(); }
+  };
 
   // ---------- rendering ----------
   function el(tag, cls, html) {

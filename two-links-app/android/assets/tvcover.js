@@ -6,7 +6,7 @@
   if (window.__mlCover) return;
 
   var ON = '__ml_cover_on', TARGET = '__ml_cover', ANCESTOR = '__ml_cover_anc';
-  var active = false, userExited = false, target = null, timer = null, started = Date.now();
+  var active = false, userExited = false, target = null;
 
   var style = document.createElement('style');
   style.textContent =
@@ -75,19 +75,30 @@
     if (!silent && was && window.MLTv && MLTv.coverChanged) MLTv.coverChanged(false);
   }
 
-  function watch() {
-    if (userExited) return;
-    if (active && target && !document.contains(target)) { exit(); target = null; }
-    if (!active) {
-      var v = findVideo();
-      // Prefer a real <video>; fall back to a big iframe player after a few seconds.
-      if (v) enter(v);
-      else if (Date.now() - started > 4000) { var f = findPlayerFrame(); if (f) enter(f); }
-    }
+  function maybeEnter(v) {
+    if (active || userExited) return;
+    v = v || findVideo();
+    if (v) enter(v);
   }
 
-  timer = setInterval(watch, 700);
-  setTimeout(function () { clearInterval(timer); timer = setInterval(watch, 3000); }, 60000);
+  // Event-driven: react when a video actually starts, instead of polling the page.
+  ['playing', 'loadeddata', 'play'].forEach(function (type) {
+    document.addEventListener(type, function (e) {
+      if (e.target && e.target.tagName === 'VIDEO') maybeEnter(e.target);
+    }, true);
+  });
+  // The video may already be playing when this script arrives; iframe players fire no
+  // events here, so look for one a couple of times early on.
+  [300, 1500, 4000, 9000].forEach(function (ms) {
+    setTimeout(function () {
+      maybeEnter();
+      if (!active && !userExited && ms >= 4000) { var f = findPlayerFrame(); if (f) enter(f); }
+    }, ms);
+  });
+  // While covered, a cheap check that the player wasn't replaced (e.g. server switch).
+  setInterval(function () {
+    if (active && target && !target.isConnected) { exit(); target = null; maybeEnter(); }
+  }, 2000);
 
   // Runs before the page's (and tvnav.js's) own key handlers.
   window.addEventListener('keydown', function (e) {

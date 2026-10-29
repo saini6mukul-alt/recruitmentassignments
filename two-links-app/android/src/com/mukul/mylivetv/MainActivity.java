@@ -69,6 +69,8 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
 
     private final WebView[] tabViews = new WebView[URLS.length];
     private final TextView[] tabs = new TextView[URLS.length];
+    /** Site tabs load the first time they are opened, not at app start. */
+    private final boolean[] tabLoaded = new boolean[URLS.length];
     private int current = 0;
 
     private FrameLayout root;
@@ -135,15 +137,15 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         catalog = new CatalogLoader(this, root, this);
 
         if (savedInstanceState != null) current = savedInstanceState.getInt("current", 0);
-        for (int i = 0; i < URLS.length; i++) {
+        for (int i = 1; i < URLS.length; i++) {
             Bundle state = savedInstanceState == null ? null : savedInstanceState.getBundle("web" + i);
-            if (i == 0 || state == null || tabViews[i].restoreState(state) == null) {
-                tabViews[i].loadUrl(URLS[i]);
-            }
+            if (state != null && !state.isEmpty() && tabViews[i].restoreState(state) != null) tabLoaded[i] = true;
         }
+        tabViews[0].loadUrl(URLS[0]);
+        tabLoaded[0] = true;
         selectTab(current);
         if (isTv) tabViews[current].requestFocus();
-        catalog.refresh();
+        catalog.refreshIfStale();
     }
 
     private boolean detectTv() {
@@ -496,6 +498,8 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         player.setVisibility(View.VISIBLE);
         chrome.setVisibility(View.GONE);
         playerView.requestFocus();
+        catalog.pause();
+        updateActiveWebViews();
     }
 
     /** The player's history can start with the about:blank left by the previous closePlayer(). */
@@ -512,6 +516,21 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         player.setVisibility(View.GONE);
         chrome.setVisibility(View.VISIBLE);
         tabViews[current].requestFocus();
+        updateActiveWebViews();
+        tabViews[0].evaluateJavascript("window.onHomeShown && onHomeShown()", null);
+        catalog.resume();
+    }
+
+    /**
+     * Only the WebView on screen keeps running; the rest are paused so a playing
+     * channel doesn't compete with hidden pages for the TV's CPU.
+     */
+    private void updateActiveWebViews() {
+        WebView active = visibleWebView();
+        for (WebView w : tabViews) {
+            if (w == active) w.onResume(); else w.onPause();
+        }
+        if (playerView == active) playerView.onResume(); else playerView.onPause();
     }
 
     // ------------------------------------------------------------------ Tabs
@@ -545,6 +564,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
                 public void onClick(View v) {
                     if (index == current && index != 0) {
                         tabViews[index].loadUrl(URLS[index]); // tap active tab again = go to its home page
+                        tabLoaded[index] = true;
                     } else {
                         selectTab(index);
                     }
@@ -579,9 +599,14 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             tabViews[i].setVisibility(active ? View.VISIBLE : View.GONE);
             tabs[i].setTextColor(active ? COLOR_ACTIVE : COLOR_IDLE);
         }
+        if (!tabLoaded[index]) {
+            tabLoaded[index] = true;
+            tabViews[index].loadUrl(URLS[index]);
+        }
         int p = tabViews[index].getProgress();
         progress.setProgress(p);
         progress.setVisibility(p < 100 ? View.VISIBLE : View.GONE);
+        if (player != null) updateActiveWebViews();
     }
 
     // ------------------------------------------------------------------ Fullscreen video
@@ -707,6 +732,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         super.onSaveInstanceState(outState);
         outState.putInt("current", current);
         for (int i = 1; i < tabViews.length; i++) {
+            if (!tabLoaded[i]) continue;
             Bundle state = new Bundle();
             tabViews[i].saveState(state);
             outState.putBundle("web" + i, state);
@@ -724,8 +750,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     @Override
     protected void onResume() {
         super.onResume();
-        for (WebView w : tabViews) w.onResume();
-        playerView.onResume();
+        updateActiveWebViews();
     }
 
     @Override

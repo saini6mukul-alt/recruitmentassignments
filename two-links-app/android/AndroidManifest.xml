@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mukul.mylivetv"
-    android:versionCode="5"
-    android:versionName="3.2">
+    android:versionCode="6"
+    android:versionName="3.3">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
 
@@ -19,6 +19,7 @@
         android:banner="@drawable/banner"
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="true"
+        android:largeHeap="true"
         android:usesCleartextTraffic="true"
         android:allowBackup="false">
 

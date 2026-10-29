@@ -63,6 +63,15 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 
 TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pahunch sakein.
 
+## Performance (v3.3)
+
+Slow Android TVs par lag kam karne ke liye:
+- Remote ka har button ab ~7 guna tez (dheeme CPU par ~313 ms se ~40 ms).
+- "Live TV Hub" aur "StreamFlex TV" tabs tabhi load hote hain jab unhe pehli baar khola jaaye.
+- Jo screen dikh nahi rahi, uska WebView pause rehta hai. Channel chalte waqt sirf player chalta hai.
+- Channel list har 12 ghante mein ek baar, ek-ek site karke update hoti hai (↻ se kabhi bhi). Channel chalte waqt ye kaam ruka rehta hai.
+- Full-screen script ab page ko baar-baar check nahi karti, sirf video start hone par kaam karti hai.
+
 ## iPhone (iOS) par
 
 `.apk` iPhone par install nahi ho sakti. Bina Apple Developer account ke iPhone par apni app install karna possible nahi hai.
