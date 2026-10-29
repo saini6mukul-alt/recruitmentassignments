@@ -30,6 +30,8 @@ final class AdBlocker {
             // Google ads
             "googlesyndication.com", "doubleclick.net", "googleadservices.com",
             "adtrafficquality.google", "googletagservices.com", "google-analytics.com",
+            // Seen on the movies site (nxsha.space)
+            "monarchspiro.com", "googletagmanager.com",
             // Header bidding / cookie sync pulled in by the players
             "connatix.com", "adsrvr.org", "rubiconproject.com", "sharethrough.com", "iqm.com",
             "contextweb.com", "ingage.tech", "bidgx.com", "adform.net", "fwmrm.net", "adscale.de",

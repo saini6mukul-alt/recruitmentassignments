@@ -40,7 +40,8 @@ final class CatalogLoader {
     private static final String[][] SOURCES = {
             {"jtv", "https://jjtvxweb.pages.dev/"},
             {"sony", "https://allinonereborn2.online/sony/"},
-            {"sf", "https://streamflexsmm.in/Game/"}
+            {"sf", "https://streamflexsmm.in/Game/"},
+            {"nx", "https://nxsha.space/"}
     };
     private static final long TIMEOUT_MS = 45_000;
     private static final long MAX_AGE_MS = 12L * 60 * 60 * 1000;

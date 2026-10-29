@@ -9,10 +9,13 @@
     var seen = {};
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
-      if (!it || !it.n || !it.u || seen[it.u]) continue;
-      seen[it.u] = 1;
-      clean.push({ n: String(it.n).trim().slice(0, 80), c: String(it.c || '').trim().slice(0, 40),
-                   l: /^https?:/.test(it.l || '') ? it.l : '', u: it.u });
+      var key = it && it.u + '|' + (it.g || '');
+      if (!it || !it.n || !it.u || seen[key]) continue;
+      seen[key] = 1;
+      var row = { n: String(it.n).trim().slice(0, 80), c: String(it.c || '').trim().slice(0, 40),
+                  l: /^https?:/.test(it.l || '') ? it.l : '', u: it.u };
+      if (it.g) row.g = String(it.g).slice(0, 60);
+      clean.push(row);
     }
     MLBridge.deliver(id, JSON.stringify(clean));
   }
@@ -59,6 +62,22 @@
         });
       }, 25);
     }
+  };
+
+  // Nxsha (movies & shows): the site's own home feed, titles + posters only.
+  // Links go straight to the player page (TV shows start at S1 E1; the player has an episode menu).
+  readers.nx = function (id) {
+    fetch('/api/home-feed?tabKey=home&country=IN').then(function (r) { return r.json(); }).then(function (feed) {
+      var out = [];
+      (feed.fetchedSections || []).forEach(function (sec) {
+        (sec.items || []).forEach(function (it) {
+          if (!it || !it.id || (it.mediaType !== 'movie' && it.mediaType !== 'tv')) return;
+          out.push({ n: it.title, c: it.mediaType === 'tv' ? 'TV Show' : 'Movie', l: it.poster, g: sec.heading,
+                     u: location.origin + (it.mediaType === 'tv' ? '/embed/tv/' + it.id + '/1/1' : '/embed/movie/' + it.id) });
+        });
+      });
+      done(id, out);
+    }).catch(function () { done(id, []); });
   };
 
   window.__mlExtract = function (id) {

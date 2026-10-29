@@ -58,6 +58,11 @@
   .src { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 700; padding: 1px 5px;
     border-radius: 6px; background: #0008; color: var(--accent); }
 
+  /* Movies & web series (Nxsha): poster tiles */
+  .tile.poster { padding: 0 0 8px; }
+  .tile.poster .art { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; display: block; background: #fff1;
+    margin-bottom: 6px; }
+  .tile.poster .name, .tile.poster .meta { padding: 0 6px; }
   .event { width: 220px !important; text-align: left; padding: 14px;
     background: linear-gradient(135deg, #2a0f2a, #0f2330); }
   .event .live { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
@@ -82,7 +87,7 @@
     <button class="icon-btn" id="refresh" title="Channel list refresh karein">&#x21bb;</button>
     <label class="search">
       <span>&#128269;</span>
-      <input id="q" type="search" placeholder="Search channel…" autocomplete="off">
+      <input id="q" type="search" placeholder="Channel / movie search…" autocomplete="off">
     </label>
   </div>
 </header>
@@ -103,6 +108,7 @@
     <div class="sec-title"><h2>&#127942; Live Sports &amp; Matches</h2></div>
     <div class="row" id="row-events"></div>
   </section>
+  <div id="media-rows"></div>
 </div>
 
 <section>
@@ -116,9 +122,11 @@
 (function () {
   'use strict';
 
-  var CATEGORIES = ['All', 'Sports', 'News', 'Movies', 'Entertainment', 'Music', 'Kids',
+  var MEDIA = 'Movies & Web Series';
+  var CATEGORIES = ['All', MEDIA, 'Sports', 'News', 'Movies', 'Entertainment', 'Music', 'Kids',
                     'Devotional', 'Infotainment', 'Business', 'Regional', 'Others'];
-  var SOURCES = { jtv: 'JioTV+', sony: 'SonyLiv', sf: 'StreamFlex' };
+  var SOURCES = { jtv: 'JioTV+', sony: 'SonyLiv', sf: 'StreamFlex', nx: 'Nxsha' };
+  var MEDIA_ROWS = 8;
   var EVENTS = [
     { n: 'SonyLiv Live Events', d: 'Cricket, Football — live & upcoming', u: 'https://allinonereborn2.online/events/' },
     { n: 'FanCode Matches', d: 'Cricket & Football matches', u: 'https://allinonereborn2.online/fcw/' },
@@ -168,20 +176,28 @@
   }
 
   // ---------- data ----------
+  var mediaRows = [];    // [{title, items}] from the movies site's home feed
   function setCatalog(map) {
-    all = []; byKey = {};
+    all = []; byKey = {}; mediaRows = [];
+    var rowsByTitle = {};
     Object.keys(SOURCES).forEach(function (s) {
       var entry = map[s];
       if (!entry || !entry.items) return;
       entry.items.forEach(function (it) {
         if (/^test\d*\b/i.test(it.n)) return;
-        var ch = { s: s, n: it.n, l: it.l, u: it.u, raw: it.c, c: categorize(it.n, it.c) };
+        var ch = { s: s, n: it.n, l: it.l, u: it.u, raw: it.c,
+                   c: s === 'nx' ? MEDIA : categorize(it.n, it.c) };
         ch.k = keyOf(ch);
-        if (byKey[ch.k]) return;
-        byKey[ch.k] = ch;
-        all.push(ch);
+        if (byKey[ch.k]) ch = byKey[ch.k];
+        else { byKey[ch.k] = ch; all.push(ch); }
+        if (s === 'nx' && it.g) {
+          if (!rowsByTitle[it.g]) { rowsByTitle[it.g] = { title: it.g, items: [] }; mediaRows.push(rowsByTitle[it.g]); }
+          rowsByTitle[it.g].items.push(ch);
+        }
       });
     });
+    // India's top lists first, then the site's own order.
+    mediaRows.sort(function (a, b) { return /india/i.test(b.title) - /india/i.test(a.title); });
     render();
   }
 
@@ -221,6 +237,7 @@
     return ((parts[0] || '?')[0] + ((parts[1] || '')[0] || '')).toUpperCase();
   }
   function tile(ch) {
+    if (ch.s === 'nx') return posterTile(ch);
     var t = el('div', 'tile');
     var color = COLORS[ch.n.length % COLORS.length];
     var logo = ch.l
@@ -231,6 +248,29 @@
       '<div class="name">' + esc(ch.n) + '</div><div class="meta">' + esc(ch.c) + '</div>';
     t.onclick = function () { open(ch); };
     return t;
+  }
+
+  function posterTile(ch) {
+    var t = el('div', 'tile poster');
+    // Small poster size: lighter on slow TVs and plenty for a 112px tile.
+    var art = ch.l ? ch.l.replace('/t/p/w500/', '/t/p/w185/') : '';
+    t.innerHTML = (art ? '<img class="art" loading="lazy" src="' + esc(art) + '">' : '<div class="art"></div>') +
+      '<div class="name">' + esc(ch.n) + '</div><div class="meta">' + esc(ch.raw || '') + '</div>';
+    t.onclick = function () { open(ch); };
+    return t;
+  }
+
+  function renderMediaRows() {
+    var box = document.getElementById('media-rows');
+    box.innerHTML = '';
+    mediaRows.slice(0, MEDIA_ROWS).forEach(function (row) {
+      var sec = el('section');
+      sec.appendChild(el('div', 'sec-title', '<h2>' + esc(row.title) + '</h2><small>Nxsha</small>'));
+      var r = el('div', 'row');
+      row.items.slice(0, 20).forEach(function (ch) { r.appendChild(tile(ch)); });
+      sec.appendChild(r);
+      box.appendChild(sec);
+    });
   }
 
   function filtered() {
@@ -287,6 +327,7 @@
     var rec = recommendations();
     document.getElementById('rec-why').textContent = rec.why;
     fillRow('row-rec', rec.items);
+    renderMediaRows();
   }
 
   function renderEvents() {

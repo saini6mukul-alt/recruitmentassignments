@@ -49,16 +49,17 @@ import java.util.Locale;
 public class MainActivity extends Activity implements CatalogLoader.Listener {
 
     private static final String HOME_URL = "file:///android_asset/home.html";
-    private static final String[] TITLES = {"Home", "Live TV Hub", "StreamFlex TV"};
+    private static final String[] TITLES = {"Home", "Live TV Hub", "StreamFlex", "Movies"};
     private static final String[] URLS = {
             HOME_URL,
             "https://allinonelivetv.pages.dev/",
-            "https://streamflexsmm.in/Game/"
+            "https://streamflexsmm.in/Game/",
+            "https://nxsha.space/"
     };
 
     /** Pop-up windows are only allowed to load when they point at one of these (or their subdomains). */
     private static final String[] CONTENT_DOMAINS = {
-            "pages.dev", "allinonereborn2.online", "streamflexsmm.in", "jio.com", "sonyliv.com",
+            "pages.dev", "allinonereborn2.online", "streamflexsmm.in", "nxsha.space", "jio.com", "sonyliv.com",
             "fancode.com", "youtube.com", "t.me", "telegram.me", "whatsapp.com"
     };
 
@@ -86,6 +87,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     private boolean isTv;
     private String tvNavJs;
     private String tvCoverJs;
+    private String siteFixJs;
     private LinearLayout tabBar;
     private LinearLayout playerBar;
     private boolean coverOn;
@@ -102,6 +104,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
 
         isTv = detectTv();
         tvNavJs = CatalogLoader.readAsset(this, "tvnav.js");
+        siteFixJs = CatalogLoader.readAsset(this, "sitefix.js");
         if (isTv) tvCoverJs = CatalogLoader.readAsset(this, "tvcover.js");
 
         root = new FrameLayout(this);
@@ -183,6 +186,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 view.evaluateJavascript(tvNavJs, null);
+                if (!url.startsWith("file:")) view.evaluateJavascript(siteFixJs, null);
                 if (tvCoverJs != null && !url.startsWith("file:")) view.evaluateJavascript(tvCoverJs, null);
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.GONE);
             }

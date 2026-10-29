@@ -1,11 +1,12 @@
-# My Live TV (2-link app)
+# My Live TV
 
-Ek simple Android app jisme do websites do tabs mein khulti hain:
+Android (phone + TV) app jisme teen websites ek jagah aati hain:
 
-| Tab | Link |
-|---|---|
-| **Live TV Hub** | https://allinonelivetv.pages.dev/ |
-| **StreamFlex TV** | https://streamflexsmm.in/Game/ |
+| Tab | Link | Kya hai |
+|---|---|---|
+| **Live TV Hub** | https://allinonelivetv.pages.dev/ | Live TV (JioTV+, SonyLiv, sports) |
+| **StreamFlex** | https://streamflexsmm.in/Game/ | Live TV channels |
+| **Movies** | https://nxsha.space/ | Movies, web series, anime |
 
 <img src="icon-512.png" width="96" alt="App icon">
 
@@ -63,6 +64,14 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 
 TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pahunch sakein.
 
+## Movies & Web Series (v4.0)
+
+- Naya **Movies** tab: https://nxsha.space/ (ad-block, remote aur full-screen ke saath).
+- Home par movies ki rows: India's Top Movies, India's Top Shows, Trending, Latest, Top Rated.
+- Category **"Movies & Web Series"** aur search mein bhi movies/shows aate hain.
+- Poster par tap/OK karte hi film seedha player mein khulti hai aur apne aap chalu ho jaati hai. TV shows Season 1 Episode 1 se shuru hote hain; baaki episodes player ke "Episodes" menu mein hain.
+- Site ke andar "Watch Now" dabaane par bhi seedha player khulta hai (beech wala page skip).
+
 ## Performance (v3.3)
 
 Slow Android TVs par lag kam karne ke liye:
@@ -101,6 +110,7 @@ Kaun si files kya karti hain:
 - `assets/home.html`: Home screen (categories, recommendations, search)
 - `assets/tvnav.js`: TV remote (D-pad) navigation, har page par lagti hai
 - `assets/tvcover.js`: TV par video ko apne aap full-screen cover mein chalata hai
+- `assets/sitefix.js`: site-specific sudhaar (jaise movies site par seedha player aur auto-play)
 App ka naam `android/res/values/strings.xml` mein hai.
 
 > Note: `build.sh` pehli baar `~/.android/mylivetv.keystore` banata hai. Kisi doosre computer par build ki gayi APK alag key se sign hogi, isliye update se pehle purani app uninstall karni padegi.
