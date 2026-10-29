@@ -75,7 +75,7 @@ final class CatalogLoader {
 
     void refresh() {
         if (!running.isEmpty()) return;
-        if (extractJs == null) extractJs = readAsset("extract.js");
+        if (extractJs == null) extractJs = readAsset(activity, "extract.js");
         listener.onCatalogLoading(true);
         for (String[] source : SOURCES) start(source[0], source[1]);
     }
@@ -169,8 +169,8 @@ final class CatalogLoader {
         }
     }
 
-    private String readAsset(String name) {
-        try (InputStream in = activity.getAssets().open(name)) {
+    static String readAsset(android.content.Context context, String name) {
+        try (InputStream in = context.getAssets().open(name)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buf = new byte[8192];
             int n;

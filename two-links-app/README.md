@@ -18,7 +18,7 @@ Ek simple Android app jisme do websites do tabs mein khulti hain:
 
 Requirement: Android 5.0 ya usse naya.
 
-## App ke features (v2.0)
+## App ke features (v3.0)
 
 **Home tab (naya)**
 - Dono links ke saare channels ek jagah: JioTV+ aur SonyLiv (Live TV Hub se), aur StreamFlex. Lagbhag 2,000+ channels.
@@ -40,6 +40,20 @@ Requirement: Android 5.0 ya usse naya.
 - Video fullscreen karne par phone apne aap landscape ho jaata hai aur screen on rehti hai.
 - Back button: fullscreen band → pichla page → player band → Home.
 - Home par ↻ dabane se channel list dobara laayi jaati hai. List cache hoti hai, isliye agli baar turant khulti hai.
+
+## Android TV par
+
+App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti hai.
+
+**Remote kaise chalayein**
+- **↑ ↓ ← →**: channels, buttons aur tabs ke beech ghoomein. Jo chuna hua hai uske chaaron taraf neela border dikhta hai.
+- **OK / Select**: chuna hua channel ya button kholein.
+- **Page ke sabse upar ↑ dabaayein**: upar wale tabs (Home, Live TV Hub, StreamFlex TV) par pahunch jaayenge. Wahan se **↓** dabaane par wapas page par.
+- **Back**: fullscreen band → pichla page → player band → Home.
+- **Play/Pause button** (ya fullscreen mein OK): video roko ya chalaao.
+- Website par koi pop-up box khule (jaise "Only India Stream"), to remote usi box ke andar chalta hai.
+
+TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pahunch sakein.
 
 ## iPhone (iOS) par
 
@@ -68,6 +82,7 @@ Kaun si files kya karti hain:
 - `CatalogLoader.java`: channel lists chupke se (hidden WebView mein) load karta hai
 - `assets/extract.js`: har site se channel ka naam, category, logo aur player link padhta hai
 - `assets/home.html`: Home screen (categories, recommendations, search)
+- `assets/tvnav.js`: TV remote (D-pad) navigation, har page par lagti hai
 App ka naam `android/res/values/strings.xml` mein hai.
 
 > Note: `build.sh` pehli baar `~/.android/mylivetv.keystore` banata hai. Kisi doosre computer par build ki gayi APK alag key se sign hogi, isliye update se pehle purani app uninstall karni padegi.

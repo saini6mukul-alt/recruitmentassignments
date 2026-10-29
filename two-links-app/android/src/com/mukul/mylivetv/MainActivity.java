@@ -2,9 +2,13 @@ package com.mukul.mylivetv;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.drawable.StateListDrawable;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -17,6 +21,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -75,6 +80,9 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     private TextView playerTitle;
 
     private CatalogLoader catalog;
+    private TextView playerBack;
+    private boolean isTv;
+    private String tvNavJs;
 
     // Fullscreen video state
     private View customView;
@@ -85,6 +93,9 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         WebView.setWebContentsDebuggingEnabled(false);
+
+        isTv = detectTv();
+        tvNavJs = CatalogLoader.readAsset(this, "tvnav.js");
 
         root = new FrameLayout(this);
         root.setBackgroundColor(COLOR_BG);
@@ -97,8 +108,12 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             pages.addView(tabViews[i], matchParent());
         }
         tabViews[0].addJavascriptInterface(new HomeBridge(), "App");
+        // On a TV the tab bar sits on top, where "up" from the page naturally leads.
+        LinearLayout.LayoutParams barParams =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56));
+        if (isTv) chrome.addView(createTabBar(), barParams);
         chrome.addView(pages, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        chrome.addView(createTabBar(), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        if (!isTv) chrome.addView(createTabBar(), barParams);
         root.addView(chrome, matchParent());
 
         player = createPlayer();
@@ -121,7 +136,14 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             }
         }
         selectTab(current);
+        if (isTv) tabViews[current].requestFocus();
         catalog.refresh();
+    }
+
+    private boolean detectTv() {
+        UiModeManager ui = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        return (ui != null && ui.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
+                || !getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
     }
 
     // ------------------------------------------------------------------ WebViews
@@ -131,6 +153,16 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         final WebView web = new WebView(this);
         web.setBackgroundColor(COLOR_BG);
         configure(web);
+        web.setFocusable(true);
+        web.setFocusableInTouchMode(true);
+        web.addJavascriptInterface(new TvBridge(), "MLTv");
+        web.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                // Coming back from the tab bar: put the remote highlight back on the page.
+                if (hasFocus) web.evaluateJavascript("window.__mlNav && __mlNav.focusIn()", null);
+            }
+        });
 
         web.setWebViewClient(new BlockingClient() {
             @Override
@@ -141,6 +173,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                view.evaluateJavascript(tvNavJs, null);
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.GONE);
             }
 
@@ -305,6 +338,20 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
 
     // ------------------------------------------------------------------ Home bridge + catalog
 
+    /** Lets the remote-navigation script hand focus back to the app's own buttons. */
+    private class TvBridge {
+        @JavascriptInterface
+        public void focusTabs() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (player.getVisibility() == View.VISIBLE) playerBack.requestFocus();
+                    else tabs[current].requestFocus();
+                }
+            });
+        }
+    }
+
     /** Exposed to the local Home page only (file:///android_asset/home.html). */
     private class HomeBridge {
         @JavascriptInterface
@@ -361,6 +408,8 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         bar.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView back = new TextView(this);
+        playerBack = back;
+        makeFocusable(back);
         back.setText("←");
         back.setTextSize(24);
         back.setTextColor(COLOR_ACTIVE);
@@ -383,6 +432,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         bar.addView(playerTitle, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView reload = new TextView(this);
+        makeFocusable(reload);
         reload.setText("↻");
         reload.setTextSize(22);
         reload.setTextColor(COLOR_IDLE);
@@ -407,6 +457,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         playerView.loadUrl(url);
         player.setVisibility(View.VISIBLE);
         chrome.setVisibility(View.GONE);
+        playerView.requestFocus();
     }
 
     /** The player's history can start with the about:blank left by the previous closePlayer(). */
@@ -421,6 +472,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         playerView.loadUrl("about:blank");
         player.setVisibility(View.GONE);
         chrome.setVisibility(View.VISIBLE);
+        tabViews[current].requestFocus();
     }
 
     // ------------------------------------------------------------------ Tabs
@@ -444,6 +496,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         for (int i = 0; i < TITLES.length; i++) {
             final int index = i;
             TextView tab = new TextView(this);
+            makeFocusable(tab);
             tab.setText(TITLES[i]);
             tab.setGravity(Gravity.CENTER);
             tab.setTextSize(14);
@@ -463,6 +516,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         }
 
         TextView reload = new TextView(this);
+        makeFocusable(reload);
         reload.setText("↻");
         reload.setGravity(Gravity.CENTER);
         reload.setTextSize(22);
@@ -532,6 +586,37 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         } else {
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         }
+    }
+
+    // ------------------------------------------------------------------ TV remote
+
+    /** Remote-friendly buttons: reachable with the D-pad and clearly highlighted when focused. */
+    private void makeFocusable(TextView view) {
+        view.setFocusable(true);
+        StateListDrawable bg = new StateListDrawable();
+        bg.addState(new int[]{android.R.attr.state_focused}, new ColorDrawable(Color.parseColor("#3300E5FF")));
+        bg.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(Color.parseColor("#2200E5FF")));
+        bg.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
+        view.setBackground(bg);
+    }
+
+    private WebView visibleWebView() {
+        return player.getVisibility() == View.VISIBLE ? playerView : tabViews[current];
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int code = event.getKeyCode();
+        boolean playKey = code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || code == KeyEvent.KEYCODE_MEDIA_PLAY
+                || code == KeyEvent.KEYCODE_MEDIA_PAUSE
+                || (customView != null && (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER));
+        if (playKey) {
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                visibleWebView().evaluateJavascript("window.__mlNav && __mlNav.togglePlay()", null);
+            }
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     // ------------------------------------------------------------------ Lifecycle
