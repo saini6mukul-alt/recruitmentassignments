@@ -54,6 +54,13 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 - **Play/Pause button** (ya fullscreen mein OK): video roko ya chalaao.
 - Website par koi pop-up box khule (jaise "Only India Stream"), to remote usi box ke andar chalta hai.
 
+**Auto full-screen (sirf TV par)**
+- Channel chalu hote hi video apne aap **poori screen (cover)** par aa jaata hai. App ke tabs, buttons aur site ke baaki hisse chhup jaate hain.
+- **OK**: play / pause.
+- **Koi bhi arrow (↑↓←→)**: full-screen se bahar, page ke apne buttons (jaise server ya quality badalna) dikhenge.
+- Player screen ke upar **⛶** button: wapas full-screen.
+- **Back**: channel band karke list par wapas.
+
 TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pahunch sakein.
 
 ## iPhone (iOS) par
@@ -84,6 +91,7 @@ Kaun si files kya karti hain:
 - `assets/extract.js`: har site se channel ka naam, category, logo aur player link padhta hai
 - `assets/home.html`: Home screen (categories, recommendations, search)
 - `assets/tvnav.js`: TV remote (D-pad) navigation, har page par lagti hai
+- `assets/tvcover.js`: TV par video ko apne aap full-screen cover mein chalata hai
 App ka naam `android/res/values/strings.xml` mein hai.
 
 > Note: `build.sh` pehli baar `~/.android/mylivetv.keystore` banata hai. Kisi doosre computer par build ki gayi APK alag key se sign hogi, isliye update se pehle purani app uninstall karni padegi.

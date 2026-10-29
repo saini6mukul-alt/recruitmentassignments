@@ -83,6 +83,10 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     private TextView playerBack;
     private boolean isTv;
     private String tvNavJs;
+    private String tvCoverJs;
+    private LinearLayout tabBar;
+    private LinearLayout playerBar;
+    private boolean coverOn;
 
     // Fullscreen video state
     private View customView;
@@ -96,6 +100,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
 
         isTv = detectTv();
         tvNavJs = CatalogLoader.readAsset(this, "tvnav.js");
+        if (isTv) tvCoverJs = CatalogLoader.readAsset(this, "tvcover.js");
 
         root = new FrameLayout(this);
         root.setBackgroundColor(COLOR_BG);
@@ -111,9 +116,10 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         // On a TV the tab bar sits on top, where "up" from the page naturally leads.
         LinearLayout.LayoutParams barParams =
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56));
-        if (isTv) chrome.addView(createTabBar(), barParams);
+        tabBar = createTabBar();
+        if (isTv) chrome.addView(tabBar, barParams);
         chrome.addView(pages, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        if (!isTv) chrome.addView(createTabBar(), barParams);
+        if (!isTv) chrome.addView(tabBar, barParams);
         root.addView(chrome, matchParent());
 
         player = createPlayer();
@@ -168,12 +174,14 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.VISIBLE);
+                if (coverOn && isShowing(view)) setCoverUi(false); // a new page starts uncovered
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 view.evaluateJavascript(tvNavJs, null);
+                if (tvCoverJs != null && !url.startsWith("file:")) view.evaluateJavascript(tvCoverJs, null);
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.GONE);
             }
 
@@ -350,6 +358,16 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
                 }
             });
         }
+
+        @JavascriptInterface
+        public void coverChanged(final boolean on) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setCoverUi(on);
+                }
+            });
+        }
     }
 
     /** Exposed to the local Home page only (file:///android_asset/home.html). */
@@ -404,6 +422,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         box.setBackgroundColor(COLOR_BG);
 
         LinearLayout bar = new LinearLayout(this);
+        playerBar = bar;
         bar.setBackgroundColor(COLOR_BAR);
         bar.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -445,6 +464,25 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         });
         bar.addView(reload, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
 
+        if (isTv) {
+            // Back to full-cover video after leaving it with the arrow keys.
+            TextView full = new TextView(this);
+            makeFocusable(full);
+            full.setText("\u26F6");
+            full.setTextSize(22);
+            full.setTextColor(COLOR_IDLE);
+            full.setGravity(Gravity.CENTER);
+            full.setContentDescription("Full screen");
+            full.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playerView.requestFocus();
+                    playerView.evaluateJavascript("window.__mlCover && __mlCover.enter()", null);
+                }
+            });
+            bar.addView(full, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+
         box.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52)));
         playerView = createWebView(true);
         box.addView(playerView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
@@ -468,6 +506,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     }
 
     private void closePlayer() {
+        setCoverUi(false);
         playerView.stopLoading();
         playerView.loadUrl("about:blank");
         player.setVisibility(View.GONE);
@@ -533,6 +572,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     }
 
     private void selectTab(int index) {
+        if (coverOn) setCoverUi(false);
         current = index;
         for (int i = 0; i < tabViews.length; i++) {
             boolean active = i == index;
@@ -598,6 +638,21 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         bg.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(Color.parseColor("#2200E5FF")));
         bg.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
         view.setBackground(bg);
+    }
+
+    /** While a video covers the screen, the app's own bars and the system bars get out of the way. */
+    private void setCoverUi(boolean on) {
+        coverOn = on;
+        int bars = on ? View.GONE : View.VISIBLE;
+        playerBar.setVisibility(bars);
+        tabBar.setVisibility(bars);
+        if (customView == null) setSystemBarsHidden(on);
+        if (on) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            visibleWebView().requestFocus();
+        } else if (customView == null) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     private WebView visibleWebView() {
