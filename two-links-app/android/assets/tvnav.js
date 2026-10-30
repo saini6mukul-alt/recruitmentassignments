@@ -21,6 +21,10 @@
     if (r.width < 8 || r.height < 8) return null;
     var cs = getComputedStyle(el);
     if (cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity === 0) return null;
+    // Players fade their control bars out by setting opacity on a parent: skip those too.
+    for (var p = el.parentElement, depth = 0; p && p !== document.body && depth < 8; p = p.parentElement, depth++) {
+      if (+getComputedStyle(p).opacity === 0) return null;
+    }
     return r;
   }
 
@@ -39,13 +43,15 @@
     return null;
   }
 
+  function isAppUi(el) { return !!(el.closest && el.closest('#__ml_ui')); }
+
   // Hit-testing for an overlay is the costliest step, so it runs once per key press.
   function candidates() {
     var all = collect();
     var overlay = overlayRoot();
     if (overlay) {
       // The app's own buttons (e.g. "Full Screen") stay reachable above any page overlay.
-      var inside = all.filter(function (c) { return overlay.contains(c.el) || /^__ml_/.test(c.el.id); });
+      var inside = all.filter(function (c) { return overlay.contains(c.el) || isAppUi(c.el); });
       if (inside.length) { inside.overlay = overlay; return inside; }
     }
     return all;
@@ -135,15 +141,22 @@
       if (c.el === current || current.contains(c.el) || c.el.contains(current)) return;
       var cx = c.r.left + c.r.width / 2, cy = c.r.top + c.r.height / 2;
       var main, side;
-      if (dir === 'down') { main = c.r.top - from.bottom + 1; side = Math.abs(cx - fx); if (cy <= fy) return; }
-      else if (dir === 'up') { main = from.top - c.r.bottom + 1; side = Math.abs(cx - fx); if (cy >= fy) return; }
+      // Sideways offset = the gap between the two boxes (0 when they overlap), so a wide
+      // element right above/below (e.g. a progress bar) beats a small one off to the side.
+      var gapX = Math.max(0, c.r.left - from.right, from.left - c.r.right) + Math.abs(cx - fx) * 0.1;
+      var gapY = Math.max(0, c.r.top - from.bottom, from.top - c.r.bottom) + Math.abs(cy - fy) * 0.1;
+      if (dir === 'down') { main = c.r.top - from.bottom + 1; side = gapX; if (cy <= fy) return; }
+      else if (dir === 'up') { main = from.top - c.r.bottom + 1; side = gapX; if (cy >= fy) return; }
       else if (sameRow && (c.r.bottom <= from.top || c.r.top >= from.bottom)) return;
       // Off-row fallback only for items fully beside the current one (side menu → content).
       else if (!sameRow && (dir === 'right' ? c.r.left < from.right : c.r.right > from.left)) return;
       else if (!sameRow && (c.r.left >= window.innerWidth || c.r.right <= 0)) return; // not scrolled-away items
-      else if (dir === 'right') { main = c.r.left - from.right + 1; side = Math.abs(cy - fy); if (cx <= fx) return; }
-      else { main = from.left - c.r.right + 1; side = Math.abs(cy - fy); if (cx >= fx) return; }
-      var score = Math.max(main, 0) + side * 2.5;
+      else if (dir === 'right') { main = c.r.left - from.right + 1; side = gapY; if (cx <= fx) return; }
+      else { main = from.left - c.r.right + 1; side = gapY; if (cx >= fx) return; }
+      // A box that overlaps the current one along the move direction (e.g. the video behind a
+      // control bar) counts from centre to centre, so it doesn't beat the item right next door.
+      if (main <= 0) main = dir === 'up' || dir === 'down' ? Math.abs(cy - fy) : Math.abs(cx - fx);
+      var score = main + side * 2.5;
       if (score < bestScore) { bestScore = score; best = c.el; }
     });
     return best;
@@ -152,7 +165,7 @@
   function move(dir) {
     if (!current || !document.contains(current) || !visible(current)) return !!first();
     var list = candidates();
-    if (list.overlay && !list.overlay.contains(current) && !/^__ml_/.test(current.id)) return !!first();
+    if (list.overlay && !list.overlay.contains(current) && !isAppUi(current)) return !!first();
     var from = current.getBoundingClientRect();
     // Left/right prefer the same row; if nothing is there (e.g. from a side menu next to a
     // big banner), take the nearest item in that direction anywhere.

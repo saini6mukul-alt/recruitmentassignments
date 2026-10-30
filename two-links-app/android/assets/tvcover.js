@@ -29,7 +29,11 @@
     '#__ml_ui{position:fixed!important;left:0;right:0;bottom:0;z-index:2147483647!important;display:none;' +
     'padding:28px 4vw 18px!important;background:linear-gradient(transparent,rgba(0,0,0,.85))!important;' +
     'font:600 15px/1.2 system-ui,sans-serif!important;color:#fff!important;visibility:visible!important}' +
-    'html.' + ON + ' #__ml_ui.show{display:block}' +
+    'html.' + ON + ' #__ml_ui.show,#__ml_ui.docked{display:block}' +
+    // Docked = TV movies in normal (not full-screen) mode: the bar stays on screen.
+    'html.' + ON + ' #__ml_ui [data-a="fs"],html:not(.' + ON + ') #__ml_ui [data-a="exit"],' +
+    'html:not(.' + ON + ') #__ml_hint{display:none!important}' +
+    '#__ml_track.__ml_focus{outline:3px solid #00e5ff!important;outline-offset:2px!important;border-radius:6px}' +
     '#__ml_ui *{box-sizing:border-box!important;visibility:visible!important}' +
     '#__ml_track{position:relative!important;height:22px!important;cursor:pointer!important;touch-action:none}' +
     '#__ml_track:before{content:"";position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:rgba(255,255,255,.3)}' +
@@ -44,20 +48,16 @@
     '#__ml_toast{position:fixed!important;left:50%;top:44%;transform:translate(-50%,-50%);display:none;' +
     'padding:14px 26px;border-radius:30px;background:rgba(0,0,0,.65)!important;font:700 26px system-ui,sans-serif!important;' +
     'color:#fff!important;z-index:2147483647!important}' +
-    'html.' + ON + ' #__ml_toast.show{display:block}' +
-    '#__ml_fsbtn{all:unset;position:fixed!important;left:24px!important;bottom:24px!important;z-index:2147483647!important;' +
-    'padding:12px 22px!important;border-radius:28px!important;background:rgba(0,0,0,.75)!important;color:#fff!important;' +
-    'border:2px solid rgba(255,255,255,.35)!important;font:700 18px system-ui,sans-serif!important;cursor:pointer!important;' +
-    'visibility:visible!important}' +
-    'html.' + ON + ' #__ml_fsbtn{display:none!important}';
+    '#__ml_toast.show{display:block}';
   (document.head || document.documentElement).appendChild(style);
 
   // ---------- control bar ----------
   var ui = document.createElement('div');
   ui.id = '__ml_ui';
   ui.innerHTML =
-    '<div id="__ml_track"><div id="__ml_fill"></div><div id="__ml_knob"></div></div>' +
-    '<div id="__ml_row">' +
+    // On a TV the progress bar takes the remote's highlight: ←/→ on it seek.
+    '<div id="__ml_track"' + (phone ? '' : ' tabindex="0"') + '><div id="__ml_fill"></div><div id="__ml_knob"></div></div>' +
+    '<div id="__ml_row">' + (manual ? '<button data-a="fs">&#x26F6; Full Screen</button>' : '') +
     '<button data-a="back">&#9194; 10</button><button data-a="play">&#9199;</button>' +
     '<button data-a="fwd">10 &#9193;</button><span id="__ml_time"></span>' +
     '<span id="__ml_hint">' + (phone ? '' : '&larr; &rarr; 10s &nbsp;&bull;&nbsp; OK &#9199; &nbsp;&bull;&nbsp; &uarr;&darr; menu') + '</span>' +
@@ -66,13 +66,7 @@
   toast.id = '__ml_toast';
   document.documentElement.appendChild(ui);
   document.documentElement.appendChild(toast);
-  if (manual) {
-    var fsBtn = document.createElement('button');
-    fsBtn.id = '__ml_fsbtn';
-    fsBtn.innerHTML = '&#x26F6; Full Screen';
-    fsBtn.addEventListener('click', function () { userExited = false; enter(); });
-    document.documentElement.appendChild(fsBtn);
-  }
+  if (manual) ui.classList.add('docked');
   var $ = function (id) { return document.getElementById(id); };
   var hideTimer = null, toastTimer = null;
 
@@ -99,7 +93,7 @@
     $('__ml_knob').style.left = pct + '%';
   }
   function showUi() {
-    if (!active) return;
+    if (!active) { if (manual) paint(); return; }
     paint();
     ui.classList.add('show');
     clearTimeout(hideTimer);
@@ -144,13 +138,14 @@
     else if (a === 'fwd') seek(10);
     else if (a === 'play') togglePlay();
     else if (a === 'exit') { userExited = true; exit(); }
+    else if (a === 'fs') { userExited = false; enter(); }
   });
   var dragging = false;
   $('__ml_track').addEventListener('pointerdown', function (e) { dragging = true; seekTo(e.clientX); });
   window.addEventListener('pointermove', function (e) { if (dragging) seekTo(e.clientX); });
   window.addEventListener('pointerup', function () { dragging = false; });
   document.addEventListener('timeupdate', function () {
-    if (active && ui.classList.contains('show')) paint();
+    if ((active && ui.classList.contains('show')) || ui.classList.contains('docked')) paint();
   }, true);
 
   function area(el) {
@@ -188,6 +183,7 @@
       p.classList.add(ANCESTOR);
     }
     document.documentElement.classList.add(ON);
+    ui.classList.remove('docked');
     if (el.tagName === 'VIDEO') {
       if (el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); }
     }
@@ -199,7 +195,10 @@
 
   function exit(silent) {
     document.documentElement.classList.remove(ON);
-    if (typeof ui !== 'undefined') ui.classList.remove('show');
+    if (typeof ui !== 'undefined') {
+      ui.classList.remove('show');
+      if (manual) { ui.classList.add('docked'); paint(); }
+    }
     document.querySelectorAll('.' + TARGET + ',.' + ANCESTOR).forEach(function (el) {
       el.classList.remove(TARGET, ANCESTOR);
     });
@@ -244,8 +243,15 @@
 
   // Runs before the page's (and tvnav.js's) own key handlers.
   window.addEventListener('keydown', function (e) {
-    if (!active) return;
     var k = e.keyCode;
+    if (!active) {
+      // Normal mode (TV movies): with the progress bar highlighted, ←/→ seek directly.
+      if (manual && (k === 37 || k === 39) && $('__ml_track').classList.contains('__ml_focus')) {
+        e.preventDefault(); e.stopImmediatePropagation();
+        seek((k === 39 ? 1 : -1) * (e.repeat ? 30 : 10));
+      }
+      return;
+    }
     if (k === 37 || k === 39) {        // ← →: seek (holding the key jumps faster)
       e.preventDefault(); e.stopImmediatePropagation();
       if (!seek((k === 39 ? 1 : -1) * (e.repeat ? 30 : 10))) showUi();
