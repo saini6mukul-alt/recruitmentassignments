@@ -57,6 +57,12 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 - Left side ke menu se **→** dabaane par highlight page ke content par chala jaata hai.
 - Website par koi pop-up box khule (jaise "Only India Stream"), to remote usi box ke andar chalta hai.
 
+**Full-screen mein film aage-peeche (v4.3)**
+- Full screen mein neeche apna control bar aata hai: ⏪ 10, ⏯, 10 ⏩, progress bar aur time (jaise 0:25 / 2:00:56).
+- **TV:** **←/→** = 10 second peeche/aage (button dabaaye rakho to 30 second), **OK** = pause/play, **↑/↓** = player ka menu (server, episodes, subtitles). Remote ke **⏪/⏩** buttons = 30 second.
+- **Phone:** screen par **tap** = control bar; ⏪/⏩ buttons, ya progress bar par kahin bhi tap karke wahan pahunch jaao. **✕ Menu** = player ke apne buttons.
+- Live TV channels par aage-peeche nahi hota (sirf "● LIVE" dikhta hai).
+
 **Auto full-screen (sirf TV par)**
 - Channel chalu hote hi video apne aap **poori screen (cover)** par aa jaata hai. App ke tabs, buttons aur site ke baaki hisse chhup jaate hain.
 - **OK**: play / pause.

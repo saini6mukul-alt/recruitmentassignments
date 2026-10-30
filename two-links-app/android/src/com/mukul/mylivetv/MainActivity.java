@@ -735,6 +735,16 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             }
             return true;
         }
+        boolean seekKey = code == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || code == KeyEvent.KEYCODE_MEDIA_REWIND
+                || code == KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD || code == KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD;
+        if (seekKey) {
+            // Remote ⏩/⏪ buttons: jump 30 seconds in the playing video.
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                boolean forward = code == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || code == KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD;
+                visibleWebView().evaluateJavascript("window.__mlCover && __mlCover.seek(" + (forward ? 30 : -30) + ")", null);
+            }
+            return true;
+        }
         if (playKey) {
             if (event.getAction() == KeyEvent.ACTION_UP) {
                 visibleWebView().evaluateJavascript("window.__mlNav && __mlNav.togglePlay()", null);
