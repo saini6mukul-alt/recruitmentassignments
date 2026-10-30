@@ -763,9 +763,9 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
 
     /** Back on the Home screen: confirm in the middle of the screen, then close the app fully. */
     private void showExitDialog() {
-        final AlertDialog dialog = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
-                .setTitle("My Live TV")
-                .setMessage("App band karein?")
+        final AlertDialog dialog = new AlertDialog.Builder(this, R.style.ExitDialog)
+                .setTitle("Exit My Live TV?")
+                .setMessage("Are you sure you want to close the app?")
                 .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int which) {

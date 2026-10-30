@@ -94,12 +94,16 @@ Slow Android TVs par lag kam karne ke liye:
 - Channel list har 12 ghante mein ek baar, ek-ek site karke update hoti hai (↻ se kabhi bhi). Channel chalte waqt ye kaam ruka rehta hai.
 - Full-screen script ab page ko baar-baar check nahi karti, sirf video start hone par kaam karti hai.
 
-## App se bahar nikalna (v4.6)
+## App se bahar nikalna (v4.7)
 
-- Home screen par **Back** dabaane par screen ke beech mein box aata hai: **"App band karein?" [Exit] [Cancel]**.
+- Home screen par **Back** dabaane par screen ke beech mein box aata hai: **"Exit My Live TV?" — "Are you sure you want to close the app?" [Cancel] [Exit]**.
 - TV par highlight pehle se **Exit** par hota hai, to **Back → OK** = app band.
 - **Exit** dabaate hi video/loading band, app recent-apps list se hat jaati hai aur poori tarah band ho jaati hai (background mein nahi chalti).
 - **Cancel** ya Back = app mein hi raho.
+
+<img src="exit-dialog-preview.png" width="640" alt="Exit dialog preview on TV">
+
+(Preview image: TV par kaisa dikhega, browser mein bana kar.)
 
 ## iPhone (iOS) par
 
