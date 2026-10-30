@@ -2,6 +2,8 @@ package com.mukul.mylivetv;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -757,6 +759,56 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         return super.dispatchKeyEvent(event);
     }
 
+    // ------------------------------------------------------------------ Exit
+
+    /** Back on the Home screen: confirm in the middle of the screen, then close the app fully. */
+    private void showExitDialog() {
+        final AlertDialog dialog = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+                .setTitle("My Live TV")
+                .setMessage("App band karein?")
+                .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        exitCompletely();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
+        TextView message = dialog.findViewById(android.R.id.message);
+        if (message != null) message.setTextSize(isTv ? 22 : 18);
+        for (int which : new int[]{DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE}) {
+            android.widget.Button b = dialog.getButton(which);
+            b.setTextSize(isTv ? 20 : 16);
+            b.setPadding(dp(20), dp(10), dp(20), dp(10));
+            b.setAllCaps(false);
+        }
+        // The remote's highlight starts on Exit, so Back then OK leaves the app.
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).requestFocus();
+    }
+
+    /**
+     * Stops playback and background loading, removes the app from the recent-apps list and
+     * ends the process, so nothing keeps running on the TV after Exit.
+     */
+    private void exitCompletely() {
+        catalog.cancel();
+        for (WebView w : tabViews) {
+            w.stopLoading();
+            w.loadUrl("about:blank");
+        }
+        playerView.stopLoading();
+        playerView.loadUrl("about:blank");
+        CookieManager.getInstance().flush();
+        finishAndRemoveTask();
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        }, 300);
+    }
+
     // ------------------------------------------------------------------ Lifecycle
 
     @SuppressWarnings("deprecation")
@@ -775,7 +827,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         } else if (current != 0) {
             selectTab(0);
         } else {
-            super.onBackPressed();
+            showExitDialog();
         }
     }
 
