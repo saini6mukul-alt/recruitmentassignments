@@ -185,7 +185,13 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                view.evaluateJavascript(tvNavJs, null);
+                if (isTv) {
+                    // Highlight the page's main button (e.g. "Watch Now") without a key press first.
+                    view.evaluateJavascript("window.__mlTv = true;\n" + tvNavJs
+                            + "\n;setTimeout(function () { window.__mlNav && __mlNav.focusIn(); }, 1000);", null);
+                } else {
+                    view.evaluateJavascript(tvNavJs, null);
+                }
                 if (!url.startsWith("file:")) view.evaluateJavascript(siteFixJs, null);
                 if (tvCoverJs != null && !url.startsWith("file:")) view.evaluateJavascript(tvCoverJs, null);
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.GONE);

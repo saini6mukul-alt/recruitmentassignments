@@ -23,6 +23,19 @@
     window.addEventListener('popstate', check);
     check();
 
+    // Skip the "Get the App / Join Telegram / Continue to website" welcome box.
+    var welcomeTries = 0;
+    var skipWelcome = setInterval(function () {
+      if (++welcomeTries > 20) return clearInterval(skipWelcome);
+      var buttons = document.querySelectorAll('button');
+      for (var i = 0; i < buttons.length; i++) {
+        if (/continue to website/i.test(buttons[i].textContent || '')) {
+          buttons[i].click();
+          return clearInterval(skipWelcome);
+        }
+      }
+    }, 500);
+
     if (location.pathname.indexOf('/embed/') === 0) {
       var tries = 0;
       var autoPlay = setInterval(function () {

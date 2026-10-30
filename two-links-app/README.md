@@ -53,6 +53,8 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 - **Search**: Home screen ke **right-top corner** mein hai. Page ke upar jaakar **→** dabaayein, phir **OK** se TV keyboard khulega. Remote ka **Search / 🎤 button** dabaane par seedha search box khul jaata hai. Likhne ke baad **↓** se results par jaayein.
 - **Back**: fullscreen band → pichla page → player band → Home.
 - **Play/Pause button** (ya fullscreen mein OK): video roko ya chalaao.
+- Naya page khulte hi highlight apne aap **"Watch Now" / "Play"** button par aa jaata hai.
+- Left side ke menu se **→** dabaane par highlight page ke content par chala jaata hai.
 - Website par koi pop-up box khule (jaise "Only India Stream"), to remote usi box ke andar chalta hai.
 
 **Auto full-screen (sirf TV par)**
@@ -71,6 +73,7 @@ TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pah
 - Category **"Movies & Web Series"** aur search mein bhi movies/shows aate hain.
 - Poster par tap/OK karte hi film seedha player mein khulti hai aur apne aap chalu ho jaati hai. TV shows Season 1 Episode 1 se shuru hote hain; baaki episodes player ke "Episodes" menu mein hain.
 - Site ke andar "Watch Now" dabaane par bhi seedha player khulta hai (beech wala page skip).
+- Site ka "Get the App / Continue to website" wala welcome box apne aap band ho jaata hai.
 
 ## Performance (v3.3)
 

@@ -10,8 +10,10 @@
   var current = null;
 
   var style = document.createElement('style');
-  style.textContent = '.' + FOCUS_CLASS + '{outline:3px solid #00e5ff!important;outline-offset:2px!important;' +
-    'box-shadow:0 0 0 6px rgba(0,229,255,.35)!important}';
+  // Drawn just inside the element: cards inside horizontally scrolling rows have their
+  // outer edges clipped by the row, which would hide an outline drawn outside.
+  style.textContent = '.' + FOCUS_CLASS + '{outline:4px solid #00e5ff!important;outline-offset:-4px!important;' +
+    'box-shadow:0 0 0 4px rgba(0,229,255,.45)!important}';
   (document.head || document.documentElement).appendChild(style);
 
   function visible(el) {
@@ -105,10 +107,19 @@
     el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }
 
+  // Where the highlight starts on a page: a visible "Watch Now / Play" button if there is
+  // one, otherwise the top-left item of the main content (not a fixed side/top menu).
+  var PLAY_RE = /^\s*(watch now|watch|play( episode \d+)?|resume|continue watching|play now|start watching)\s*$/i;
   function first() {
+    var onScreen = candidates().filter(function (c) {
+      return c.r.bottom > 0 && c.r.top < window.innerHeight;
+    });
+    var play = onScreen.filter(function (c) { return PLAY_RE.test(c.el.textContent || ''); });
+    if (play.length) { setCurrent(play[0].el); return play[0].el; }
+    var inMenu = function (el) { return fixedEls.some(function (f) { return f.contains(el); }); };
+    var content = onScreen.filter(function (c) { return !inMenu(c.el); });
     var best = null, bestScore = Infinity;
-    candidates().forEach(function (c) {
-      if (c.r.bottom < 0 || c.r.top > window.innerHeight) return;
+    (content.length ? content : onScreen).forEach(function (c) {
       var score = c.r.top * 2 + c.r.left;
       if (score < bestScore) { bestScore = score; best = c.el; }
     });
@@ -116,11 +127,7 @@
     return best;
   }
 
-  function move(dir) {
-    if (!current || !document.contains(current) || !visible(current)) return !!first();
-    var list = candidates();
-    if (list.overlay && !list.overlay.contains(current)) return !!first();
-    var from = current.getBoundingClientRect();
+  function pick(list, from, dir, sameRow) {
     var fx = from.left + from.width / 2, fy = from.top + from.height / 2;
     var best = null, bestScore = Infinity;
     list.forEach(function (c) {
@@ -129,12 +136,26 @@
       var main, side;
       if (dir === 'down') { main = c.r.top - from.bottom + 1; side = Math.abs(cx - fx); if (cy <= fy) return; }
       else if (dir === 'up') { main = from.top - c.r.bottom + 1; side = Math.abs(cx - fx); if (cy >= fy) return; }
-      else if (c.r.bottom <= from.top || c.r.top >= from.bottom) return; // left/right stays on the same row
+      else if (sameRow && (c.r.bottom <= from.top || c.r.top >= from.bottom)) return;
+      // Off-row fallback only for items fully beside the current one (side menu → content).
+      else if (!sameRow && (dir === 'right' ? c.r.left < from.right : c.r.right > from.left)) return;
+      else if (!sameRow && (c.r.left >= window.innerWidth || c.r.right <= 0)) return; // not scrolled-away items
       else if (dir === 'right') { main = c.r.left - from.right + 1; side = Math.abs(cy - fy); if (cx <= fx) return; }
       else { main = from.left - c.r.right + 1; side = Math.abs(cy - fy); if (cx >= fx) return; }
       var score = Math.max(main, 0) + side * 2.5;
       if (score < bestScore) { bestScore = score; best = c.el; }
     });
+    return best;
+  }
+
+  function move(dir) {
+    if (!current || !document.contains(current) || !visible(current)) return !!first();
+    var list = candidates();
+    if (list.overlay && !list.overlay.contains(current)) return !!first();
+    var from = current.getBoundingClientRect();
+    // Left/right prefer the same row; if nothing is there (e.g. from a side menu next to a
+    // big banner), take the nearest item in that direction anywhere.
+    var best = pick(list, from, dir, true) || (dir === 'left' || dir === 'right' ? pick(list, from, dir, false) : null);
     if (best) { setCurrent(best); return true; }
     if (dir === 'down') { window.scrollBy(0, window.innerHeight * 0.6); return true; }
     if (dir === 'up') {
@@ -177,6 +198,19 @@
       activate();
     }
   }, true);
+
+  // Single-page sites change pages without reloading: start from the new page's main
+  // button instead of a stale element.
+  ['pushState', 'replaceState'].forEach(function (name) {
+    var orig = history[name];
+    history[name] = function () {
+      var r = orig.apply(this, arguments);
+      setTimeout(function () { clickables = null; if (current && !current.isConnected) current = null; }, 0);
+      // On a TV, show the highlight on the new page's main button straight away.
+      if (window.__mlTv) setTimeout(function () { if (!current || !current.isConnected) first(); }, 1200);
+      return r;
+    };
+  });
 
   window.__mlNav = { first: first, select: setCurrent, focusIn: function () {
     if (current && document.contains(current) && visible(current)) setCurrent(current); else first();
