@@ -202,7 +202,10 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
                     view.evaluateJavascript(tvNavJs, null);
                 }
                 if (!url.startsWith("file:")) view.evaluateJavascript(siteFixJs, null);
-                if (isTv && !url.startsWith("file:")) {
+                if (isTv && isMoviePlayer(url)) {
+                    // TV movies start normal; the bottom-left "Full Screen" button enters cover mode.
+                    view.evaluateJavascript("window.__mlCoverManual = true;\n" + tvCoverJs, null);
+                } else if (isTv && !url.startsWith("file:")) {
                     view.evaluateJavascript(tvCoverJs, null);
                 } else if (isMoviePlayer(url)) {
                     // Phones: movies play full screen in landscape too.

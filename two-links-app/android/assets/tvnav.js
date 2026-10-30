@@ -44,7 +44,8 @@
     var all = collect();
     var overlay = overlayRoot();
     if (overlay) {
-      var inside = all.filter(function (c) { return overlay.contains(c.el); });
+      // The app's own buttons (e.g. "Full Screen") stay reachable above any page overlay.
+      var inside = all.filter(function (c) { return overlay.contains(c.el) || /^__ml_/.test(c.el.id); });
       if (inside.length) { inside.overlay = overlay; return inside; }
     }
     return all;
@@ -109,7 +110,7 @@
 
   // Where the highlight starts on a page: a visible "Watch Now / Play" button if there is
   // one, otherwise the top-left item of the main content (not a fixed side/top menu).
-  var PLAY_RE = /^\s*(watch now|watch|play( episode \d+)?|resume|continue watching|play now|start watching)\s*$/i;
+  var PLAY_RE = /^\s*(watch now|watch|play( episode \d+)?|resume|continue watching|play now|start watching|\u26F6? ?full screen)\s*$/i;
   function first() {
     var onScreen = candidates().filter(function (c) {
       return c.r.bottom > 0 && c.r.top < window.innerHeight;
@@ -151,7 +152,7 @@
   function move(dir) {
     if (!current || !document.contains(current) || !visible(current)) return !!first();
     var list = candidates();
-    if (list.overlay && !list.overlay.contains(current)) return !!first();
+    if (list.overlay && !list.overlay.contains(current) && !/^__ml_/.test(current.id)) return !!first();
     var from = current.getBoundingClientRect();
     // Left/right prefer the same row; if nothing is there (e.g. from a side menu next to a
     // big banner), take the nearest item in that direction anywhere.

@@ -79,7 +79,7 @@ TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pah
 - Category **"Movies & Web Series"** aur search mein bhi movies/shows aate hain.
 - Poster par tap/OK karte hi film seedha player mein khulti hai aur apne aap chalu ho jaati hai. TV shows Season 1 Episode 1 se shuru hote hain; baaki episodes player ke "Episodes" menu mein hain.
 - Site ke andar "Watch Now" dabaane par bhi seedha player khulta hai (beech wala page skip).
-- **Full screen:** TV par film poori screen (cover) mein chalti hai. **Phone par bhi** film chalu hote hi poori screen mein aa jaati hai aur phone apne aap landscape ho jaata hai (poori picture dikhti hai, kuch nahi kat-ta). Phone par screen par **tap** ya **Back** = player ke buttons dikhenge; player ki upar wali bar ka **⛶** = wapas full screen.
+- **Full screen:** TV par film **normal** chalti hai. Screen ke **left-bottom** mein **⛶ Full Screen** button hota hai (page khulte hi highlight usi par hota hai), **OK** dabaao to poori screen (cover); **↑/↓** se wapas normal. **Phone par bhi** film chalu hote hi poori screen mein aa jaati hai aur phone apne aap landscape ho jaata hai (poori picture dikhti hai, kuch nahi kat-ta). Phone par screen par **tap** ya **Back** = player ke buttons dikhenge; player ki upar wali bar ka **⛶** = wapas full screen.
 - Site ka "Get the App / Continue to website" wala welcome box apne aap band ho jaata hai.
 
 ## Performance (v3.3)

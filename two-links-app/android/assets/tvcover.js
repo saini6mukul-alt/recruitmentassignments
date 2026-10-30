@@ -7,6 +7,8 @@
 (function () {
   if (window.__mlCover) return;
   var phone = !!window.__mlCoverPhone;
+  // TV movies: no automatic full screen; a "Full Screen" button (bottom-left) enters it.
+  var manual = !!window.__mlCoverManual;
 
   var ON = '__ml_cover_on', TARGET = '__ml_cover', ANCESTOR = '__ml_cover_anc';
   var active = false, userExited = false, target = null;
@@ -42,7 +44,12 @@
     '#__ml_toast{position:fixed!important;left:50%;top:44%;transform:translate(-50%,-50%);display:none;' +
     'padding:14px 26px;border-radius:30px;background:rgba(0,0,0,.65)!important;font:700 26px system-ui,sans-serif!important;' +
     'color:#fff!important;z-index:2147483647!important}' +
-    'html.' + ON + ' #__ml_toast.show{display:block}';
+    'html.' + ON + ' #__ml_toast.show{display:block}' +
+    '#__ml_fsbtn{all:unset;position:fixed!important;left:24px!important;bottom:24px!important;z-index:2147483647!important;' +
+    'padding:12px 22px!important;border-radius:28px!important;background:rgba(0,0,0,.75)!important;color:#fff!important;' +
+    'border:2px solid rgba(255,255,255,.35)!important;font:700 18px system-ui,sans-serif!important;cursor:pointer!important;' +
+    'visibility:visible!important}' +
+    'html.' + ON + ' #__ml_fsbtn{display:none!important}';
   (document.head || document.documentElement).appendChild(style);
 
   // ---------- control bar ----------
@@ -59,6 +66,13 @@
   toast.id = '__ml_toast';
   document.documentElement.appendChild(ui);
   document.documentElement.appendChild(toast);
+  if (manual) {
+    var fsBtn = document.createElement('button');
+    fsBtn.id = '__ml_fsbtn';
+    fsBtn.innerHTML = '&#x26F6; Full Screen';
+    fsBtn.addEventListener('click', function () { userExited = false; enter(); });
+    document.documentElement.appendChild(fsBtn);
+  }
   var $ = function (id) { return document.getElementById(id); };
   var hideTimer = null, toastTimer = null;
 
@@ -195,7 +209,7 @@
   }
 
   function maybeEnter(v) {
-    if (active || userExited) return;
+    if (active || userExited || manual) return;
     v = v || findVideo();
     if (v) enter(v);
   }
@@ -211,7 +225,7 @@
   [300, 1500, 4000, 9000].forEach(function (ms) {
     setTimeout(function () {
       maybeEnter();
-      if (!active && !userExited && ms >= 4000) { var f = findPlayerFrame(); if (f) enter(f); }
+      if (!active && !userExited && !manual && ms >= 4000) { var f = findPlayerFrame(); if (f) enter(f); }
     }, ms);
   });
   // While covered, a cheap check that the player wasn't replaced (e.g. server switch).
