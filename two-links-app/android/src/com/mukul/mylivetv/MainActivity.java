@@ -91,6 +91,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     private LinearLayout tabBar;
     private LinearLayout playerBar;
     private boolean coverOn;
+    private Integer coverSavedOrientation;
 
     // Fullscreen video state
     private View customView;
@@ -105,7 +106,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         isTv = detectTv();
         tvNavJs = CatalogLoader.readAsset(this, "tvnav.js");
         siteFixJs = CatalogLoader.readAsset(this, "sitefix.js");
-        if (isTv) tvCoverJs = CatalogLoader.readAsset(this, "tvcover.js");
+        tvCoverJs = CatalogLoader.readAsset(this, "tvcover.js");
 
         root = new FrameLayout(this);
         root.setBackgroundColor(COLOR_BG);
@@ -151,6 +152,14 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         catalog.refreshIfStale();
     }
 
+    private static boolean isMoviePlayer(String url) {
+        Uri uri = Uri.parse(url);
+        String host = uri.getHost() == null ? "" : uri.getHost();
+        String path = uri.getPath() == null ? "" : uri.getPath();
+        return (host.equals("nxsha.space") || host.endsWith(".nxsha.space"))
+                && (path.startsWith("/embed/") || path.startsWith("/watch/"));
+    }
+
     private boolean detectTv() {
         UiModeManager ui = (UiModeManager) getSystemService(UI_MODE_SERVICE);
         return (ui != null && ui.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
@@ -193,7 +202,12 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
                     view.evaluateJavascript(tvNavJs, null);
                 }
                 if (!url.startsWith("file:")) view.evaluateJavascript(siteFixJs, null);
-                if (tvCoverJs != null && !url.startsWith("file:")) view.evaluateJavascript(tvCoverJs, null);
+                if (isTv && !url.startsWith("file:")) {
+                    view.evaluateJavascript(tvCoverJs, null);
+                } else if (isMoviePlayer(url)) {
+                    // Phones: movies play full screen in landscape too.
+                    view.evaluateJavascript("window.__mlCoverPhone = true;\n" + tvCoverJs, null);
+                }
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.GONE);
             }
 
@@ -476,8 +490,8 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         });
         bar.addView(reload, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
 
-        if (isTv) {
-            // Back to full-cover video after leaving it with the arrow keys.
+        {
+            // Back to full-cover video after leaving it (arrow keys on TV, tap/Back on phones).
             TextView full = new TextView(this);
             makeFocusable(full);
             full.setText("\u26F6");
@@ -489,7 +503,9 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
                 @Override
                 public void onClick(View v) {
                     playerView.requestFocus();
-                    playerView.evaluateJavascript("window.__mlCover && __mlCover.enter()", null);
+                    // Load the cover script first if this page didn't get it automatically.
+                    playerView.evaluateJavascript("if (!window.__mlCover) { window.__mlCoverPhone = " + !isTv + ";\n"
+                            + tvCoverJs + "\n}\nwindow.__mlCover.enter();", null);
                 }
             });
             bar.addView(full, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.MATCH_PARENT));
@@ -682,6 +698,15 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         playerBar.setVisibility(bars);
         tabBar.setVisibility(bars);
         if (customView == null) setSystemBarsHidden(on);
+        if (!isTv && customView == null) {
+            if (on) {
+                coverSavedOrientation = getRequestedOrientation();
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            } else if (coverSavedOrientation != null) {
+                setRequestedOrientation(coverSavedOrientation);
+                coverSavedOrientation = null;
+            }
+        }
         if (on) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             visibleWebView().requestFocus();
@@ -726,6 +751,10 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
     public void onBackPressed() {
         if (customView != null) {
             exitFullscreen();
+        } else if (coverOn && !isTv) {
+            // Phones: Back first leaves full screen and shows the player controls.
+            visibleWebView().evaluateJavascript("window.__mlCover && __mlCover.exit()", null);
+            setCoverUi(false);
         } else if (player.getVisibility() == View.VISIBLE) {
             if (playerCanGoBack()) playerView.goBack(); else closePlayer();
         } else if (tabViews[current].canGoBack()) {

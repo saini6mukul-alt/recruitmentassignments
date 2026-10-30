@@ -2,8 +2,11 @@
 // screen (object-fit: cover) and hide everything else. Arrow keys leave cover
 // mode to reach the page's own controls; OK toggles play/pause; MLTv.coverChanged
 // tells the app to hide its own bars while cover mode is on.
+// On phones (movies only) the app sets window.__mlCoverPhone first: the video is fitted
+// whole (no cropping on tall screens), and a tap leaves cover mode to show the controls.
 (function () {
   if (window.__mlCover) return;
+  var phone = !!window.__mlCoverPhone;
 
   var ON = '__ml_cover_on', TARGET = '__ml_cover', ANCESTOR = '__ml_cover_anc';
   var active = false, userExited = false, target = null;
@@ -17,7 +20,7 @@
     'html.' + ON + ' .' + TARGET + '{position:fixed!important;left:0!important;top:0!important;right:0!important;' +
     'bottom:0!important;width:100vw!important;height:100vh!important;max-width:none!important;' +
     'max-height:none!important;margin:0!important;padding:0!important;border:0!important;' +
-    'object-fit:cover!important;background:#000!important;z-index:2147483647!important;' +
+    'object-fit:' + (phone ? 'contain' : 'cover') + '!important;background:#000!important;z-index:2147483647!important;' +
     'visibility:visible!important;transform:none!important}';
   (document.head || document.documentElement).appendChild(style);
 
@@ -99,6 +102,17 @@
   setInterval(function () {
     if (active && target && !target.isConnected) { exit(); target = null; maybeEnter(); }
   }, 2000);
+
+  if (phone) {
+    // First tap on the covered video: show the page and player controls again.
+    window.addEventListener('click', function (e) {
+      // Everything but the video is hidden, so any tap while covered means "show controls".
+      if (!active) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      userExited = true;
+      exit();
+    }, true);
+  }
 
   // Runs before the page's (and tvnav.js's) own key handlers.
   window.addEventListener('keydown', function (e) {
