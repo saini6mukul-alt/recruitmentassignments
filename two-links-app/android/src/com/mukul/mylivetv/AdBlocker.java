@@ -88,6 +88,33 @@ final class AdBlocker {
         }
     }
 
+    /** Google's ad hosts, which some player pages probe to detect an ad blocker. */
+    private static final String[] GOOGLE_AD_DOMAINS = {
+            "googlesyndication.com", "doubleclick.net", "adtrafficquality.google",
+            "googleadservices.com", "googletagservices.com"
+    };
+
+    /**
+     * Player pages that refuse to play ("Adblock Detected") when Google's ad hosts are blocked.
+     * On these pages Google ads may load; the pop-under networks stay blocked everywhere.
+     */
+    private static final String[] GOOGLE_ADS_ALLOWED_ON = {
+            "jjtvxweb.pages.dev", "suniliv.pages.dev"
+    };
+
+    static boolean isAllowedOnPage(Uri request, String pageHost) {
+        if (pageHost == null || !matches(pageHost, GOOGLE_ADS_ALLOWED_ON)) return false;
+        String host = request == null ? null : request.getHost();
+        return host != null && matches(host.toLowerCase(Locale.ROOT), GOOGLE_AD_DOMAINS);
+    }
+
+    private static boolean matches(String host, String[] domains) {
+        for (String d : domains) {
+            if (host.equals(d) || host.endsWith("." + d)) return true;
+        }
+        return false;
+    }
+
     static WebResourceResponse emptyResponse() {
         return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(new byte[0]));
     }

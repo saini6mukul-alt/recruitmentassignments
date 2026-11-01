@@ -189,6 +189,7 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
         web.setWebViewClient(new BlockingClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
                 if (showsProgress && isShowing(view)) progress.setVisibility(View.VISIBLE);
                 if (coverOn && isShowing(view)) setCoverUi(false); // a new page starts uncovered
             }
@@ -288,9 +289,21 @@ public class MainActivity extends Activity implements CatalogLoader.Listener {
 
     /** Ad blocking + redirect rules shared by every WebView in the app. */
     static class BlockingClient extends WebViewClient {
+        /** Host of the page each WebView shows; requests are checked off the UI thread. */
+        private static final java.util.Map<WebView, String> PAGE_HOSTS =
+                java.util.Collections.synchronizedMap(new java.util.WeakHashMap<WebView, String>());
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            String host = Uri.parse(url).getHost();
+            PAGE_HOSTS.put(view, host == null ? "" : host.toLowerCase(Locale.ROOT));
+        }
+
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            return AdBlocker.isBlocked(request.getUrl()) ? AdBlocker.emptyResponse() : null;
+            Uri uri = request.getUrl();
+            if (!AdBlocker.isBlocked(uri) || AdBlocker.isAllowedOnPage(uri, PAGE_HOSTS.get(view))) return null;
+            return AdBlocker.emptyResponse();
         }
 
         @Override

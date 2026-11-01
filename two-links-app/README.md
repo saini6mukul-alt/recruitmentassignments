@@ -36,6 +36,9 @@ Requirement: Android 5.0 ya usse naya.
 - `intent://` aur app-redirect wale ad links block hote hain, isliye ab Chrome nahi khulega.
 - Bina tap ke khulne wali nayi windows band; tap karke khulne wale links sirf jaane-pehchane content domains par chalte hain.
 
+**"Adblock Detected" (v4.8)**
+- JioTV+ (`jjtvxweb.pages.dev`) aur SonyLiv (`suniliv.pages.dev`) ke player pages Google ads block hone par channel nahi chalate. Sirf in do pages par Google ads ko load hone diya jaata hai; Chrome par bhejne wale pop-up ad networks wahan bhi block rehte hain. Agar koi aur site ye message dikhaye, to uska naam `AdBlocker.java` ki `GOOGLE_ADS_ALLOWED_ON` list mein jodna hai.
+
 **Baaki**
 - "Live TV Hub" aur "StreamFlex TV" tabs pehle jaise poori website dikhate hain (ab ad-block ke saath).
 - Video fullscreen karne par phone apne aap landscape ho jaata hai aur screen on rehti hai.
