@@ -75,6 +75,13 @@ App Android TV par bhi chalti hai aur TV ke launcher mein banner ke saath dikhti
 
 TV par tabs neeche ki jagah **upar** dikhte hain, taaki remote se aasaani se pahunch sakein.
 
+## Hindi/English aur Top 10 (v4.9)
+
+- **Recommended for you** mein sirf **Hindi aur English** channels aate hain (StreamFlex ki language, JioTV+ ki language category, aur naam se regional channels pehchaan kar).
+- **🔥 India's Top 10 Movies**: Nxsha par India ki abhi sabse popular movies mein se sirf Hindi & English, rank 1–10 ke saath.
+- **⚡ India's Top 10 Shows**: India ke abhi trending shows (Hindi & English), rank 1–10 ke saath.
+- App update ke baad channel/movie list ek baar apne aap nayi load hoti hai.
+
 ## Movies & Web Series (v4.0)
 
 - Naya **Movies** tab: https://nxsha.space/ (ad-block, remote aur full-screen ke saath).

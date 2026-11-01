@@ -45,6 +45,8 @@ final class CatalogLoader {
     };
     private static final long TIMEOUT_MS = 45_000;
     private static final long MAX_AGE_MS = 12L * 60 * 60 * 1000;
+    /** Bump when extract.js starts returning new fields, so cached lists are rebuilt. */
+    private static final int SCHEMA = 2;
     private static final int MAX_PAYLOAD_CHARS = 2_000_000;
 
     private final Activity activity;
@@ -88,6 +90,12 @@ final class CatalogLoader {
 
     /** Reloads only sources that never loaded or are older than {@link #MAX_AGE_MS}. */
     void refreshIfStale() {
+        // Lists saved by an older app version lack newer fields (languages, Top 10 rows): reload all once.
+        if (prefs.getInt("schema", 1) < SCHEMA) {
+            prefs.edit().putInt("schema", SCHEMA).apply();
+            refresh();
+            return;
+        }
         long now = System.currentTimeMillis();
         for (String[] source : SOURCES) {
             long ts = 0;
