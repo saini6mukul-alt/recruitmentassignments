@@ -98,6 +98,31 @@
       });
   }
 
+  // Top 10 shows only from the big three OTTs: take each platform's most popular Hindi shows
+  // in India and interleave them (Netflix #1, Prime #1, JioHotstar #1, Netflix #2, …).
+  var OTTS = [['8', 'Netflix'], ['119', 'Prime Video'], ['2336', 'JioHotstar']];
+  function topTenOttShows(heading) {
+    return Promise.all(OTTS.map(function (o) {
+      return fetch('/api/media?mediaType=tv&page=1&providerId=' + o[0] + '&sort=popularity.desc&language=hi&country=IN')
+        .then(function (r) { return r.json(); })
+        .then(function (d) { return (d.items || []).map(function (it) { it.ott = o[1]; return it; }); });
+    })).then(function (lists) {
+      var out = [], seen = {};
+      for (var i = 0; out.length < 10 && i < 20; i++) {
+        lists.forEach(function (list) {
+          var it = list[i];
+          if (!it || seen[it.id] || out.length >= 10) return;
+          seen[it.id] = 1;
+          var row = item('tv', it.id, it.title, it.poster, heading);
+          row.c = it.ott; // shown under the poster
+          out.push(row);
+        });
+      }
+      if (!out.length) throw new Error('no shows');
+      return out;
+    });
+  }
+
   function item(type, id, title, poster, heading) {
     return { n: title, c: type === 'tv' ? 'TV Show' : 'Movie', l: poster, g: heading,
              u: location.origin + (type === 'tv' ? '/embed/tv/' + id + '/1/1' : '/embed/movie/' + id) };
@@ -107,7 +132,8 @@
     var feed = fetch('/api/home-feed?tabKey=home&country=IN').then(function (r) { return r.json(); });
     var tops = Promise.all([
       topTen('movies', '\uD83D\uDD25 India\u2019s Top 10 Movies'),
-      topTen('tv-shows', '\u26A1 India\u2019s Top 10 Shows')
+      topTenOttShows('\u26A1 India\u2019s Top 10 Shows \u00B7 Netflix, Prime, Hotstar')
+        .catch(function () { return topTen('tv-shows', '\u26A1 India\u2019s Top 10 Shows'); })
     ]).catch(function () { return null; });
     Promise.all([feed, tops]).then(function (res) {
       var out = [], top = res[1];

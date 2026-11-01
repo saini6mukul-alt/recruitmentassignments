@@ -46,7 +46,7 @@ final class CatalogLoader {
     private static final long TIMEOUT_MS = 45_000;
     private static final long MAX_AGE_MS = 12L * 60 * 60 * 1000;
     /** Bump when extract.js starts returning new fields, so cached lists are rebuilt. */
-    private static final int SCHEMA = 2;
+    private static final int SCHEMA = 3;
     private static final int MAX_PAYLOAD_CHARS = 2_000_000;
 
     private final Activity activity;
