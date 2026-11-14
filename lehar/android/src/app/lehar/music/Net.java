@@ -21,7 +21,21 @@ public final class Net {
 
     private Net() {}
 
+    /** Only the services Lehar needs, over HTTPS, GET/POST (review #8). */
+    static boolean allowed(String url, String method) {
+        try {
+            java.net.URL u = new URL(url);
+            String host = u.getHost();
+            boolean okHost = "music.youtube.com".equals(host) || "lrclib.net".equals(host);
+            boolean okMethod = method == null || method.isEmpty() || "GET".equals(method) || "POST".equals(method);
+            return "https".equals(u.getProtocol()) && okHost && okMethod;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static void request(String url, String method, String headersJson, String body, Callback cb) {
+        if (!allowed(url, method)) { POOL.execute(() -> cb.done(403, "")); return; }
         POOL.execute(() -> {
             int status = 0;
             String text = "";

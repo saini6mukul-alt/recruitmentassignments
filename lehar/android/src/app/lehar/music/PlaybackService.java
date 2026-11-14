@@ -41,7 +41,7 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
 
     static volatile PlaybackService instance;
     static volatile Listener listener;
-    private static JSONObject pendingNowPlaying;
+    private static volatile JSONObject pendingNowPlaying;
 
     private MediaSession session;
     private AudioManager audio;
@@ -49,6 +49,13 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
     private boolean hasFocus;
     private PowerManager.WakeLock wakeLock;
     private final Handler main = new Handler(Looper.getMainLooper());
+    // Headphones unplugged / Bluetooth dropped: pause instead of blasting the speaker (review #1)
+    private final android.content.BroadcastReceiver noisy = new android.content.BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent i) {
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(i.getAction())) send("pause");
+        }
+    };
 
     private String title = "Lehar";
     private String artist = "";
@@ -62,6 +69,8 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
     static void nowPlaying(Context ctx, JSONObject info) {
         PlaybackService s = instance;
         if (s == null) {
+            // Never (re)start the foreground service for a paused/restored track or after stop (review #9)
+            if (!info.optBoolean("isPlaying", false)) return;
             pendingNowPlaying = info;
             Intent i = new Intent(ctx, PlaybackService.class);
             if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i); else ctx.startService(i);
@@ -106,8 +115,11 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "lehar:playback");
         wakeLock.setReferenceCounted(false);
 
+        registerReceiver(noisy, new android.content.IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         startInForeground();
-        if (pendingNowPlaying != null) { apply(pendingNowPlaying); pendingNowPlaying = null; }
+        JSONObject first = pendingNowPlaying;
+        pendingNowPlaying = null;
+        if (first != null) apply(first);
     }
 
     @Override
@@ -133,6 +145,7 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
     }
 
     private void apply(JSONObject info) {
+        if (instance != this) return; // destroyed: never touch the released session
         title = info.optString("title", title);
         artist = info.optString("artist", artist);
         durationMs = (long) (info.optDouble("durationSec", durationMs / 1000.0) * 1000);
@@ -150,6 +163,7 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
             });
         }
         if (nowPlaying && !hasFocus) requestFocus();
+        if (nowPlaying && hasFocus) main.removeCallbacks(waitForSilence); // user resumed Lehar by hand
         playing = nowPlaying;
         if (playing) wakeLock.acquire(6 * 60 * 60 * 1000L); else if (wakeLock.isHeld()) wakeLock.release();
         updateMetadata();
@@ -231,27 +245,36 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 // Call or short clip: Android gives focus back with GAIN when it ends.
+                hasFocus = false;
                 send("focusLoss");
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                // Another app (Instagram reel, YouTube) took focus for good. Watch for it to go quiet, then resume.
+                // Another app (Instagram reel, YouTube) took focus for good. If Lehar was playing, watch for that
+                // app to go quiet for a few minutes at most, then resume (review #2).
                 hasFocus = false;
+                boolean wasPlaying = playing;
                 send("focusLoss");
-                silentChecks = 0;
                 main.removeCallbacks(waitForSilence);
-                main.postDelayed(waitForSilence, 2000);
+                if (wasPlaying) {
+                    silentChecks = 0;
+                    pollUntil = System.currentTimeMillis() + POLL_LIMIT_MS;
+                    main.postDelayed(waitForSilence, 2000);
+                }
                 break;
             default:
                 break; // ducking: keep playing
         }
     }
 
+    private static final long POLL_LIMIT_MS = 5 * 60 * 1000L;
+    private long pollUntil;
     private int silentChecks;
     private final Runnable waitForSilence = new Runnable() {
         @Override
         public void run() {
-            if (instance == null) return;
-            silentChecks = audio.isMusicActive() ? 0 : silentChecks + 1;
+            if (instance == null || System.currentTimeMillis() > pollUntil) return;
+            boolean inCall = audio.getMode() != AudioManager.MODE_NORMAL; // VoIP / phone calls
+            silentChecks = (audio.isMusicActive() || inCall) ? 0 : silentChecks + 1;
             if (silentChecks >= 2) {
                 requestFocus();
                 if (hasFocus) { send("focusGain"); return; }
@@ -264,6 +287,7 @@ public class PlaybackService extends Service implements AudioManager.OnAudioFocu
     public void onDestroy() {
         instance = null;
         main.removeCallbacks(waitForSilence);
+        try { unregisterReceiver(noisy); } catch (Exception ignored) { }
         if (focusRequest != null) audio.abandonAudioFocusRequest(focusRequest);
         if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
         session.setActive(false);

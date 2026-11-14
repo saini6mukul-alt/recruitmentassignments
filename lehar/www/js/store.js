@@ -63,8 +63,24 @@ export async function exportAll() {
   return out;
 }
 
+const VID = /^[\w-]{11}$/;
+const okTrack = (t) => t && VID.test(t.videoId) && typeof t.title === 'string';
+
+/** Validates the whole file before touching any data (review #8, minor 8). */
+function validBackup(obj) {
+  if (!obj || obj.app !== 'lehar') return false;
+  const pairs = (n) => (obj[n] === undefined ? [] : Array.isArray(obj[n]) ? obj[n] : null);
+  for (const n of STORES) if (n !== 'lyrics' && pairs(n) === null) return false;
+  if (!pairs('tracks').every(([k, v]) => k === v?.videoId && okTrack(v))) return false;
+  if (!pairs('likes').every(([k]) => VID.test(k))) return false;
+  if (!pairs('moodTags').every(([k]) => VID.test(k))) return false;
+  if (!pairs('history').every(([, v]) => VID.test(v?.videoId))) return false;
+  if (!pairs('playlists').every(([, v]) => typeof v?.name === 'string' && Array.isArray(v.videoIds) && v.videoIds.every((x) => VID.test(x)))) return false;
+  return true;
+}
+
 export async function importAll(obj) {
-  if (!obj || obj.app !== 'lehar') throw new Error('Ye Lehar ki backup file nahi hai');
+  if (!validBackup(obj)) throw new Error('Ye Lehar ki sahi backup file nahi hai');
   for (const s of STORES) {
     if (s === 'lyrics' || !Array.isArray(obj[s])) continue;
     await wrap(tx(s, 'readwrite').clear());

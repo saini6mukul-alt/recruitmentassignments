@@ -13,6 +13,9 @@ const BASE = 'https://music.youtube.com/youtubei/v1/';
 
 /** @typedef {{videoId:string,title:string,artist:string,album:string,durationSec:number,thumb:string}} Track */
 
+/** YouTube video ids are exactly 11 chars of [A-Za-z0-9_-]; anything else is rejected (review #8). */
+export const isVideoId = (v) => typeof v === 'string' && /^[\w-]{11}$/.test(v);
+
 export function endpoint(name) {
   return `${BASE}${name}?prettyPrint=false`;
 }
@@ -106,7 +109,7 @@ function metaFromRuns(runs) {
 
 function trackFromListItem(r) {
   const videoId = r.playlistItemData?.videoId || findFirst(r.overlay, 'watchEndpoint')?.videoId;
-  if (!videoId) return null;
+  if (!isVideoId(videoId)) return null;
   const cols = (r.flexColumns || []).map((c) => c.musicResponsiveListItemFlexColumnRenderer?.text);
   const title = runsText(cols[0]);
   if (!title) return null;
@@ -132,7 +135,7 @@ function fromCardShelf(c) {
   const titleRun = c.title?.runs?.[0];
   const videoId = titleRun?.navigationEndpoint?.watchEndpoint?.videoId;
   const thumb = bestThumb(c.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails);
-  if (videoId) {
+  if (isVideoId(videoId)) {
     const meta = metaFromRuns(c.subtitle?.runs);
     return { track: { videoId, title: titleRun.text, artist: meta.artist, album: meta.album, durationSec: meta.durationSec, thumb } };
   }
@@ -172,7 +175,7 @@ export function parseNext(json) {
   const seen = new Set();
   try {
     for (const r of collect(json, 'playlistPanelVideoRenderer')) {
-      if (!r?.videoId || seen.has(r.videoId)) continue;
+      if (!isVideoId(r?.videoId) || seen.has(r.videoId)) continue;
       const meta = metaFromRuns(r.longBylineText?.runs);
       const t = {
         videoId: r.videoId,

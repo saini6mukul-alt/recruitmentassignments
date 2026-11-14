@@ -13,7 +13,7 @@ export function fmtTime(sec) {
 
 /** Square-friendly artwork URL. YouTube video thumbs come in 16:9; mq/maxres have no letterbox bars. */
 export function artUrl(track, size = 'sm') {
-  if (!track) return '';
+  if (!track || !/^[\w-]{11}$/.test(track.videoId || '')) return '';
   const thumb = track.thumb || '';
   if (!thumb || /i\.ytimg\.com\/vi\//.test(thumb) || !thumb.includes('googleusercontent')) {
     return `https://i.ytimg.com/vi/${track.videoId}/${size === 'lg' ? 'maxresdefault' : 'mqdefault'}.jpg`;
@@ -21,10 +21,23 @@ export function artUrl(track, size = 'sm') {
   return size === 'lg' ? thumb.replace(/=w\d+-h\d+/, '=w1080-h1080') : thumb;
 }
 
-/** <img> that falls back from maxres → hq when YouTube has no large thumb. */
+const VID = /^[\w-]{11}$/;
+
+/** <img> that falls back from maxres → hq when YouTube has no large thumb (handled by the listener below, no inline JS). */
 export function img(track, cls = 'art', size = 'sm') {
-  const fallback = `https://i.ytimg.com/vi/${esc(track?.videoId)}/hqdefault.jpg`;
-  return `<img class="${cls}" loading="lazy" alt="" src="${esc(artUrl(track, size))}" onerror="if(this.dataset.f){this.onerror=null;this.classList.add('broken')}else{this.dataset.f=1;this.src='${fallback}'}">`;
+  const id = VID.test(track?.videoId || '') ? track.videoId : '';
+  return `<img class="${cls}" loading="lazy" alt="" data-vid="${id}" src="${esc(artUrl(track, size))}">`;
+}
+
+// One capturing listener replaces per-image inline onerror handlers (review #8).
+if (typeof document !== 'undefined') {
+  document.addEventListener('error', (e) => {
+    const el = e.target;
+    if (!(el instanceof HTMLImageElement) || !('vid' in el.dataset)) return;
+    if (el.dataset.f || !el.dataset.vid) { el.classList.add('broken'); return; }
+    el.dataset.f = '1';
+    el.src = `https://i.ytimg.com/vi/${el.dataset.vid}/hqdefault.jpg`;
+  }, true);
 }
 
 export const artistOf = (t) => t?.artist || 'YouTube';
@@ -68,9 +81,12 @@ export function toast(text) {
 }
 
 /** Horizontal/vertical swipe + double-tap detection on an element. */
-export function gestures(el, { onLeft, onRight, onDown, onUp, onDoubleTap, onTap, threshold = 60 }) {
+export function gestures(el, { onLeft, onRight, onDown, onUp, onDoubleTap, onTap, threshold = 60, ignore = null }) {
   let sx = 0, sy = 0, st = 0, active = false, lastTap = 0, tapTimer = null;
-  el.addEventListener('pointerdown', (e) => { active = true; sx = e.clientX; sy = e.clientY; st = Date.now(); });
+  el.addEventListener('pointerdown', (e) => {
+    if (ignore && e.target.closest(ignore)) return; // e.g. buttons inside the mini player handle their own taps
+    active = true; sx = e.clientX; sy = e.clientY; st = Date.now();
+  });
   el.addEventListener('pointercancel', () => { active = false; });
   el.addEventListener('pointerup', (e) => {
     if (!active) return;

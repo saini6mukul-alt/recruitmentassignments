@@ -56,6 +56,8 @@ public class NativeBridge {
     /** Writes a backup file to Downloads. Returns true on success. */
     @JavascriptInterface
     public boolean saveFile(String name, String content) {
+        // Only Lehar backup files (review #8)
+        if (name == null || !name.matches("lehar-backup-[0-9-]{10}\\.json") || content == null || !content.startsWith("{\"app\":\"lehar\"")) return false;
         try {
             if (Build.VERSION.SDK_INT >= 29) {
                 ContentValues v = new ContentValues();

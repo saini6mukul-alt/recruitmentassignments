@@ -89,3 +89,22 @@ test('nearbyTagged uses radius 0.25', () => {
   const byId = { [T('a').videoId]: T('a'), [T('b').videoId]: T('b') };
   assert.deepEqual(q.nearbyTagged(tags, byId, { energy: 0.8, valence: 0.8 }).map((t) => t.videoId[0]), ['a']);
 });
+
+test('normTitle: "Artist - Song" titles keep the song, not the artist (review #7)', () => {
+  assert.notEqual(q.normTitle('Ed Sheeran - Perfect (Official Music Video)', 'Ed Sheeran'), q.normTitle('Ed Sheeran - Shape of You', 'Ed Sheeran'));
+  assert.equal(q.normTitle('Ed Sheeran - Perfect (Official Music Video)', 'Ed Sheeran'), q.normTitle('Perfect', 'Ed Sheeran'));
+  // Indian "Song - Film" uploads still collapse
+  assert.equal(q.normTitle('Kesariya - Brahmastra | Ranbir Kapoor', 'Sony Music India'), q.normTitle('Kesariya', 'Arijit Singh'));
+});
+
+test('dedupe keeps different songs by the same artist (review #7)', () => {
+  const a = { ...T('a', 'Arijit Singh - Tum Hi Ho'), artist: 'Arijit Singh' };
+  const b = { ...T('b', 'Arijit Singh - Channa Mereya'), artist: 'Arijit Singh' };
+  assert.equal(q.dedupe([a, b]).length, 2);
+});
+
+test('variant markers use word boundaries and lo-fi spelling (review #7 minor)', () => {
+  assert.notEqual(q.normTitle('Kesariya'), q.normTitle('Kesariya (Lo-Fi Mix)'));
+  assert.equal(q.normTitle('Discover'), 'discover');
+  assert.equal(q.normTitle('Oliver'), 'oliver');
+});

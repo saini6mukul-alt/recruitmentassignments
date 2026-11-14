@@ -52,7 +52,7 @@ page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resourc
 const results = [];
 async function check(name, fn) {
   try { await fn(); results.push(['PASS', name]); console.log('PASS', name); }
-  catch (e) { results.push(['FAIL', name, e.message]); console.log('FAIL', name, '-', e.message.split('\n')[0]); }
+  catch (e) { results.push(['FAIL', name, e.message]); console.log('FAIL', name, '-', process.env.VERBOSE ? e.message : e.message.split('\n')[0]); }
 }
 const assert = (c, m) => { if (!c) throw new Error(m); };
 
@@ -154,6 +154,73 @@ await check('6. fast dot drags: only the last build wins (Review Focus 3)', asyn
   await page.waitForTimeout(3500); // slow (stale) builds finish after the fast one
   const title = await page.locator('#mini-title').textContent();
   assert(/party|dance|bhangra|club|wedding/i.test(title), `queue came from a stale build: "${title}"`);
+});
+
+
+const mini = () => page.locator('#mini-title').textContent();
+async function recentTitles() {
+  return page.locator('#recent-list .row .t').allTextContents();
+}
+
+await check('setup: listen to 3 songs so Recently played has rows', async () => {
+  for (let i = 0; i < 3; i++) { await page.waitForTimeout(6000); await page.click('#mini-next', { timeout: 5000 }); }
+  await page.waitForTimeout(800);
+  assert(await page.locator('#player').isHidden(), 'tapping ⏭ on the mini player also opened the player');
+  assert((await recentTitles()).length >= 2, `recent rows: ${(await recentTitles()).length}`);
+});
+
+await check('8. a song tapped while a mood build runs is not replaced (review #6)', async () => {
+  const titles = await recentTitles();
+  assert(titles.length >= 2, 'need recent rows');
+  const box = await page.locator('#pad').boundingBox();
+  await page.mouse.click(box.x + box.width * 0.1, box.y + box.height * 0.9); // slow (non-party) build
+  await page.waitForTimeout(100);
+  await page.locator('#recent-list .row').nth(1).click();
+  await page.waitForTimeout(400);
+  const picked = await mini();
+  await page.waitForTimeout(2500);
+  assert((await mini()) === picked, `mood build replaced "${picked}" with "${await mini()}"`);
+});
+
+await check('9. tapping two recent songs quickly keeps the second (review #4)', async () => {
+  const rows = page.locator('#recent-list .row');
+  const second = (await rows.nth(1).locator('.t').textContent());
+  await rows.nth(0).click();
+  await page.waitForTimeout(150);
+  await rows.nth(1).click();
+  await page.waitForTimeout(2500);
+  assert((await mini()) === second, `expected "${second}", got "${await mini()}"`);
+});
+
+await check('10. search tap does not queue the same song twice (review #5)', async () => {
+  await page.click('#btn-search');
+  await page.fill('#s-input', 'kesar');
+  await page.press('#s-input', 'Enter');
+  await page.waitForSelector('#s-body .row .t', { timeout: 5000 });
+  await page.locator('#s-body .row').first().click();
+  await page.waitForTimeout(2500);
+  await page.click('#btn-queue-all');
+  await page.waitForSelector('#popover:not([hidden]) .q-item');
+  const ids = await page.locator('#popover .q-item .row').evaluateAll((els) => els.map((e) => e.dataset.id));
+  await page.click('#scrim', { position: { x: 200, y: 40 } });
+  await page.waitForTimeout(300);
+  assert(ids.length > 5, `queue only ${ids.length}`);
+  assert(new Set(ids).size === ids.length, `${ids.length - new Set(ids).size} duplicates in queue`);
+});
+
+await check('11. YouTube player unavailable: mood pad does not stay stuck loading (review #3)', async () => {
+  const c2 = await browser.newContext({ viewport: { width: 412, height: 915 } });
+  await c2.route(/youtube\.com|ytimg\.com|googleusercontent/, (r) => r.abort());
+  await c2.addInitScript(`window.__fx = ${JSON.stringify(fx)}; window.__noYT = true;`);
+  await c2.addInitScript(mock);
+  const p2 = await c2.newPage();
+  await p2.goto(URL_);
+  await p2.waitForTimeout(600);
+  await p2.click('[data-chip="Party"]');
+  await p2.waitForTimeout(5000);
+  const stuck = await p2.locator('#pad.loading').count();
+  await c2.close();
+  assert(stuck === 0, 'pad still loading 5s after the player failed to load');
 });
 
 await check('7. no page errors', async () => { assert(errors.length === 0, errors.join(' | ')); });

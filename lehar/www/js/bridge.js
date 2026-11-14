@@ -27,7 +27,8 @@ export function request(url, { method = 'GET', headers = {}, body = null, timeou
       .finally(() => clearTimeout(timer));
   }
   return new Promise((resolve, reject) => {
-    const id = `r${++seq}`;
+    const rand = (globalThis.crypto?.getRandomValues ? Array.from(crypto.getRandomValues(new Uint32Array(2)), (x) => x.toString(36)).join('') : Math.random().toString(36).slice(2));
+    const id = `r${++seq}_${rand}`; // unguessable, so another frame cannot answer our requests (review #8)
     const timer = setTimeout(() => { pending.delete(id); reject(new Error('timeout')); }, timeoutMs);
     pending.set(id, { resolve, timer });
     g.LeharNative.request(id, url, method, JSON.stringify(headers), body ?? '');

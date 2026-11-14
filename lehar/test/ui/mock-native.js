@@ -36,7 +36,7 @@
         delay = latency(b.query || '');
         text = b.params ? searchResponse(b.query) : fx['search-all'];
       } else if (url.includes('get_search_suggestions')) text = fx.suggest;
-      else if (url.includes('/youtubei/v1/next')) text = fx.next;
+      else if (url.includes('/youtubei/v1/next')) { text = fx.next; delay = 700; }
       else if (url.includes('lrclib.net/api/get')) {
         // same lyrics, reported at the requested length so the duration check accepts it
         const d = Number(new URL(url).searchParams.get('duration')) || 268;
@@ -72,5 +72,5 @@
     getDuration() { return 200; }
     mute() {} unMute() {}
   }
-  window.YT = { Player };
+  if (!window.__noYT) window.YT = { Player };
 })(window.__fx || {});

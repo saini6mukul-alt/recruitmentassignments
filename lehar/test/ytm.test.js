@@ -75,3 +75,14 @@ test('radio artist is never a playlist name', () => {
   const t = ytm.parseNext(fx('next'));
   assert.ok(t.every((x) => !/Official Playlist/i.test(x.artist)), t.map((x) => x.artist).join(' | '));
 });
+
+test('parsers drop items whose videoId is not a plain 11-char id (review #8)', () => {
+  const bad = { musicResponsiveListItemRenderer: { playlistItemData: { videoId: "x');alert(1)//" },
+    flexColumns: [{ musicResponsiveListItemFlexColumnRenderer: { text: { runs: [{ text: 'Evil' }] } } }] } };
+  const good = { musicResponsiveListItemRenderer: { playlistItemData: { videoId: 'abcdefghijk' },
+    flexColumns: [{ musicResponsiveListItemFlexColumnRenderer: { text: { runs: [{ text: 'Fine' }] } } }] } };
+  assert.deepEqual(ytm.parseSearch({ contents: [bad, good] }).tracks.map((t) => t.videoId), ['abcdefghijk']);
+  assert.deepEqual(ytm.parseNext({ x: [{ playlistPanelVideoRenderer: { videoId: '<img src=x>', title: { runs: [{ text: 'E' }] } } }] }), []);
+  assert.equal(ytm.isVideoId('abcdefghijk'), true);
+  assert.equal(ytm.isVideoId('abc'), false);
+});

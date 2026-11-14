@@ -2,16 +2,21 @@
 const API_URL = 'https://www.youtube.com/iframe_api';
 let apiReady = null;
 
+const LOAD_TIMEOUT_MS = 15000;
+
+/** Loads the IFrame API once. Rejects (and allows a retry later) when offline or blocked (review #3). */
 function loadApi() {
   if (apiReady) return apiReady;
-  apiReady = new Promise((resolve) => {
+  apiReady = new Promise((resolve, reject) => {
     if (window.YT && window.YT.Player) return resolve(window.YT);
+    const fail = (why) => { apiReady = null; s.remove(); reject(new Error(why)); };
+    const timer = setTimeout(() => fail('player-timeout'), LOAD_TIMEOUT_MS);
     const prev = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => { prev?.(); resolve(window.YT); };
+    window.onYouTubeIframeAPIReady = () => { clearTimeout(timer); prev?.(); resolve(window.YT); };
     const s = document.createElement('script');
     s.src = API_URL;
     s.async = true;
-    s.onerror = () => { apiReady = null; };
+    s.onerror = () => { clearTimeout(timer); fail('player-offline'); };
     document.head.appendChild(s);
   });
   return apiReady;
@@ -48,17 +53,21 @@ export function createPlayer(cb = {}) {
 
   async function ensure(slot) {
     if (slot.readyP) return slot.readyP;
-    slot.readyP = loadApi().then((YT) => new Promise((resolve) => {
+    slot.readyP = loadApi().then((YT) => new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('player-timeout')), LOAD_TIMEOUT_MS);
+      if (!document.getElementById(slot.id)) { const d = document.createElement('div'); d.id = slot.id; host.appendChild(d); }
       slot.player = new YT.Player(slot.id, {
         width: '200', height: '200',
         playerVars: { autoplay: 0, playsinline: 1, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, origin: location.origin },
         events: {
-          onReady: () => { slot.ready = true; resolve(slot.player); },
+          onReady: () => { clearTimeout(timer); slot.ready = true; resolve(slot.player); },
           onStateChange: (e) => onStateChange(slot, e.data),
           onError: (e) => onError(slot, e.data),
         },
       });
     }));
+    // a failed load must not poison later attempts
+    slot.readyP.catch(() => { slot.readyP = null; slot.ready = false; try { slot.player?.destroy?.(); } catch { /* ignore */ } slot.player = null; });
     return slot.readyP;
   }
 
@@ -78,7 +87,9 @@ export function createPlayer(cb = {}) {
     // 2/5: transient player problems → retry once; 100/101/150: unavailable or embedding blocked
     if ((code === 2 || code === 5) && t && retried !== t.videoId) {
       retried = t.videoId;
-      slot.player.loadVideoById(t.videoId, Math.floor(slot.player.getCurrentTime?.() || 0));
+      const at = Math.floor(slot.player.getCurrentTime?.() || 0);
+      if (state === S.CUED || state === S.UNSTARTED) slot.player.cueVideoById(t.videoId, at); // never autoplay a restored track
+      else slot.player.loadVideoById(t.videoId, at);
       return;
     }
     cb.onError?.(code, t);
@@ -118,7 +129,8 @@ export function createPlayer(cb = {}) {
   async function cueNext(track) {
     if (!track) return;
     const idle = slots[1 - active];
-    const p = await ensure(idle);
+    let p;
+    try { p = await ensure(idle); } catch { return; }
     cued = track;
     p.mute?.();
     p.cueVideoById(track.videoId);
@@ -137,6 +149,6 @@ export function createPlayer(cb = {}) {
     get currentTime() { return pl()?.getCurrentTime?.() || 0; },
     get duration() { return pl()?.getDuration?.() || current?.durationSec || 0; },
     get track() { return current; },
-    warmup: () => ensure(slots[0]),
+    warmup: () => ensure(slots[0]).catch(() => {}),
   };
 }

@@ -3,7 +3,7 @@ import * as store from './store.js';
 import * as api from './engine/api.js';
 import * as bridge from './bridge.js';
 import { buildPlan, DEFAULT_MIX, clampPoint } from './engine/mood.js';
-import { buildQueue, createBuildGate, nearbyTagged, repeatGuard, dedupe } from './engine/queue.js';
+import { buildQueue, createBuildGate, nearbyTagged, repeatGuard, dedupe, normTitle } from './engine/queue.js';
 import { createPlayer, STATE } from './ytplayer.js';
 import { startWatchdog } from './watchdog.js';
 import { $, toast } from './ui/dom.js';
@@ -45,6 +45,7 @@ export const state = s;
 export const current = () => s.queue[s.index] || null;
 
 const gate = createBuildGate();
+let lastBuildToken = 0; // newest mood build, used only for the loading indicator
 let player;
 
 const lyricsCache = {
@@ -62,8 +63,9 @@ export async function setLyricsOffset(videoId, offsetMs) {
 const userAction = () => { s.lastUserAction = Date.now(); };
 
 // ---------- playback ----------
-export async function playQueue(tracks, index = 0, { point = null, context = '', autoplay = true, startSec = 0 } = {}) {
+export async function playQueue(tracks, index = 0, { point = null, context = '', autoplay = true, startSec = 0, fromBuild = false } = {}) {
   if (!tracks.length) return;
+  if (!fromBuild) gate.start(); // a song picked by hand wins over any mood build still running (review #6)
   userAction();
   await finishCurrent();
   s.queue = tracks.slice();
@@ -84,7 +86,14 @@ async function playAt(i, { autoplay = true, startSec = 0 } = {}) {
   s.duration = t.durationSec || 0;
   emit('track', t);
   pushNowPlaying();
-  await player.load(t, startSec, autoplay);
+  try {
+    await player.load(t, startSec, autoplay);
+  } catch {
+    s.userPaused = true;
+    emit('state', STATE.PAUSED);
+    if (autoplay) offline(() => play());
+    return;
+  }
   player.cueNext(s.queue[i + 1]);
   saveSession();
   if (s.queue.length - i < 5) refill();
@@ -110,18 +119,20 @@ export async function prev() {
   return playAt(s.index - 1);
 }
 
-export function pause() { userAction(); s.userPaused = true; player.pause(); }
+export function pause() { userAction(); s.userPaused = true; s.resumeAfterFocus = false; player.pause(); }
 export function play() {
   userAction();
   s.userPaused = false;
+  s.otherAudio = false; // user chose Lehar again (review #2d)
+  s.resumeAfterFocus = false;
   if (s.index < 0 && s.queue.length) return playAt(0);
-  if (player.state === STATE.CUED || player.state === STATE.UNSTARTED) {
-    const t = current();
-    if (t && !player.track) return player.load(t, s.position, true);
+  const t = current();
+  if (t && (!player.track || player.track.videoId !== t.videoId)) {
+    return player.load(t, s.position, true).then(() => { hideBanner(); player.cueNext(s.queue[s.index + 1]); }).catch(() => offline(() => play()));
   }
   player.play();
 }
-export const toggle = () => (s.playing ? pause() : play());
+export const toggle = () => (s.playing || (player.state === STATE.BUFFERING && !s.userPaused) ? pause() : play());
 export function seek(sec) { userAction(); player.seek(sec); s.position = sec; pushNowPlaying(); }
 
 export function jumpTo(i) { userAction(); finishCurrent().then(() => playAt(i)); }
@@ -185,9 +196,9 @@ export async function moreLikeThis(t = current(), { silent = false, keep = 0 } =
       player.cueNext(s.queue[s.index + 1]);
       saveSession();
       if (!silent) toast('Queue badal di');
-    } else {
+    } else if (!silent) {
       playQueue([t, ...radio.slice(0, 24)], 0, { context: 'Is gaane jaise' });
-    }
+    } // silent follow-up for a song the user has since left: drop it (review #4)
   } catch { if (!silent) offline(); }
 }
 
@@ -199,10 +210,16 @@ async function refill(force = false) {
   s.refilling = true;
   try {
     const history = await store.recentHistory();
+    let fetched = [];
+    try { fetched = await api.radio(t.videoId); } catch { fetched = []; }
+    // read the queue only after the network wait: moreLikeThis may have filled it meanwhile (review #5)
+    if (current()?.videoId !== t.videoId && !force) return 0;
     const have = new Set(s.queue.map((x) => x.videoId));
-    let radio = dedupe([...s.queue, ...(await api.radio(t.videoId))]).filter((x) => !have.has(x.videoId));
+    const titles = new Set(s.queue.map((x) => normTitle(x.title, x.artist)));
+    let radio = dedupe(fetched).filter((x) => !have.has(x.videoId) && !titles.has(normTitle(x.title, x.artist)));
     radio = repeatGuard(radio, history, Date.now());
-    if (!radio.length && s.point) radio = (await personalNear(s.point)).filter((x) => !have.has(x.videoId));
+    if (!radio.length && s.point) radio = (await personalNear(s.point)).filter((x) => !have.has(x.videoId)); // spec §9 fallback (review #11)
+    if (s.queue.length - s.index >= 5 && !force) return 0;
     const add = radio.slice(0, 15);
     s.queue.push(...add);
     add.forEach((x) => store.saveTrack(x));
@@ -228,6 +245,7 @@ async function personalNear(point) {
 export async function buildMoodQueue(rawPoint, label) {
   const point = clampPoint(rawPoint);
   const token = gate.start();
+  lastBuildToken = token;
   emit('moodLoading', { point, loading: true });
   try {
     const plan = buildPlan(point, s.mix, 6);
@@ -245,10 +263,11 @@ export async function buildMoodQueue(rawPoint, label) {
       q = personal;
       if (!q.length) { if (failures) offline(() => buildMoodQueue(point, label)); else toast('Is mood ke gaane nahi mile'); return; }
     }
+    if (!gate.isCurrent(token)) return;
     hideBanner();
-    await playQueue(q, 0, { point, context: label || 'Mood' });
+    await playQueue(q, 0, { point, context: label || 'Mood', fromBuild: true });
   } finally {
-    if (gate.isCurrent(token)) emit('moodLoading', { point, loading: false });
+    if (lastBuildToken === token) emit('moodLoading', { point, loading: false });
   }
 }
 
@@ -327,7 +346,7 @@ function onMedia(action) {
   if (action.startsWith('seek:')) return seek(Number(action.slice(5)) / 1000);
   if (action === 'focusLoss') {
     s.otherAudio = true;
-    s.resumeAfterFocus = s.playing;
+    s.resumeAfterFocus ||= s.playing;
     player.pause();
     return;
   }
@@ -379,7 +398,6 @@ async function boot() {
     onState: (st) => {
       const was = s.playing;
       s.playing = st === STATE.PLAYING;
-      if (s.playing) s.userPaused = false;
       if (was !== s.playing || st === STATE.CUED) { emit('state', st); pushNowPlaying(); }
     },
     onEnded: () => next({ auto: true }),
@@ -415,16 +433,25 @@ async function boot() {
   emit('ready');
 }
 
-/** Skip unplayable tracks (embed blocked / removed) and try to find another upload of the same song. */
+/** Skip unplayable tracks (embed blocked / removed) right away, then queue another upload of the same song (review #10). */
 async function handleUnplayable(code, t) {
   if (!t) return;
-  const at = s.queue.findIndex((x) => x.videoId === t.videoId);
+  const wasCurrent = current()?.videoId === t.videoId;
+  const restoring = player.state === STATE.CUED || s.userPaused;
+  if (wasCurrent) {
+    if (s.index + 1 < s.queue.length) { await finishCurrent(); await playAt(s.index + 1, { autoplay: !restoring }); }
+    else if (!restoring) next();
+  }
   try {
     const alts = await api.searchTracks(`${t.title} ${t.artist || ''} audio`.trim());
     const alt = alts.find((x) => x.videoId !== t.videoId && !s.queue.some((q) => q.videoId === x.videoId));
-    if (alt && at >= 0) { s.queue.splice(at + 1, 0, alt); emit('queue', s.queue); }
-  } catch { /* offline: just skip */ }
-  if (at === s.index) next({ auto: false });
+    if (alt) {
+      s.queue.splice(s.index + 1, 0, alt); // computed after the await, so it never shifts the playing song
+      store.saveTrack(alt);
+      emit('queue', s.queue);
+      player.cueNext(s.queue[s.index + 1]);
+    }
+  } catch { /* offline: skipping is enough */ }
 }
 
 boot().catch((e) => { console.error(e); toast('App shuru nahi ho paya'); });

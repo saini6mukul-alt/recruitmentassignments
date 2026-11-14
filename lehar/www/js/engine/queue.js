@@ -1,23 +1,35 @@
 // Smart queue: repeat guard, title normalisation, dedupe, language interleave, build gate. Pure.
 import { distance } from './mood.js';
 
-const VARIANTS = ['slowed', 'reverb', 'lofi', 'remix', 'unplugged', 'acoustic', 'mashup', 'cover', 'live', 'dance mix', 'reprise', 'female', 'male', 'instrumental', 'karaoke', 'sped up'];
+const VARIANTS = [
+  ['slowed', /\bslowed\b/], ['reverb', /\breverb\b/], ['lofi', /\blo-?fi\b/], ['remix', /\bremix\b/],
+  ['unplugged', /\bunplugged\b/], ['acoustic', /\bacoustic\b/], ['mashup', /\bmash-?up\b/], ['cover', /\bcover\b/],
+  ['live', /\blive\b/], ['dance mix', /\bdance mix\b/], ['reprise', /\breprise\b/], ['female', /\bfemale\b/],
+  ['male', /\bmale\b/], ['instrumental', /\binstrumental\b/], ['karaoke', /\bkaraoke\b/], ['sped up', /\bsped[ -]?up\b/],
+];
 const NOISE = /\b(official|music video|video song|video|audio|lyrical|lyrics?|full song|full video|4k|hd|hq|1080p|the film|ost|visualizer)\b/g;
 
-/** Canonical title used to detect the same song uploaded under different names. */
-export function normTitle(title) {
+const simple = (x) => String(x || '').toLowerCase()
+  .replace(/\s*-\s*topic$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9\u0900-\u0a7f ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+/**
+ * Canonical title used to detect the same song uploaded under different names.
+ * "Song - Film" keeps the song; "Artist - Song" keeps the song when the artist is known (review #7).
+ */
+export function normTitle(title, artist = '') {
   const raw = String(title || '').toLowerCase();
-  const variants = VARIANTS.filter((v) => raw.includes(v)).sort();
-  let t = raw
-    .replace(/\s*[([{][^)\]}]*[)\]}]/g, ' ')
-    .split(/\s[|｜]\s|\s-\s|\s–\s|\s:\s/)[0]
-    .replace(/\s+(ft\.?|feat\.?|featuring)\s.*$/, '')
-    .replace(NOISE, ' ')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\u0900-\u0a7f ]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (!t) t = raw.replace(/\s+/g, ' ').trim();
+  const variants = VARIANTS.filter(([, re]) => re.test(raw)).map(([v]) => v).sort();
+  const base = raw.replace(/\s*[([{][^)\]}]*[)\]}]/g, ' ').split(/\s[|｜]\s/)[0];
+  const parts = base.split(/\s-\s|\s–\s|\s:\s/).map((x) => x.trim()).filter(Boolean);
+  const who = simple(artist);
+  let pick = parts[0] || '';
+  if (who && parts.length > 1) {
+    const i = parts.findIndex((p) => simple(p) === who || simple(p).startsWith(who + ' '));
+    if (i >= 0) pick = parts[i === 0 ? 1 : 0];
+  }
+  let t = simple(pick.replace(/\s+(ft\.?|feat\.?|featuring)\s.*$/, '').replace(NOISE, ' '));
+  if (!t) t = simple(raw);
   return variants.length ? `${t} ~${variants.join('+')}` : t;
 }
 
@@ -27,7 +39,7 @@ export function dedupe(tracks) {
   const out = [];
   for (const t of tracks) {
     if (!t?.videoId || ids.has(t.videoId)) continue;
-    const n = normTitle(t.title);
+    const n = normTitle(t.title, t.artist);
     if (n && titles.has(n)) continue;
     ids.add(t.videoId);
     if (n) titles.add(n);

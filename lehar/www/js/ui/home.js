@@ -54,7 +54,7 @@ export function init() {
   });
 
   // swipe up anywhere on home (outside the pad) opens search
-  gestures($('#home'), { onUp: () => app_open('search'), threshold: 80 });
+  gestures($('#home'), { onUp: () => app_open('search'), threshold: 80, ignore: '#pad, .row-scroll, .chips' });
 
   $('#btn-search').addEventListener('click', () => app_open('search'));
   $('#btn-library').addEventListener('click', () => app_open('library'));
@@ -72,7 +72,7 @@ export function init() {
   const mini = $('#mini');
   $('#mini-toggle').addEventListener('click', (e) => { e.stopPropagation(); app.toggle(); });
   $('#mini-next').addEventListener('click', (e) => { e.stopPropagation(); app.next(); });
-  gestures(mini, { onTap: () => app_open('player'), onUp: () => app_open('player'), onLeft: () => app.next(), onRight: () => app.prev(), threshold: 40 });
+  gestures(mini, { onTap: () => app_open('player'), onUp: () => app_open('player'), onLeft: () => app.next(), onRight: () => app.prev(), threshold: 40, ignore: 'button' });
 
   app.on('track', renderMini);
   app.on('state', renderMini);

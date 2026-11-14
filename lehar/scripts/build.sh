@@ -20,6 +20,9 @@ cp $OUT/base.apk $OUT/unsigned.apk
 (cd $OUT/apk && zip -qr ../unsigned.apk assets)
 $BT/zipalign -f -p 4 $OUT/unsigned.apk $OUT/aligned.apk
 KS=$HOME/.lehar/lehar.jks
+if [ ! -f "$KS" ] && [ "$VC" != "1" ]; then
+  echo "Signing key missing at $KS. Restore lehar.jks + pass from lehar-signing-key.zip; a new key cannot update the installed app."; exit 1
+fi
 if [ ! -f "$KS" ]; then
   mkdir -p "$HOME/.lehar"; head -c 18 /dev/urandom | base64 | tr -d '/+=' > "$HOME/.lehar/pass"
   keytool -genkeypair -keystore "$KS" -alias lehar -keyalg RSA -keysize 2048 -validity 10000 \

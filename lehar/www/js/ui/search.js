@@ -7,7 +7,7 @@ import * as sheet from './sheet.js';
 import { trackMenu } from './player.js';
 
 let el, input, body;
-let suggTimer = null, searchTimer = null, seq = 0;
+let suggTimer = null, searchTimer = null, seq = 0, suggSeq = 0, shownQuery = '';
 let results = [];
 
 export function init() {
@@ -26,11 +26,18 @@ export function init() {
   input.addEventListener('input', () => {
     const q = input.value.trim();
     clearTimeout(suggTimer); clearTimeout(searchTimer);
+    shownQuery = '';
     if (!q) return renderRecent();
     suggTimer = setTimeout(() => suggest(q), 250);
     searchTimer = setTimeout(() => run(q), 700);
   });
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(searchTimer); run(input.value.trim(), true); input.blur(); } });
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    clearTimeout(searchTimer); clearTimeout(suggTimer);
+    run(input.value.trim(), true);
+    input.blur();
+  });
 
   body.addEventListener('click', onClick);
   window.addEventListener('lehar:open', (e) => { if (e.detail === 'search') open(); });
@@ -50,16 +57,18 @@ async function renderRecent() {
 }
 
 async function suggest(q) {
-  const my = ++seq;
+  const my = ++suggSeq;
+  const runAt = seq;
   const list = await api.suggest(q);
-  if (my !== seq || results.query === q) return;
-  if (!list.length) return;
+  // Suggestions never replace results: drop them if a search started or finished meanwhile.
+  if (my !== suggSeq || runAt !== seq || shownQuery || !list.length) return;
   body.innerHTML = `<div class="sugg">${list.map((x) => `<button data-q="${esc(x)}">${ICON.search}<span>${esc(x)}</span></button>`).join('')}</div>`;
 }
 
 async function run(q, remember = false) {
   if (!q) return;
   const my = ++seq;
+  shownQuery = q;
   body.innerHTML = `<div class="sec-title">Songs</div>${Array.from({ length: 6 }, () => '<div class="row"><div class="art skeleton" style="width:48px;height:48px;border-radius:10px"></div><div><div class="skeleton" style="height:12px;width:70%;border-radius:4px"></div></div></div>').join('')}`;
   try {
     const r = await api.search(q);
@@ -86,7 +95,7 @@ async function saveRecent(q) {
 
 function onClick(e) {
   const q = e.target.closest('[data-q]')?.dataset.q;
-  if (q) { input.value = q; clearTimeout(searchTimer); run(q, true); return; }
+  if (q) { input.value = q; clearTimeout(searchTimer); clearTimeout(suggTimer); run(q, true); return; }
   const artist = e.target.closest('[data-artist]')?.dataset.artist;
   if (artist) { input.value = `${artist} songs`; run(input.value, true); return; }
   const more = e.target.closest('[data-more]');
