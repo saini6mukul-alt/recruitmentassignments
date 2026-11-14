@@ -27,7 +27,7 @@ export function createPlayer(cb = {}) {
   const host = document.createElement('div');
   host.id = 'yt-host';
   host.setAttribute('aria-hidden', 'true');
-  host.style.cssText = 'position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:0.01;pointer-events:none;overflow:hidden;z-index:-1';
+  host.style.cssText = 'position:fixed;left:0;bottom:0;width:200px;height:200px;opacity:0.01;pointer-events:none;overflow:hidden;z-index:-1';
   document.body.appendChild(host);
 
   const slots = [mk('yt-a'), mk('yt-b')];
@@ -50,7 +50,7 @@ export function createPlayer(cb = {}) {
     if (slot.readyP) return slot.readyP;
     slot.readyP = loadApi().then((YT) => new Promise((resolve) => {
       slot.player = new YT.Player(slot.id, {
-        width: '2', height: '2',
+        width: '200', height: '200',
         playerVars: { autoplay: 0, playsinline: 1, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, origin: location.origin },
         events: {
           onReady: () => { slot.ready = true; resolve(slot.player); },

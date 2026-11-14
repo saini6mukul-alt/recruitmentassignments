@@ -1,1 +1,70 @@
-<!doctype html><title>Lehar</title><h1>Lehar</h1>
+<!doctype html>
+<html lang="hi-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Lehar</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="app">
+    <header class="top">
+      <div class="brand" aria-label="Lehar">
+        <svg viewBox="0 0 40 24" width="34" height="20" aria-hidden="true"><path d="M2 14 C6 4 10 4 14 14 S22 24 26 14 S33 6 37 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <span>lehar</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-search" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+        <button class="icon-btn" id="btn-library" aria-label="Library"><svg viewBox="0 0 24 24"><path d="M5 4v16M10 4v16M15 5l4 15"/></svg></button>
+        <button class="icon-btn" id="btn-settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></button>
+      </div>
+    </header>
+
+    <main id="home" class="home">
+      <p class="prompt">Abhi kaisa feel ho raha hai? <span class="muted">Dot ko kheecho</span></p>
+      <section class="pad" id="pad" role="slider" aria-label="Mood pad" tabindex="0">
+        <div class="pad-glow"></div>
+        <span class="ax ax-top">Khush</span>
+        <span class="ax ax-bottom">Udaas</span>
+        <span class="ax ax-left">Shaant</span>
+        <span class="ax ax-right">Energy</span>
+        <div class="pad-grid"></div>
+        <div class="dot" id="dot"></div>
+      </section>
+      <div class="zone-row"><span class="zone" id="zone-label">Chill vibe</span><span class="mix-hint" id="mix-hint"></span></div>
+      <div class="chips" id="chips"></div>
+
+      <section class="block">
+        <div class="block-head"><h2>Is mood ki queue</h2><button class="link" id="btn-queue-all">Sab dekho</button></div>
+        <div class="row-scroll" id="mood-row"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h2>Recently played</h2></div>
+        <div class="list" id="recent-list"></div>
+      </section>
+      <div class="home-spacer"></div>
+    </main>
+
+    <div id="mini" class="mini" hidden>
+      <div class="mini-progress"><i id="mini-bar"></i></div>
+      <img class="mini-art" id="mini-art" alt="">
+      <div class="mini-text"><div class="t" id="mini-title"></div><div class="s" id="mini-artist"></div></div>
+      <button class="icon-btn play-sm" id="mini-toggle" aria-label="Play/Pause"></button>
+      <button class="icon-btn" id="mini-next" aria-label="Agla gaana"><svg viewBox="0 0 24 24"><path class="fill" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+    </div>
+
+    <section id="player" class="player" hidden aria-label="Player"></section>
+    <section id="search" class="sheet full" hidden aria-label="Search"></section>
+    <section id="library" class="sheet full" hidden aria-label="Library"></section>
+    <section id="settings" class="sheet full" hidden aria-label="Settings"></section>
+    <section id="popover" class="sheet pop" hidden></section>
+    <div id="scrim" class="scrim" hidden></div>
+
+    <div id="banner" class="banner" hidden><span id="banner-text"></span><button id="banner-retry">Retry</button></div>
+    <div id="toast" class="toast" hidden></div>
+  </div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
