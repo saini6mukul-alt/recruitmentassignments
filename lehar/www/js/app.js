@@ -7,6 +7,7 @@ import { buildQueue, createBuildGate, nearbyTagged, repeatGuard, dedupe, normTit
 import { createPlayer, STATE } from './ytplayer.js';
 import { startWatchdog } from './watchdog.js';
 import { $, toast } from './ui/dom.js';
+import { log } from './log.js';
 import * as sheet from './ui/sheet.js';
 import * as home from './ui/home.js';
 import * as playerUi from './ui/player.js';
@@ -84,6 +85,7 @@ async function playAt(i, { autoplay = true, startSec = 0 } = {}) {
   s.userPaused = !autoplay;
   const t = current();
   s.duration = t.durationSec || 0;
+  log('playAt', i, t.videoId, autoplay ? 'play' : 'cue', t.title.slice(0, 40));
   emit('track', t);
   pushNowPlaying();
   try {
@@ -254,6 +256,7 @@ export async function buildMoodQueue(rawPoint, label) {
     await Promise.all(plan.map(async ({ language, query }) => {
       try { groups[language].push(...(await api.searchTracks(query))); } catch { failures++; }
     }));
+    log('mood build', JSON.stringify(point), 'results', Object.entries(groups).map(([l, g]) => `${l}:${g.length}`).join(' '), 'failures', failures);
     if (!gate.isCurrent(token)) return; // a newer drag won (Review Focus 3)
     for (const l of Object.keys(groups)) groups[l].sort(() => Math.random() - 0.5);
     const [personal, history] = await Promise.all([personalNear(point), store.recentHistory()]);
@@ -339,6 +342,7 @@ function pushNowPlaying() {
 }
 
 function onMedia(action) {
+  log('media', action);
   if (action === 'play') return play();
   if (action === 'pause') return pause();
   if (action === 'next') return next();
@@ -435,6 +439,7 @@ async function boot() {
 
 /** Skip unplayable tracks (embed blocked / removed) right away, then queue another upload of the same song (review #10). */
 async function handleUnplayable(code, t) {
+  log('unplayable', code, t?.videoId);
   if (!t) return;
   const wasCurrent = current()?.videoId === t.videoId;
   const restoring = player.state === STATE.CUED || s.userPaused;

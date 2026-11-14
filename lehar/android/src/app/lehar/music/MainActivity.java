@@ -50,6 +50,13 @@ public class MainActivity extends Activity implements PlaybackService.Listener {
         s.setAllowFileAccess(false);
         s.setTextZoom(100);
 
+        // The YouTube player is a third-party frame (youtube.com inside our page). WebView blocks third-party
+        // cookies by default, and YouTube's embed often refuses to play without them.
+        android.webkit.CookieManager cookies = android.webkit.CookieManager.getInstance();
+        cookies.setAcceptCookie(true);
+        cookies.setAcceptThirdPartyCookies(webView, true);
+        WebView.setWebContentsDebuggingEnabled(true); // personal build: allows chrome://inspect from a PC
+
         webView.addJavascriptInterface(new NativeBridge(this, webView), "LeharNative");
         webView.setWebViewClient(new WebViewClient() {
             @Override

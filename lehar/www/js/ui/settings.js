@@ -6,6 +6,7 @@ import { $, ICON, toast } from './dom.js';
 import * as sheet from './sheet.js';
 import { sleepMenu } from './player.js';
 import { rebalanceMix } from '../engine/mood.js';
+import { recent } from '../log.js';
 
 const LANGS = [['hindi', 'Hindi'], ['punjabi', 'Punjabi'], ['english', 'English']];
 let el;
@@ -32,8 +33,14 @@ export function init() {
         <input type="file" id="st-import" accept="application/json,.json" hidden></div>
       </div>
       <div class="set-group">
+        <h3>Problem report</h3>
+        <p class="note">Gaana na baje to yahan ka text copy karke bhejo. Isme sirf player ke events hain, koi personal data nahi.</p>
+        <div class="opts"><button class="btn" id="st-log-show">Report dikhao</button><button class="btn" id="st-log-copy">Copy karo</button></div>
+        <pre id="st-log" class="note" style="white-space:pre-wrap;word-break:break-all;font-size:11px;max-height:50vh;overflow:auto;background:#0b0c0e;padding:10px;border-radius:10px" hidden></pre>
+      </div>
+      <div class="set-group">
         <h3>Lehar</h3>
-        <p class="note">Version 1.0 · Gaane YouTube se, lyrics LRCLIB se. Sirf personal use ke liye.</p>
+        <p class="note">Version 1.0.1 · Gaane YouTube se, lyrics LRCLIB se. Sirf personal use ke liye.</p>
       </div>
     </div>`;
 
@@ -42,10 +49,21 @@ export function init() {
   $('#st-lyrics').addEventListener('click', () => app.setLyricsOn(!app.state.lyricsOn));
   $('#st-sleep').addEventListener('click', sleepMenu);
   $('#st-export').addEventListener('click', exportBackup);
+  $('#st-log-show').addEventListener('click', () => { const pre = $('#st-log'); pre.textContent = report(); pre.hidden = false; });
+  $('#st-log-copy').addEventListener('click', async () => {
+    const text = report();
+    try { await navigator.clipboard.writeText(text); toast('Copy ho gaya'); }
+    catch { const pre = $('#st-log'); pre.textContent = text; pre.hidden = false; toast('Text ko daba ke select karo'); }
+  });
   $('#st-import').addEventListener('change', importBackup);
   app.on('lyricsOn', render);
   app.on('sleep', render);
   window.addEventListener('lehar:open', (e) => { if (e.detail === 'settings') { sheet.open(el); render(); } });
+}
+
+function report() {
+  const t = app.current();
+  return [`Lehar 1.0.1 | ${navigator.userAgent}`, `now: ${t ? t.videoId + ' ' + t.title.slice(0, 40) : '-'} | playing=${app.state.playing} userPaused=${app.state.userPaused} otherAudio=${app.state.otherAudio}`, ...recent(80)].join('\n');
 }
 
 function render() {

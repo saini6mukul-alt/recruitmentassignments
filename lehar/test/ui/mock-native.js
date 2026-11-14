@@ -62,7 +62,12 @@
       setInterval(() => { if (this.state === 1) this.t += 0.5; }, 500);
     }
     set(s) { this.state = s; this.ev.onStateChange({ data: s, target: this }); }
-    loadVideoById(o) { this.vid = o.videoId || o; this.t = o.startSeconds || 0; this.set(1); }
+    loadVideoById(o) {
+      this.vid = o.videoId || o; this.t = o.startSeconds || 0;
+      // Simulates YouTube's transient error 2 arriving right after a load, while still UNSTARTED
+      if (window.__ytErr2Once) { window.__ytErr2Once = false; this.set(-1); setTimeout(() => this.ev.onError({ data: 2, target: this }), 30); return; }
+      this.set(1);
+    }
     cueVideoById(o) { this.vid = o.videoId || o; this.t = o.startSeconds || 0; this.set(5); }
     playVideo() { this.set(1); }
     pauseVideo() { this.set(2); }

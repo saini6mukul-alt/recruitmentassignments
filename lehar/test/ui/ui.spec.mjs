@@ -223,6 +223,23 @@ await check('11. YouTube player unavailable: mood pad does not stay stuck loadin
   assert(stuck === 0, 'pad still loading 5s after the player failed to load');
 });
 
+await check('12. a transient error 2 right after load still ends up playing (regression)', async () => {
+  await page.evaluate(() => { window.__ytErr2Once = true; });
+  await page.locator('#recent-list .row').nth(0).click();
+  await page.waitForTimeout(1500);
+  const playing = await page.locator('#mini-toggle.playing').count();
+  assert(playing === 1, 'song stuck after error 2 (cued instead of loaded)');
+});
+
+await check('13. Problem report shows player events', async () => {
+  await page.click('#btn-settings');
+  await page.click('#st-log-show');
+  const txt = await page.locator('#st-log').textContent();
+  await page.click('#st-back');
+  await page.waitForTimeout(300);
+  assert(/playAt/.test(txt) && /yt (load|state)/.test(txt), 'report missing events: ' + txt.slice(0, 200));
+});
+
 await check('7. no page errors', async () => { assert(errors.length === 0, errors.join(' | ')); });
 
 await browser.close();

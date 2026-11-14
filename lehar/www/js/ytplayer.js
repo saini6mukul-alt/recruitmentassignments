@@ -10,18 +10,20 @@ function loadApi() {
   apiReady = new Promise((resolve, reject) => {
     if (window.YT && window.YT.Player) return resolve(window.YT);
     const fail = (why) => { apiReady = null; s.remove(); reject(new Error(why)); };
-    const timer = setTimeout(() => fail('player-timeout'), LOAD_TIMEOUT_MS);
+    const timer = setTimeout(() => { dbg('iframe_api timeout'); fail('player-timeout'); }, LOAD_TIMEOUT_MS);
     const prev = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => { clearTimeout(timer); prev?.(); resolve(window.YT); };
     const s = document.createElement('script');
     s.src = API_URL;
     s.async = true;
-    s.onerror = () => { clearTimeout(timer); fail('player-offline'); };
+    s.onerror = () => { clearTimeout(timer); dbg('iframe_api failed to load'); fail('player-offline'); };
     document.head.appendChild(s);
   });
   return apiReady;
 }
 
+import { log } from './log.js';
+const dbg = (...a) => log('yt', ...a);
 const S = { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 };
 export const STATE = S;
 
@@ -43,6 +45,7 @@ export function createPlayer(cb = {}) {
   let retried = '';
   let ticker = null;
   let pendingLoad = null;
+  let wantPlay = false;  // what the last load() asked for: play, or only cue (session restore)
 
   function mk(id) {
     const d = document.createElement('div');
@@ -60,7 +63,7 @@ export function createPlayer(cb = {}) {
         width: '200', height: '200',
         playerVars: { autoplay: 0, playsinline: 1, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, origin: location.origin },
         events: {
-          onReady: () => { clearTimeout(timer); slot.ready = true; resolve(slot.player); },
+          onReady: () => { clearTimeout(timer); dbg('ready', slot.id); slot.ready = true; resolve(slot.player); },
           onStateChange: (e) => onStateChange(slot, e.data),
           onError: (e) => onError(slot, e.data),
         },
@@ -74,6 +77,7 @@ export function createPlayer(cb = {}) {
   const isActive = (slot) => slots[active] === slot;
 
   function onStateChange(slot, s) {
+    dbg('state', slot.id, s, isActive(slot) ? 'active' : 'idle');
     if (!isActive(slot)) return;
     state = s;
     cb.onState?.(s);
@@ -82,14 +86,16 @@ export function createPlayer(cb = {}) {
   }
 
   function onError(slot, code) {
+    dbg('error', slot.id, code, isActive(slot) ? 'active' : 'idle', 'state=' + state, current?.videoId);
     if (!isActive(slot)) { if (slot === slots[1 - active]) cued = null; return; }
     const t = current;
     // 2/5: transient player problems → retry once; 100/101/150: unavailable or embedding blocked
     if ((code === 2 || code === 5) && t && retried !== t.videoId) {
       retried = t.videoId;
       const at = Math.floor(slot.player.getCurrentTime?.() || 0);
-      if (state === S.CUED || state === S.UNSTARTED) slot.player.cueVideoById(t.videoId, at); // never autoplay a restored track
-      else slot.player.loadVideoById(t.videoId, at);
+      // Retry with the same intent as the original load: restored tracks stay cued, everything else plays.
+      if (wantPlay) slot.player.loadVideoById({ videoId: t.videoId, startSeconds: at });
+      else slot.player.cueVideoById({ videoId: t.videoId, startSeconds: at });
       return;
     }
     cb.onError?.(code, t);
@@ -106,6 +112,7 @@ export function createPlayer(cb = {}) {
 
   async function load(track, startSec = 0, autoplay = true) {
     pendingLoad = track.videoId;
+    wantPlay = autoplay;
     retried = '';
     const idle = slots[1 - active];
     // The idle player already has this track cued: swap instantly.
@@ -114,6 +121,7 @@ export function createPlayer(cb = {}) {
       active = 1 - active;
       current = track;
       cued = null;
+      dbg('swap->', idle.id, track.videoId, autoplay);
       if (startSec) idle.player.seekTo(startSec, true);
       if (autoplay) idle.player.playVideo(); else cb.onState?.(S.CUED);
       return;
@@ -122,6 +130,7 @@ export function createPlayer(cb = {}) {
     const p = await ensure(slot);
     if (pendingLoad !== track.videoId) return; // a newer load won
     current = track;
+    dbg(autoplay ? 'load' : 'cue', slot.id, track.videoId, startSec);
     if (autoplay) p.loadVideoById({ videoId: track.videoId, startSeconds: startSec });
     else { p.cueVideoById({ videoId: track.videoId, startSeconds: startSec }); state = S.CUED; cb.onState?.(S.CUED); }
   }
@@ -132,6 +141,7 @@ export function createPlayer(cb = {}) {
     let p;
     try { p = await ensure(idle); } catch { return; }
     cued = track;
+    dbg('cueNext', idle.id, track.videoId);
     p.mute?.();
     p.cueVideoById(track.videoId);
     p.unMute?.();
@@ -141,7 +151,7 @@ export function createPlayer(cb = {}) {
   return {
     load,
     cueNext,
-    play: () => pl()?.playVideo?.(),
+    play: () => { wantPlay = true; pl()?.playVideo?.(); },
     pause: () => pl()?.pauseVideo?.(),
     seek: (sec) => pl()?.seekTo?.(sec, true),
     toggle() { state === S.PLAYING ? this.pause() : this.play(); },
