@@ -116,7 +116,7 @@ function renderMini() {
   if (!t) return;
   const imgEl = $('#mini-art');
   const src = artUrl(t);
-  if (imgEl.getAttribute('src') !== src) imgEl.src = src;
+  if (imgEl.getAttribute('src') !== src) { imgEl.classList.remove('broken'); imgEl.onerror = () => imgEl.classList.add('broken'); imgEl.src = src; }
   $('#mini-title').textContent = t.title;
   $('#mini-artist').textContent = artistOf(t);
   $('#mini-toggle').classList.toggle('playing', app.state.playing);

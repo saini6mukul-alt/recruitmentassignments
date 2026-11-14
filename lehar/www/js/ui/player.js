@@ -92,7 +92,8 @@ async function renderTrack(t) {
   const lg = artUrl(t, 'lg');
   if (art.dataset.id !== t.videoId) {
     art.dataset.id = t.videoId;
-    art.onerror = () => { art.onerror = null; art.src = `https://i.ytimg.com/vi/${t.videoId}/hqdefault.jpg`; };
+    art.classList.remove('broken');
+    art.onerror = () => { art.onerror = () => art.classList.add('broken'); art.src = `https://i.ytimg.com/vi/${t.videoId}/hqdefault.jpg`; };
     art.src = lg;
     $('#p-bg').style.backgroundImage = `url("${artUrl(t)}")`;
   }

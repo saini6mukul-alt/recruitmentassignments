@@ -70,7 +70,7 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 500; margin: 0; }
 .block-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
 .block-head h2 { font-size: 17px; }
 .link { color: var(--accent); font-size: 13px; }
-.row-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -18px; padding: 0 18px 4px; scrollbar-width: none; }
+.row-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 18px; margin: 0 -18px; padding: 0 18px 4px; scrollbar-width: none; }
 .row-scroll::-webkit-scrollbar { display: none; }
 .card { flex: none; width: 128px; scroll-snap-align: start; text-align: left; }
 .card .art { width: 128px; height: 128px; border-radius: 14px; }
@@ -84,6 +84,8 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 500; margin: 0; }
 
 /* shared track rows */
 .art { object-fit: cover; background: var(--surface); }
+img.broken { visibility: hidden; }
+.art-wrap { background: var(--surface); }
 .t { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .s { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .list { display: flex; flex-direction: column; }

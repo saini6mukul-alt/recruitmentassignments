@@ -33,7 +33,15 @@ const mock = fs.readFileSync(path.join(here, 'mock-native.js'), 'utf8');
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, hasTouch: false });
-await ctx.route(/youtube\.com|ytimg\.com|googleusercontent/, (r) => r.fulfill({ status: 204, body: '' }));
+// Artwork stand-ins: a gradient per video id, so screenshots look like the real app (no network in tests).
+await ctx.route(/ytimg\.com|googleusercontent/, (r) => {
+  const id = r.request().url();
+  let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const a = h % 360, b = (a + 40) % 360;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${a},55%,45%)"/><stop offset="1" stop-color="hsl(${b},45%,12%)"/></linearGradient></defs><rect width="480" height="270" fill="url(#g)"/></svg>`;
+  return r.fulfill({ status: 200, contentType: 'image/svg+xml', body: svg });
+});
+await ctx.route(/youtube\.com/, (r) => r.fulfill({ status: 204, body: '' }));
 await ctx.addInitScript(`window.__fx = ${JSON.stringify(fx)};`);
 await ctx.addInitScript(mock);
 const page = await ctx.newPage();
@@ -118,7 +126,8 @@ await check('4. search shows suggestions, then Songs results', async () => {
   await page.waitForSelector('.sugg button', { timeout: 4000 });
   assert((await page.locator('.sugg button').count()) >= 3, 'few suggestions');
   await page.press('#s-input', 'Enter');
-  await page.waitForSelector('#s-body .row', { timeout: 5000 });
+  await page.waitForSelector('#s-body .row .t', { timeout: 5000 });
+  await page.waitForTimeout(300);
   assert((await page.locator('#s-body .sec-title', { hasText: 'Songs' }).count()) === 1, 'no Songs section');
   await page.screenshot({ path: path.join(shots, '3-search.png') });
   await page.click('#s-back');

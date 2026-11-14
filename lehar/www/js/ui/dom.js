@@ -24,7 +24,7 @@ export function artUrl(track, size = 'sm') {
 /** <img> that falls back from maxres → hq when YouTube has no large thumb. */
 export function img(track, cls = 'art', size = 'sm') {
   const fallback = `https://i.ytimg.com/vi/${esc(track?.videoId)}/hqdefault.jpg`;
-  return `<img class="${cls}" loading="lazy" alt="" src="${esc(artUrl(track, size))}" onerror="this.onerror=null;this.src='${fallback}'">`;
+  return `<img class="${cls}" loading="lazy" alt="" src="${esc(artUrl(track, size))}" onerror="if(this.dataset.f){this.onerror=null;this.classList.add('broken')}else{this.dataset.f=1;this.src='${fallback}'}">`;
 }
 
 export const artistOf = (t) => t?.artist || 'YouTube';
