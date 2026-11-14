@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test test/*.test.js",
     "ui-test": "node test/ui/ui.spec.mjs",
     "build": "bash scripts/build.sh"
   }
