@@ -52,3 +52,12 @@ test('clampPoint and distance', () => {
   assert.deepEqual(m.clampPoint({ energy: 1.4, valence: -2 }), { energy: 1, valence: 0 });
   assert.equal(m.distance({ energy: 0, valence: 0 }, { energy: 0.3, valence: 0.4 }).toFixed(2), '0.50');
 });
+
+test('rebalanceMix keeps the total at 100 and the others proportional', () => {
+  assert.deepEqual(m.rebalanceMix({ hindi: 40, punjabi: 30, english: 30 }, 'hindi', 70), { hindi: 70, punjabi: 15, english: 15 });
+  assert.deepEqual(m.rebalanceMix({ hindi: 100, punjabi: 0, english: 0 }, 'hindi', 50), { hindi: 50, punjabi: 25, english: 25 });
+  const r = m.rebalanceMix({ hindi: 50, punjabi: 40, english: 10 }, 'english', 35);
+  assert.equal(r.hindi + r.punjabi + r.english, 100);
+  assert.equal(r.english, 35);
+  assert.ok(r.hindi > r.punjabi);
+});

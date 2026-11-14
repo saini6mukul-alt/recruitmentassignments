@@ -121,3 +121,15 @@ export function buildPlan(point, mix = DEFAULT_MIX, n = 6, rand = Math.random) {
   }
   return plan;
 }
+
+/** Moves one language slider and rebalances the other two (in steps of 5) so the total stays 100. */
+export function rebalanceMix(mix, lang, value) {
+  const others = LANGS.filter((k) => k !== lang);
+  const rest = 100 - value;
+  const oldRest = others.reduce((a, k) => a + (mix[k] || 0), 0);
+  const out = { ...mix, [lang]: value };
+  const first = oldRest === 0 ? rest / 2 : (mix[others[0]] / oldRest) * rest;
+  out[others[0]] = Math.round(first / 5) * 5;
+  out[others[1]] = rest - out[others[0]];
+  return out;
+}
