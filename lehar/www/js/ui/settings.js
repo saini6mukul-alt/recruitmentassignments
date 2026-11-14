@@ -40,7 +40,7 @@ export function init() {
       </div>
       <div class="set-group">
         <h3>Lehar</h3>
-        <p class="note">Version 1.0.1 · Gaane YouTube se, lyrics LRCLIB se. Sirf personal use ke liye.</p>
+        <p class="note">Version 1.0.2 · Gaane YouTube se, lyrics LRCLIB se. Sirf personal use ke liye.</p>
       </div>
     </div>`;
 
@@ -63,7 +63,7 @@ export function init() {
 
 function report() {
   const t = app.current();
-  return [`Lehar 1.0.1 | ${navigator.userAgent}`, `now: ${t ? t.videoId + ' ' + t.title.slice(0, 40) : '-'} | playing=${app.state.playing} userPaused=${app.state.userPaused} otherAudio=${app.state.otherAudio}`, ...recent(80)].join('\n');
+  return [`Lehar 1.0.2 | ${navigator.userAgent}`, `now: ${t ? t.videoId + ' ' + t.title.slice(0, 40) : '-'} | playing=${app.state.playing} userPaused=${app.state.userPaused} otherAudio=${app.state.otherAudio}`, ...recent(80)].join('\n');
 }
 
 function render() {

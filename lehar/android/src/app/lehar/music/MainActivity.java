@@ -49,6 +49,10 @@ public class MainActivity extends Activity implements PlaybackService.Listener {
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setAllowFileAccess(false);
         s.setTextZoom(100);
+        // Same as NAUX (which plays on this phone): YouTube recognises Android WebView by the "; wv" and
+        // "Version/x.y" markers in the user-agent and refuses to play embeds there. Send a plain Chrome UA.
+        String ua = s.getUserAgentString();
+        if (ua != null) s.setUserAgentString(chromeUa(ua));
 
         // The YouTube player is a third-party frame (youtube.com inside our page). WebView blocks third-party
         // cookies by default, and YouTube's embed often refuses to play without them.
@@ -95,6 +99,11 @@ public class MainActivity extends Activity implements PlaybackService.Listener {
         PlaybackService.listener = this;
         webView.loadUrl(AssetServer.START_URL);
         askPermissionsOnce();
+    }
+
+    /** "…Android 14; Pixel 7 Build/X; wv) … Version/4.0 Chrome/130…" → "…Android 14; Pixel 7 Build/X) … Chrome/130…" */
+    static String chromeUa(String ua) {
+        return ua.replace("; wv)", ")").replaceAll("Version/\\d+(\\.\\d+)*\\s", "");
     }
 
     @Override
