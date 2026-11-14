@@ -1,0 +1,11 @@
+{
+  "name": "lehar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/",
+    "ui-test": "node test/ui/ui.spec.mjs",
+    "build": "bash scripts/build.sh"
+  }
+}
