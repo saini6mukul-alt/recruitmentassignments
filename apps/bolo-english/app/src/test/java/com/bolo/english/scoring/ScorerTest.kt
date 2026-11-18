@@ -97,4 +97,19 @@ class ScorerTest {
 
     @Test fun chooseReplyWithoutBranchesOrReplyIsNull() =
         assertNull(Scorer.chooseReply(listOf("apple"), step("apple")))
+
+    @Test fun slotInModelAnswerIsMarkedAsBlank() {
+        val s = step("My name is {any}")
+        val r = Scorer.score(listOf("my name is Riya"), s)
+        assertEquals(3, r.stars)
+        assertEquals(listOf("My", "name", "is", "___"), r.marks.map { it.word })
+        assertTrue(r.marks.all { it.heard })
+        assertFalse(Scorer.score(listOf("my name is"), s).marks.last().heard)
+    }
+
+    @Test fun displayAndSpeechFormsOfSlotAnswer() {
+        assertEquals("My name is ___", Scorer.display("My name is {any}"))
+        assertEquals("My name is ...", Scorer.speakable("My name is {any}"))
+        assertEquals("It is a cat.", Scorer.speakable("It is a cat."))
+    }
 }

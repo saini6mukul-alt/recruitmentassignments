@@ -1,0 +1,1845 @@
+{
+ "themes": [
+  {
+   "id": "family",
+   "title": "Me & My Family",
+   "emoji": "👨‍👩‍👧",
+   "lessons": [
+    {
+     "id": "hello",
+     "title": "Hello!",
+     "emoji": "👋",
+     "sticker": "🌟",
+     "steps": [
+      {
+       "type": "repeat",
+       "say": "Say: Hello",
+       "answer": "Hello",
+       "hindi": "'Hello' का मतलब है नमस्ते। बोलो: Hello",
+       "id": "hello-1"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Good morning",
+       "answer": "Good morning",
+       "hindi": "'Good morning' सुबह की नमस्ते है। बोलो: Good morning",
+       "id": "hello-2"
+      },
+      {
+       "type": "question",
+       "say": "What is your name? Say: My name is, and then your name.",
+       "answer": "My name is {any}",
+       "accepted": [
+        "i am {any}"
+       ],
+       "hindi": "अपना नाम बताओ। बोलो: My name is ... और अपना नाम।",
+       "reply": "What a lovely name!",
+       "id": "hello-3"
+      },
+      {
+       "type": "question",
+       "say": "How are you?",
+       "answer": "I am fine",
+       "accepted": [
+        "i am good",
+        "i am happy",
+        "fine thank you",
+        "i am ok"
+       ],
+       "hindi": "'How are you?' का मतलब है तुम कैसे हो? बोलो: I am fine.",
+       "reply": "I am happy too!",
+       "id": "hello-4"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Nice to meet you",
+       "answer": "Nice to meet you",
+       "hindi": "'Nice to meet you' का मतलब है आपसे मिलकर खुशी हुई। बोलो: Nice to meet you",
+       "id": "hello-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Thank you",
+       "answer": "Thank you",
+       "hindi": "'Thank you' का मतलब है धन्यवाद। बोलो: Thank you",
+       "id": "hello-6"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Goodbye",
+       "answer": "Goodbye",
+       "hindi": "'Goodbye' का मतलब है अलविदा। बोलो: Goodbye",
+       "id": "hello-7"
+      }
+     ]
+    },
+    {
+     "id": "family1",
+     "title": "My Family",
+     "emoji": "👪",
+     "sticker": "🏠",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "Who is this?",
+       "picture": "👩",
+       "answer": "This is my mummy.",
+       "accepted": [
+        "my mummy",
+        "mummy"
+       ],
+       "hindi": "यह मम्मी हैं। बोलो: This is my mummy.",
+       "id": "family1-1"
+      },
+      {
+       "type": "picture",
+       "say": "Who is this?",
+       "picture": "👨",
+       "answer": "This is my daddy.",
+       "accepted": [
+        "my daddy",
+        "daddy"
+       ],
+       "hindi": "यह पापा हैं। बोलो: This is my daddy.",
+       "id": "family1-2"
+      },
+      {
+       "type": "picture",
+       "say": "Who is this?",
+       "picture": "👦",
+       "answer": "This is my brother.",
+       "accepted": [
+        "my brother"
+       ],
+       "hindi": "यह भाई है। भाई को 'brother' कहते हैं। बोलो: This is my brother.",
+       "id": "family1-3"
+      },
+      {
+       "type": "picture",
+       "say": "Who is this?",
+       "picture": "👧",
+       "answer": "This is my sister.",
+       "accepted": [
+        "my sister"
+       ],
+       "hindi": "यह बहन है। बहन को 'sister' कहते हैं। बोलो: This is my sister.",
+       "id": "family1-4"
+      },
+      {
+       "type": "picture",
+       "say": "Who is this?",
+       "picture": "👵",
+       "answer": "This is my grandma.",
+       "accepted": [
+        "my grandma",
+        "my grandmother"
+       ],
+       "hindi": "यह दादी या नानी हैं। उन्हें 'grandma' कहते हैं। बोलो: This is my grandma.",
+       "id": "family1-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I love my family",
+       "answer": "I love my family",
+       "hindi": "'I love my family' का मतलब है मुझे अपने परिवार से प्यार है। बोलो: I love my family",
+       "id": "family1-6"
+      }
+     ]
+    },
+    {
+     "id": "body",
+     "title": "My Body",
+     "emoji": "🖐️",
+     "sticker": "💪",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "👁️",
+       "answer": "This is my eye.",
+       "accepted": [
+        "my eye",
+        "eye"
+       ],
+       "hindi": "यह आँख है। आँख को 'eye' कहते हैं। बोलो: This is my eye.",
+       "id": "body-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "👃",
+       "answer": "This is my nose.",
+       "accepted": [
+        "my nose",
+        "nose"
+       ],
+       "hindi": "यह नाक है। नाक को 'nose' कहते हैं। बोलो: This is my nose.",
+       "id": "body-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "👂",
+       "answer": "This is my ear.",
+       "accepted": [
+        "my ear",
+        "ear"
+       ],
+       "hindi": "यह कान है। कान को 'ear' कहते हैं। बोलो: This is my ear.",
+       "id": "body-3"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "✋",
+       "answer": "This is my hand.",
+       "accepted": [
+        "my hand",
+        "hand"
+       ],
+       "hindi": "यह हाथ है। हाथ को 'hand' कहते हैं। बोलो: This is my hand.",
+       "id": "body-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🦶",
+       "answer": "This is my foot.",
+       "accepted": [
+        "my foot",
+        "foot"
+       ],
+       "hindi": "यह पैर है। पैर को 'foot' कहते हैं। बोलो: This is my foot.",
+       "id": "body-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I have two hands",
+       "answer": "I have two hands",
+       "hindi": "'I have two hands' का मतलब है मेरे दो हाथ हैं। बोलो: I have two hands",
+       "id": "body-6"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I can clap my hands",
+       "answer": "I can clap my hands",
+       "hindi": "'clap' का मतलब है ताली बजाना। बोलो: I can clap my hands",
+       "id": "body-7"
+      }
+     ]
+    },
+    {
+     "id": "aboutme",
+     "title": "All About Me",
+     "emoji": "🧒",
+     "sticker": "🎈",
+     "steps": [
+      {
+       "type": "question",
+       "say": "How old are you? Say: I am, and then your age.",
+       "answer": "I am {any} years old",
+       "accepted": [
+        "i am {any}"
+       ],
+       "hindi": "तुम कितने साल के हो? बोलो: I am ... years old.",
+       "reply": "Wow, you are growing big!",
+       "id": "aboutme-1"
+      },
+      {
+       "type": "question",
+       "say": "Are you a boy or a girl?",
+       "answer": "I am a {any}",
+       "accepted": [
+        "boy",
+        "girl"
+       ],
+       "hindi": "बोलो: I am a boy, या I am a girl.",
+       "reply": "Super!",
+       "id": "aboutme-2"
+      },
+      {
+       "type": "question",
+       "say": "Where do you live? Say: I live in, and your city.",
+       "answer": "I live in {any}",
+       "accepted": [],
+       "hindi": "तुम कहाँ रहते हो? बोलो: I live in ... और अपने शहर का नाम।",
+       "reply": "That is a nice place!",
+       "id": "aboutme-3"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I like to play",
+       "answer": "I like to play",
+       "hindi": "'I like to play' का मतलब है मुझे खेलना पसंद है। बोलो: I like to play",
+       "id": "aboutme-4"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I am happy today",
+       "answer": "I am happy today",
+       "hindi": "'I am happy today' का मतलब है मैं आज खुश हूँ। बोलो: I am happy today",
+       "id": "aboutme-5"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "animals",
+   "title": "Animals",
+   "emoji": "🐾",
+   "lessons": [
+    {
+     "id": "pets",
+     "title": "Pets",
+     "emoji": "🐶",
+     "sticker": "🐱",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐶",
+       "answer": "It is a dog.",
+       "accepted": [
+        "a dog",
+        "this is a dog"
+       ],
+       "hindi": "यह कुत्ता है। अंग्रेज़ी में कुत्ता को 'dog' कहते हैं। बोलो: It is a dog.",
+       "id": "pets-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐱",
+       "answer": "It is a cat.",
+       "accepted": [
+        "a cat",
+        "this is a cat"
+       ],
+       "hindi": "यह बिल्ली है। अंग्रेज़ी में बिल्ली को 'cat' कहते हैं। बोलो: It is a cat.",
+       "id": "pets-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐟",
+       "answer": "It is a fish.",
+       "accepted": [
+        "a fish",
+        "this is a fish"
+       ],
+       "hindi": "यह मछली है। अंग्रेज़ी में मछली को 'fish' कहते हैं। बोलो: It is a fish.",
+       "id": "pets-3"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐰",
+       "answer": "It is a rabbit.",
+       "accepted": [
+        "a rabbit",
+        "this is a rabbit"
+       ],
+       "hindi": "यह खरगोश है। अंग्रेज़ी में खरगोश को 'rabbit' कहते हैं। बोलो: It is a rabbit.",
+       "id": "pets-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🦜",
+       "answer": "It is a parrot.",
+       "accepted": [
+        "a parrot",
+        "this is a parrot"
+       ],
+       "hindi": "यह तोता है। अंग्रेज़ी में तोता को 'parrot' कहते हैं। बोलो: It is a parrot.",
+       "id": "pets-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: The dog says woof",
+       "answer": "The dog says woof",
+       "hindi": "कुत्ता 'woof' बोलता है। बोलो: The dog says woof",
+       "id": "pets-6"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: The cat says meow",
+       "answer": "The cat says meow",
+       "hindi": "बिल्ली 'meow' बोलती है। बोलो: The cat says meow",
+       "id": "pets-7"
+      }
+     ]
+    },
+    {
+     "id": "farm",
+     "title": "On the Farm",
+     "emoji": "🐄",
+     "sticker": "🚜",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐄",
+       "answer": "It is a cow.",
+       "accepted": [
+        "a cow",
+        "this is a cow"
+       ],
+       "hindi": "यह गाय है। अंग्रेज़ी में गाय को 'cow' कहते हैं। बोलो: It is a cow.",
+       "id": "farm-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐐",
+       "answer": "It is a goat.",
+       "accepted": [
+        "a goat",
+        "this is a goat"
+       ],
+       "hindi": "यह बकरी है। अंग्रेज़ी में बकरी को 'goat' कहते हैं। बोलो: It is a goat.",
+       "id": "farm-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐔",
+       "answer": "It is a hen.",
+       "accepted": [
+        "a hen",
+        "this is a hen"
+       ],
+       "hindi": "यह मुर्गी है। अंग्रेज़ी में मुर्गी को 'hen' कहते हैं। बोलो: It is a hen.",
+       "id": "farm-3"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐴",
+       "answer": "It is a horse.",
+       "accepted": [
+        "a horse",
+        "this is a horse"
+       ],
+       "hindi": "यह घोड़ा है। अंग्रेज़ी में घोड़ा को 'horse' कहते हैं। बोलो: It is a horse.",
+       "id": "farm-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🦆",
+       "answer": "It is a duck.",
+       "accepted": [
+        "a duck",
+        "this is a duck"
+       ],
+       "hindi": "यह बत्तख है। अंग्रेज़ी में बत्तख को 'duck' कहते हैं। बोलो: It is a duck.",
+       "id": "farm-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: The cow gives milk",
+       "answer": "The cow gives milk",
+       "hindi": "'The cow gives milk' का मतलब है गाय दूध देती है। बोलो: The cow gives milk",
+       "id": "farm-6"
+      }
+     ]
+    },
+    {
+     "id": "jungle",
+     "title": "In the Jungle",
+     "emoji": "🦁",
+     "sticker": "🌴",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐘",
+       "answer": "It is an elephant.",
+       "accepted": [
+        "an elephant",
+        "this is an elephant"
+       ],
+       "hindi": "यह हाथी है। अंग्रेज़ी में हाथी को 'elephant' कहते हैं। बोलो: It is an elephant.",
+       "id": "jungle-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🦁",
+       "answer": "It is a lion.",
+       "accepted": [
+        "a lion",
+        "this is a lion"
+       ],
+       "hindi": "यह शेर है। अंग्रेज़ी में शेर को 'lion' कहते हैं। बोलो: It is a lion.",
+       "id": "jungle-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐒",
+       "answer": "It is a monkey.",
+       "accepted": [
+        "a monkey",
+        "this is a monkey"
+       ],
+       "hindi": "यह बंदर है। अंग्रेज़ी में बंदर को 'monkey' कहते हैं। बोलो: It is a monkey.",
+       "id": "jungle-3"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🐯",
+       "answer": "It is a tiger.",
+       "accepted": [
+        "a tiger",
+        "this is a tiger"
+       ],
+       "hindi": "यह बाघ है। अंग्रेज़ी में बाघ को 'tiger' कहते हैं। बोलो: It is a tiger.",
+       "id": "jungle-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🦒",
+       "answer": "It is a giraffe.",
+       "accepted": [
+        "a giraffe",
+        "this is a giraffe"
+       ],
+       "hindi": "यह जिराफ़ है। अंग्रेज़ी में जिराफ़ को 'giraffe' कहते हैं। बोलो: It is a giraffe.",
+       "id": "jungle-5"
+      },
+      {
+       "type": "picture",
+       "say": "Is the elephant big or small?",
+       "picture": "🐘",
+       "answer": "The elephant is big.",
+       "accepted": [
+        "it is big",
+        "big"
+       ],
+       "hindi": "हाथी बड़ा है। बड़ा = big. बोलो: The elephant is big.",
+       "id": "jungle-6"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: The monkey can climb",
+       "answer": "The monkey can climb",
+       "hindi": "'climb' का मतलब है चढ़ना। बोलो: The monkey can climb",
+       "id": "jungle-7"
+      }
+     ]
+    },
+    {
+     "id": "doing",
+     "title": "What Can Animals Do?",
+     "emoji": "🐦",
+     "sticker": "🦋",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What can a bird do?",
+       "picture": "🐦",
+       "answer": "A bird can fly.",
+       "accepted": [
+        "it can fly",
+        "fly"
+       ],
+       "hindi": "चिड़िया उड़ सकती है। उड़ना = fly. बोलो: A bird can fly.",
+       "id": "doing-1"
+      },
+      {
+       "type": "picture",
+       "say": "What can a fish do?",
+       "picture": "🐟",
+       "answer": "A fish can swim.",
+       "accepted": [
+        "it can swim",
+        "swim"
+       ],
+       "hindi": "मछली तैर सकती है। तैरना = swim. बोलो: A fish can swim.",
+       "id": "doing-2"
+      },
+      {
+       "type": "picture",
+       "say": "What can a frog do?",
+       "picture": "🐸",
+       "answer": "A frog can jump.",
+       "accepted": [
+        "it can jump",
+        "jump"
+       ],
+       "hindi": "मेंढक कूद सकता है। कूदना = jump. बोलो: A frog can jump.",
+       "id": "doing-3"
+      },
+      {
+       "type": "picture",
+       "say": "What can a dog do?",
+       "picture": "🐕",
+       "answer": "A dog can run.",
+       "accepted": [
+        "it can run",
+        "run"
+       ],
+       "hindi": "कुत्ता दौड़ सकता है। दौड़ना = run. बोलो: A dog can run.",
+       "id": "doing-4"
+      },
+      {
+       "type": "question",
+       "say": "What is your favourite animal?",
+       "answer": "My favourite animal is the {any}",
+       "accepted": [
+        "i like {any}",
+        "my favourite animal is {any}"
+       ],
+       "hindi": "तुम्हारा पसंदीदा जानवर कौन सा है? बोलो: My favourite animal is the ...",
+       "reply": "Great choice!",
+       "id": "doing-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I can jump like a frog",
+       "answer": "I can jump like a frog",
+       "hindi": "'I can jump like a frog' का मतलब है मैं मेंढक की तरह कूद सकता हूँ। बोलो: I can jump like a frog",
+       "id": "doing-6"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "food",
+   "title": "Food",
+   "emoji": "🍎",
+   "lessons": [
+    {
+     "id": "fruits",
+     "title": "Fruits",
+     "emoji": "🍎",
+     "sticker": "🍓",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🍎",
+       "answer": "It is an apple.",
+       "accepted": [
+        "an apple",
+        "this is an apple"
+       ],
+       "hindi": "यह सेब है। अंग्रेज़ी में सेब को 'apple' कहते हैं। बोलो: It is an apple.",
+       "id": "fruits-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🍌",
+       "answer": "It is a banana.",
+       "accepted": [
+        "a banana",
+        "this is a banana"
+       ],
+       "hindi": "यह केला है। अंग्रेज़ी में केला को 'banana' कहते हैं। बोलो: It is a banana.",
+       "id": "fruits-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🥭",
+       "answer": "It is a mango.",
+       "accepted": [
+        "a mango",
+        "this is a mango"
+       ],
+       "hindi": "यह आम है। अंग्रेज़ी में आम को 'mango' कहते हैं। बोलो: It is a mango.",
+       "id": "fruits-3"
+      },
+      {
+       "type": "picture",
+       "say": "What are these?",
+       "picture": "🍇",
+       "answer": "These are grapes.",
+       "accepted": [
+        "grapes"
+       ],
+       "hindi": "ये अंगूर हैं। अंगूर = grapes. बोलो: These are grapes.",
+       "id": "fruits-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🍊",
+       "answer": "It is an orange.",
+       "accepted": [
+        "an orange",
+        "this is an orange"
+       ],
+       "hindi": "यह संतरा है। अंग्रेज़ी में संतरा को 'orange' कहते हैं। बोलो: It is an orange.",
+       "id": "fruits-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I like mangoes",
+       "answer": "I like mangoes",
+       "hindi": "'I like mangoes' का मतलब है मुझे आम पसंद हैं। बोलो: I like mangoes",
+       "id": "fruits-6"
+      }
+     ]
+    },
+    {
+     "id": "veggies",
+     "title": "Vegetables",
+     "emoji": "🥕",
+     "sticker": "🥕",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🥕",
+       "answer": "It is a carrot.",
+       "accepted": [
+        "a carrot",
+        "this is a carrot"
+       ],
+       "hindi": "यह गाजर है। अंग्रेज़ी में गाजर को 'carrot' कहते हैं। बोलो: It is a carrot.",
+       "id": "veggies-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🍅",
+       "answer": "It is a tomato.",
+       "accepted": [
+        "a tomato",
+        "this is a tomato"
+       ],
+       "hindi": "यह टमाटर है। अंग्रेज़ी में टमाटर को 'tomato' कहते हैं। बोलो: It is a tomato.",
+       "id": "veggies-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🥔",
+       "answer": "It is a potato.",
+       "accepted": [
+        "a potato",
+        "this is a potato"
+       ],
+       "hindi": "यह आलू है। अंग्रेज़ी में आलू को 'potato' कहते हैं। बोलो: It is a potato.",
+       "id": "veggies-3"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🧅",
+       "answer": "It is an onion.",
+       "accepted": [
+        "an onion",
+        "this is an onion"
+       ],
+       "hindi": "यह प्याज़ है। अंग्रेज़ी में प्याज़ को 'onion' कहते हैं। बोलो: It is an onion.",
+       "id": "veggies-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🌽",
+       "answer": "It is corn.",
+       "accepted": [
+        "corn"
+       ],
+       "hindi": "यह भुट्टा है। भुट्टे को 'corn' कहते हैं। बोलो: It is corn.",
+       "id": "veggies-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Vegetables make me strong",
+       "answer": "Vegetables make me strong",
+       "hindi": "'strong' का मतलब है ताकतवर। बोलो: Vegetables make me strong",
+       "id": "veggies-6"
+      }
+     ]
+    },
+    {
+     "id": "meals",
+     "title": "Meal Time",
+     "emoji": "🍽️",
+     "sticker": "🍛",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🥛",
+       "answer": "It is milk.",
+       "accepted": [
+        "milk",
+        "a glass of milk"
+       ],
+       "hindi": "यह दूध है। दूध = milk. बोलो: It is milk.",
+       "id": "meals-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🍚",
+       "answer": "It is rice.",
+       "accepted": [
+        "rice"
+       ],
+       "hindi": "यह चावल है। चावल = rice. बोलो: It is rice.",
+       "id": "meals-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🍞",
+       "answer": "It is bread.",
+       "accepted": [
+        "bread"
+       ],
+       "hindi": "यह ब्रेड है। बोलो: It is bread.",
+       "id": "meals-3"
+      },
+      {
+       "type": "question",
+       "say": "What do you eat for breakfast? Say: I eat, and your food.",
+       "answer": "I eat {any} for breakfast",
+       "accepted": [
+        "i eat {any}"
+       ],
+       "hindi": "नाश्ते में क्या खाते हो? बोलो: I eat ... for breakfast.",
+       "reply": "Yummy!",
+       "id": "meals-4"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I am hungry",
+       "answer": "I am hungry",
+       "hindi": "'I am hungry' का मतलब है मुझे भूख लगी है। बोलो: I am hungry",
+       "id": "meals-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I am thirsty",
+       "answer": "I am thirsty",
+       "hindi": "'I am thirsty' का मतलब है मुझे प्यास लगी है। बोलो: I am thirsty",
+       "id": "meals-6"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: May I have some water please",
+       "answer": "May I have some water please",
+       "hindi": "पानी माँगने के लिए बोलो: May I have some water please",
+       "id": "meals-7"
+      }
+     ]
+    },
+    {
+     "id": "shop",
+     "title": "At the Fruit Shop",
+     "emoji": "🛒",
+     "sticker": "🧺",
+     "steps": [
+      {
+       "type": "roleplay",
+       "say": "Hello! Welcome to my fruit shop. Say: Hello!",
+       "answer": "Hello",
+       "accepted": [
+        "hi",
+        "good morning"
+       ],
+       "hindi": "दुकानदार को नमस्ते करो। बोलो: Hello",
+       "branches": [],
+       "reply": "Hello, little friend!",
+       "picture": "🧑‍🌾",
+       "id": "shop-1"
+      },
+      {
+       "type": "roleplay",
+       "say": "What do you want to buy?",
+       "answer": "I want a mango",
+       "accepted": [
+        "i want {any}",
+        "a {any} please"
+       ],
+       "hindi": "तुम्हें क्या चाहिए? बोलो: I want a mango, या I want a banana.",
+       "branches": [
+        {
+         "keywords": [
+          "mango",
+          "mangoes"
+         ],
+         "reply": "Here is a sweet mango!"
+        },
+        {
+         "keywords": [
+          "banana",
+          "bananas"
+         ],
+         "reply": "Here is a yellow banana!"
+        },
+        {
+         "keywords": [
+          "apple",
+          "apples"
+         ],
+         "reply": "Here is a red apple!"
+        }
+       ],
+       "reply": "Here you go!",
+       "picture": "🧺",
+       "id": "shop-2"
+      },
+      {
+       "type": "roleplay",
+       "say": "How many do you want?",
+       "answer": "I want two",
+       "accepted": [
+        "{any} please",
+        "two",
+        "one",
+        "three"
+       ],
+       "hindi": "कितने चाहिए? बोलो: I want two.",
+       "branches": [],
+       "reply": "Okay!",
+       "picture": "🔢",
+       "id": "shop-3"
+      },
+      {
+       "type": "roleplay",
+       "say": "That is ten rupees, please.",
+       "answer": "Here you are",
+       "accepted": [
+        "here it is"
+       ],
+       "hindi": "पैसे देते समय बोलो: Here you are",
+       "branches": [],
+       "reply": "Thank you!",
+       "picture": "💰",
+       "id": "shop-4"
+      },
+      {
+       "type": "roleplay",
+       "say": "Thank you! Have a nice day.",
+       "answer": "Thank you. Bye",
+       "accepted": [
+        "thank you",
+        "bye",
+        "goodbye"
+       ],
+       "hindi": "धन्यवाद कहो और अलविदा बोलो: Thank you. Bye",
+       "branches": [],
+       "reply": "Bye bye!",
+       "picture": "👋",
+       "id": "shop-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I bought fruits at the shop",
+       "answer": "I bought fruits at the shop",
+       "hindi": "'bought' का मतलब है खरीदा। बोलो: I bought fruits at the shop",
+       "id": "shop-6"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "colours",
+   "title": "Colours & Shapes",
+   "emoji": "🌈",
+   "lessons": [
+    {
+     "id": "colours1",
+     "title": "Colours",
+     "emoji": "🎨",
+     "sticker": "🖍️",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What colour is this?",
+       "picture": "🔴",
+       "answer": "It is red.",
+       "accepted": [
+        "red"
+       ],
+       "hindi": "यह लाल है। लाल = red. बोलो: It is red.",
+       "id": "colours1-1"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is this?",
+       "picture": "🔵",
+       "answer": "It is blue.",
+       "accepted": [
+        "blue"
+       ],
+       "hindi": "यह नीला है। नीला = blue. बोलो: It is blue.",
+       "id": "colours1-2"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is this?",
+       "picture": "🟢",
+       "answer": "It is green.",
+       "accepted": [
+        "green"
+       ],
+       "hindi": "यह हरा है। हरा = green. बोलो: It is green.",
+       "id": "colours1-3"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is this?",
+       "picture": "🟡",
+       "answer": "It is yellow.",
+       "accepted": [
+        "yellow"
+       ],
+       "hindi": "यह पीला है। पीला = yellow. बोलो: It is yellow.",
+       "id": "colours1-4"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is this?",
+       "picture": "🟠",
+       "answer": "It is orange.",
+       "accepted": [
+        "orange"
+       ],
+       "hindi": "यह नारंगी है। नारंगी = orange. बोलो: It is orange.",
+       "id": "colours1-5"
+      },
+      {
+       "type": "question",
+       "say": "What is your favourite colour?",
+       "answer": "My favourite colour is {any}",
+       "accepted": [
+        "i like {any}"
+       ],
+       "hindi": "तुम्हारा पसंदीदा रंग कौन सा है? बोलो: My favourite colour is ...",
+       "reply": "That is a beautiful colour!",
+       "id": "colours1-6"
+      }
+     ]
+    },
+    {
+     "id": "colours2",
+     "title": "Colourful Things",
+     "emoji": "🍓",
+     "sticker": "🌈",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What colour is the strawberry?",
+       "picture": "🍓",
+       "answer": "The strawberry is red.",
+       "accepted": [
+        "it is red",
+        "red"
+       ],
+       "hindi": "स्ट्रॉबेरी लाल है। बोलो: The strawberry is red.",
+       "id": "colours2-1"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is the banana?",
+       "picture": "🍌",
+       "answer": "The banana is yellow.",
+       "accepted": [
+        "it is yellow",
+        "yellow"
+       ],
+       "hindi": "केला पीला है। बोलो: The banana is yellow.",
+       "id": "colours2-2"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is the tree?",
+       "picture": "🌳",
+       "answer": "The tree is green.",
+       "accepted": [
+        "it is green",
+        "green"
+       ],
+       "hindi": "पेड़ हरा है। बोलो: The tree is green.",
+       "id": "colours2-3"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is the sea?",
+       "picture": "🌊",
+       "answer": "The sea is blue.",
+       "accepted": [
+        "it is blue",
+        "blue"
+       ],
+       "hindi": "समुद्र नीला है। बोलो: The sea is blue.",
+       "id": "colours2-4"
+      },
+      {
+       "type": "picture",
+       "say": "What colour is the elephant?",
+       "picture": "🐘",
+       "answer": "The elephant is grey.",
+       "accepted": [
+        "it is grey",
+        "grey"
+       ],
+       "hindi": "हाथी स्लेटी रंग का है। स्लेटी = grey. बोलो: The elephant is grey.",
+       "id": "colours2-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I can see a rainbow",
+       "answer": "I can see a rainbow",
+       "hindi": "'rainbow' का मतलब है इंद्रधनुष। बोलो: I can see a rainbow",
+       "id": "colours2-6"
+      }
+     ]
+    },
+    {
+     "id": "shapes",
+     "title": "Shapes",
+     "emoji": "🔺",
+     "sticker": "🔷",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What shape is this?",
+       "picture": "⚪",
+       "answer": "It is a circle.",
+       "accepted": [
+        "a circle",
+        "circle"
+       ],
+       "hindi": "यह गोला है। गोला = circle. बोलो: It is a circle.",
+       "id": "shapes-1"
+      },
+      {
+       "type": "picture",
+       "say": "What shape is this?",
+       "picture": "🟥",
+       "answer": "It is a square.",
+       "accepted": [
+        "a square",
+        "square"
+       ],
+       "hindi": "यह वर्ग है। वर्ग = square. बोलो: It is a square.",
+       "id": "shapes-2"
+      },
+      {
+       "type": "picture",
+       "say": "What shape is this?",
+       "picture": "🔺",
+       "answer": "It is a triangle.",
+       "accepted": [
+        "a triangle",
+        "triangle"
+       ],
+       "hindi": "यह त्रिभुज है। त्रिभुज = triangle. बोलो: It is a triangle.",
+       "id": "shapes-3"
+      },
+      {
+       "type": "picture",
+       "say": "What shape is this?",
+       "picture": "⭐",
+       "answer": "It is a star.",
+       "accepted": [
+        "a star",
+        "star"
+       ],
+       "hindi": "यह तारा है। तारा = star. बोलो: It is a star.",
+       "id": "shapes-4"
+      },
+      {
+       "type": "picture",
+       "say": "What shape is this?",
+       "picture": "❤️",
+       "answer": "It is a heart.",
+       "accepted": [
+        "a heart",
+        "heart"
+       ],
+       "hindi": "यह दिल है। दिल = heart. बोलो: It is a heart.",
+       "id": "shapes-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: A ball is round",
+       "answer": "A ball is round",
+       "hindi": "'round' का मतलब है गोल। बोलो: A ball is round",
+       "id": "shapes-6"
+      }
+     ]
+    },
+    {
+     "id": "counting",
+     "title": "Let's Count",
+     "emoji": "🔢",
+     "sticker": "🎲",
+     "steps": [
+      {
+       "type": "repeat",
+       "say": "Say: One two three four five",
+       "answer": "One two three four five",
+       "hindi": "गिनती बोलो: One two three four five",
+       "id": "counting-1"
+      },
+      {
+       "type": "picture",
+       "say": "How many apples?",
+       "picture": "🍎🍎",
+       "answer": "Two apples.",
+       "accepted": [
+        "two",
+        "there are two apples"
+       ],
+       "hindi": "दो सेब हैं। दो = two. बोलो: Two apples.",
+       "id": "counting-2"
+      },
+      {
+       "type": "picture",
+       "say": "How many stars?",
+       "picture": "⭐⭐⭐",
+       "answer": "Three stars.",
+       "accepted": [
+        "three",
+        "there are three stars"
+       ],
+       "hindi": "तीन तारे हैं। तीन = three. बोलो: Three stars.",
+       "id": "counting-3"
+      },
+      {
+       "type": "picture",
+       "say": "How many fish?",
+       "picture": "🐟🐟🐟🐟",
+       "answer": "Four fish.",
+       "accepted": [
+        "four",
+        "there are four fish"
+       ],
+       "hindi": "चार मछलियाँ हैं। चार = four. बोलो: Four fish.",
+       "id": "counting-4"
+      },
+      {
+       "type": "picture",
+       "say": "How many balloons?",
+       "picture": "🎈🎈🎈🎈🎈",
+       "answer": "Five balloons.",
+       "accepted": [
+        "five",
+        "there are five balloons"
+       ],
+       "hindi": "पाँच गुब्बारे हैं। पाँच = five. बोलो: Five balloons.",
+       "id": "counting-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Six seven eight nine ten",
+       "answer": "Six seven eight nine ten",
+       "hindi": "गिनती बोलो: Six seven eight nine ten",
+       "id": "counting-6"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "school",
+   "title": "At School",
+   "emoji": "🏫",
+   "lessons": [
+    {
+     "id": "classroom",
+     "title": "My Classroom",
+     "emoji": "✏️",
+     "sticker": "🎒",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "📕",
+       "answer": "It is a book.",
+       "accepted": [
+        "a book",
+        "this is a book"
+       ],
+       "hindi": "यह किताब है। अंग्रेज़ी में किताब को 'book' कहते हैं। बोलो: It is a book.",
+       "id": "classroom-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "✏️",
+       "answer": "It is a pencil.",
+       "accepted": [
+        "a pencil",
+        "this is a pencil"
+       ],
+       "hindi": "यह पेंसिल है। अंग्रेज़ी में पेंसिल को 'pencil' कहते हैं। बोलो: It is a pencil.",
+       "id": "classroom-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🎒",
+       "answer": "It is a bag.",
+       "accepted": [
+        "a bag",
+        "this is a bag"
+       ],
+       "hindi": "यह बस्ता है। अंग्रेज़ी में बस्ता को 'bag' कहते हैं। बोलो: It is a bag.",
+       "id": "classroom-3"
+      },
+      {
+       "type": "picture",
+       "say": "What are these?",
+       "picture": "🖍️",
+       "answer": "These are crayons.",
+       "accepted": [
+        "crayons"
+       ],
+       "hindi": "ये क्रेयॉन हैं। बोलो: These are crayons.",
+       "id": "classroom-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🪑",
+       "answer": "It is a chair.",
+       "accepted": [
+        "a chair",
+        "this is a chair"
+       ],
+       "hindi": "यह कुर्सी है। कुर्सी = chair. बोलो: It is a chair.",
+       "id": "classroom-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I go to school",
+       "answer": "I go to school",
+       "hindi": "'I go to school' का मतलब है मैं स्कूल जाता हूँ। बोलो: I go to school",
+       "id": "classroom-6"
+      }
+     ]
+    },
+    {
+     "id": "teacher",
+     "title": "Talking to My Teacher",
+     "emoji": "👩‍🏫",
+     "sticker": "🍎",
+     "steps": [
+      {
+       "type": "repeat",
+       "say": "Say: Good morning, teacher",
+       "answer": "Good morning, teacher",
+       "hindi": "टीचर को सुबह नमस्ते करो। बोलो: Good morning, teacher",
+       "id": "teacher-1"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: May I come in",
+       "answer": "May I come in",
+       "hindi": "कक्षा में आने की अनुमति के लिए बोलो: May I come in",
+       "id": "teacher-2"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: May I go to the toilet",
+       "answer": "May I go to the toilet",
+       "hindi": "टॉयलेट जाने की अनुमति के लिए बोलो: May I go to the toilet",
+       "id": "teacher-3"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I do not understand",
+       "answer": "I do not understand",
+       "hindi": "जब समझ न आए तो बोलो: I do not understand",
+       "id": "teacher-4"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Can you help me please",
+       "answer": "Can you help me please",
+       "hindi": "मदद माँगने के लिए बोलो: Can you help me please",
+       "id": "teacher-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Thank you, teacher",
+       "answer": "Thank you, teacher",
+       "hindi": "टीचर को धन्यवाद कहो। बोलो: Thank you, teacher",
+       "id": "teacher-6"
+      },
+      {
+       "type": "roleplay",
+       "say": "Good morning! How are you today?",
+       "answer": "I am fine, thank you",
+       "accepted": [
+        "i am fine",
+        "i am good",
+        "fine thank you"
+       ],
+       "hindi": "टीचर को जवाब दो। बोलो: I am fine, thank you",
+       "branches": [],
+       "reply": "Wonderful! Let us start the class.",
+       "picture": "👩‍🏫",
+       "id": "teacher-7"
+      }
+     ]
+    },
+    {
+     "id": "friends",
+     "title": "Making Friends",
+     "emoji": "🧑‍🤝‍🧑",
+     "sticker": "🤝",
+     "steps": [
+      {
+       "type": "roleplay",
+       "say": "Hi! I am Tara. What is your name?",
+       "answer": "My name is {any}",
+       "accepted": [
+        "i am {any}"
+       ],
+       "hindi": "अपना नाम बताओ। बोलो: My name is ...",
+       "branches": [],
+       "reply": "Nice to meet you!",
+       "picture": "🦜",
+       "id": "friends-1"
+      },
+      {
+       "type": "roleplay",
+       "say": "Do you want to play with me?",
+       "answer": "Yes, let us play",
+       "accepted": [
+        "yes",
+        "ok",
+        "yes please"
+       ],
+       "hindi": "खेलने के लिए हाँ कहो। बोलो: Yes, let us play",
+       "branches": [],
+       "reply": "Yay! Let us play!",
+       "picture": "⚽",
+       "id": "friends-2"
+      },
+      {
+       "type": "roleplay",
+       "say": "What game do you like?",
+       "answer": "I like {any}",
+       "accepted": [],
+       "hindi": "कौन सा खेल पसंद है? बोलो: I like ...",
+       "branches": [
+        {
+         "keywords": [
+          "football",
+          "ball"
+         ],
+         "reply": "Football is fun!"
+        },
+        {
+         "keywords": [
+          "hide",
+          "seek"
+         ],
+         "reply": "Hide and seek is my favourite!"
+        },
+        {
+         "keywords": [
+          "cricket"
+         ],
+         "reply": "Cricket! Let us play!"
+        }
+       ],
+       "reply": "That sounds fun!",
+       "picture": "🎮",
+       "id": "friends-3"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: You are my friend",
+       "answer": "You are my friend",
+       "hindi": "'You are my friend' का मतलब है तुम मेरे दोस्त हो। बोलो: You are my friend",
+       "id": "friends-4"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Let us share",
+       "answer": "Let us share",
+       "hindi": "'share' का मतलब है मिल-बाँटकर। बोलो: Let us share",
+       "id": "friends-5"
+      }
+     ]
+    },
+    {
+     "id": "play",
+     "title": "Playtime",
+     "emoji": "⚽",
+     "sticker": "🏆",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "⚽",
+       "answer": "It is a ball.",
+       "accepted": [
+        "a ball",
+        "this is a ball"
+       ],
+       "hindi": "यह गेंद है। अंग्रेज़ी में गेंद को 'ball' कहते हैं। बोलो: It is a ball.",
+       "id": "play-1"
+      },
+      {
+       "type": "picture",
+       "say": "What is this?",
+       "picture": "🪁",
+       "answer": "It is a kite.",
+       "accepted": [
+        "a kite",
+        "kite"
+       ],
+       "hindi": "यह पतंग है। पतंग = kite. बोलो: It is a kite.",
+       "id": "play-2"
+      },
+      {
+       "type": "picture",
+       "say": "What is he doing?",
+       "picture": "🏃",
+       "answer": "He is running.",
+       "accepted": [
+        "running",
+        "he is run"
+       ],
+       "hindi": "वह दौड़ रहा है। बोलो: He is running.",
+       "id": "play-3"
+      },
+      {
+       "type": "picture",
+       "say": "What is she doing? 🎵",
+       "picture": "🧒",
+       "answer": "She is singing.",
+       "accepted": [
+        "singing"
+       ],
+       "hindi": "वह गा रही है। गाना = sing. बोलो: She is singing.",
+       "id": "play-4"
+      },
+      {
+       "type": "picture",
+       "say": "What is she doing?",
+       "picture": "💃",
+       "answer": "She is dancing.",
+       "accepted": [
+        "dancing"
+       ],
+       "hindi": "वह नाच रही है। नाचना = dance. बोलो: She is dancing.",
+       "id": "play-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I like to play outside",
+       "answer": "I like to play outside",
+       "hindi": "'outside' का मतलब है बाहर। बोलो: I like to play outside",
+       "id": "play-6"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "feelings",
+   "title": "Feelings & My Day",
+   "emoji": "😊",
+   "lessons": [
+    {
+     "id": "feelings1",
+     "title": "How Do I Feel?",
+     "emoji": "😊",
+     "sticker": "😊",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "How does she feel?",
+       "picture": "😊",
+       "answer": "She is happy.",
+       "accepted": [
+        "happy"
+       ],
+       "hindi": "वह खुश है। खुश = happy. बोलो: She is happy.",
+       "id": "feelings1-1"
+      },
+      {
+       "type": "picture",
+       "say": "How does he feel?",
+       "picture": "😢",
+       "answer": "He is sad.",
+       "accepted": [
+        "sad"
+       ],
+       "hindi": "वह उदास है। उदास = sad. बोलो: He is sad.",
+       "id": "feelings1-2"
+      },
+      {
+       "type": "picture",
+       "say": "How does he feel?",
+       "picture": "😠",
+       "answer": "He is angry.",
+       "accepted": [
+        "angry"
+       ],
+       "hindi": "वह गुस्से में है। गुस्सा = angry. बोलो: He is angry.",
+       "id": "feelings1-3"
+      },
+      {
+       "type": "picture",
+       "say": "How does she feel?",
+       "picture": "😴",
+       "answer": "She is sleepy.",
+       "accepted": [
+        "sleepy",
+        "tired"
+       ],
+       "hindi": "उसे नींद आ रही है। नींद = sleepy. बोलो: She is sleepy.",
+       "id": "feelings1-4"
+      },
+      {
+       "type": "picture",
+       "say": "How does he feel?",
+       "picture": "😨",
+       "answer": "He is scared.",
+       "accepted": [
+        "scared",
+        "afraid"
+       ],
+       "hindi": "वह डरा हुआ है। डरा = scared. बोलो: He is scared.",
+       "id": "feelings1-5"
+      },
+      {
+       "type": "question",
+       "say": "How do you feel today?",
+       "answer": "I feel {any}",
+       "accepted": [
+        "i am {any}"
+       ],
+       "hindi": "आज तुम कैसा महसूस कर रहे हो? बोलो: I feel happy, या I feel sleepy.",
+       "reply": "Thank you for telling me!",
+       "id": "feelings1-6"
+      }
+     ]
+    },
+    {
+     "id": "routine",
+     "title": "My Day",
+     "emoji": "⏰",
+     "sticker": "☀️",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "What do you do in the morning?",
+       "picture": "⏰",
+       "answer": "I wake up.",
+       "accepted": [
+        "wake up"
+       ],
+       "hindi": "सुबह मैं उठता हूँ। उठना = wake up. बोलो: I wake up.",
+       "id": "routine-1"
+      },
+      {
+       "type": "picture",
+       "say": "What do you do next?",
+       "picture": "🪥",
+       "answer": "I brush my teeth.",
+       "accepted": [
+        "brush my teeth",
+        "brush teeth"
+       ],
+       "hindi": "मैं दाँत साफ़ करता हूँ। बोलो: I brush my teeth.",
+       "id": "routine-2"
+      },
+      {
+       "type": "picture",
+       "say": "What do you do next?",
+       "picture": "🛁",
+       "answer": "I take a bath.",
+       "accepted": [
+        "take a bath",
+        "bath"
+       ],
+       "hindi": "मैं नहाता हूँ। बोलो: I take a bath.",
+       "id": "routine-3"
+      },
+      {
+       "type": "picture",
+       "say": "Then what do you do?",
+       "picture": "🚌",
+       "answer": "I go to school.",
+       "accepted": [
+        "go to school",
+        "school"
+       ],
+       "hindi": "मैं स्कूल जाता हूँ। बोलो: I go to school.",
+       "id": "routine-4"
+      },
+      {
+       "type": "picture",
+       "say": "What do you do at night?",
+       "picture": "🛏️",
+       "answer": "I go to sleep.",
+       "accepted": [
+        "sleep",
+        "i sleep"
+       ],
+       "hindi": "रात को मैं सोता हूँ। बोलो: I go to sleep.",
+       "id": "routine-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Good night",
+       "answer": "Good night",
+       "hindi": "'Good night' का मतलब है शुभ रात्रि। बोलो: Good night",
+       "id": "routine-6"
+      }
+     ]
+    },
+    {
+     "id": "weather",
+     "title": "Weather",
+     "emoji": "🌦️",
+     "sticker": "☂️",
+     "steps": [
+      {
+       "type": "picture",
+       "say": "How is the weather?",
+       "picture": "☀️",
+       "answer": "It is sunny.",
+       "accepted": [
+        "sunny"
+       ],
+       "hindi": "धूप निकली है। धूप = sunny. बोलो: It is sunny.",
+       "id": "weather-1"
+      },
+      {
+       "type": "picture",
+       "say": "How is the weather?",
+       "picture": "🌧️",
+       "answer": "It is rainy.",
+       "accepted": [
+        "rainy",
+        "it is raining"
+       ],
+       "hindi": "बारिश हो रही है। बारिश = rainy. बोलो: It is rainy.",
+       "id": "weather-2"
+      },
+      {
+       "type": "picture",
+       "say": "How is the weather?",
+       "picture": "☁️",
+       "answer": "It is cloudy.",
+       "accepted": [
+        "cloudy"
+       ],
+       "hindi": "बादल हैं। बादल = cloudy. बोलो: It is cloudy.",
+       "id": "weather-3"
+      },
+      {
+       "type": "picture",
+       "say": "How is the weather?",
+       "picture": "🥶",
+       "answer": "It is cold.",
+       "accepted": [
+        "cold"
+       ],
+       "hindi": "ठंड है। ठंड = cold. बोलो: It is cold.",
+       "id": "weather-4"
+      },
+      {
+       "type": "picture",
+       "say": "How is the weather?",
+       "picture": "🥵",
+       "answer": "It is hot.",
+       "accepted": [
+        "hot"
+       ],
+       "hindi": "गर्मी है। गर्मी = hot. बोलो: It is hot.",
+       "id": "weather-5"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: I need an umbrella",
+       "answer": "I need an umbrella",
+       "hindi": "'umbrella' का मतलब है छाता। बोलो: I need an umbrella",
+       "id": "weather-6"
+      }
+     ]
+    },
+    {
+     "id": "manners",
+     "title": "Magic Words",
+     "emoji": "✨",
+     "sticker": "🏅",
+     "steps": [
+      {
+       "type": "repeat",
+       "say": "Say: Please",
+       "answer": "Please",
+       "hindi": "कुछ माँगते समय 'please' बोलते हैं। बोलो: Please",
+       "id": "manners-1"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Thank you very much",
+       "answer": "Thank you very much",
+       "hindi": "धन्यवाद कहने के लिए बोलो: Thank you very much",
+       "id": "manners-2"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Sorry",
+       "answer": "Sorry",
+       "hindi": "गलती होने पर 'sorry' बोलते हैं। बोलो: Sorry",
+       "id": "manners-3"
+      },
+      {
+       "type": "repeat",
+       "say": "Say: Excuse me",
+       "answer": "Excuse me",
+       "hindi": "किसी का ध्यान खींचने के लिए बोलो: Excuse me",
+       "id": "manners-4"
+      },
+      {
+       "type": "roleplay",
+       "say": "Here is a cookie for you! What do you say?",
+       "answer": "Thank you",
+       "accepted": [
+        "thanks",
+        "thank you very much"
+       ],
+       "hindi": "कुछ मिलने पर बोलो: Thank you",
+       "branches": [],
+       "reply": "You are welcome!",
+       "picture": "🍪",
+       "id": "manners-5"
+      },
+      {
+       "type": "roleplay",
+       "say": "Oops! You bumped into me. What do you say?",
+       "answer": "Sorry",
+       "accepted": [
+        "i am sorry"
+       ],
+       "hindi": "टकराने पर बोलो: Sorry",
+       "branches": [],
+       "reply": "That is okay!",
+       "picture": "🙈",
+       "id": "manners-6"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

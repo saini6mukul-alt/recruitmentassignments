@@ -34,6 +34,12 @@ object Scorer {
         return ScoreResult(starsFor(bestRatio), bestRatio, marks(step.answer, bestAlternative))
     }
 
+    /** How a model answer is shown on screen: slots become a blank. */
+    fun display(answer: String): String = answer.replace(SLOT, "___")
+
+    /** How Tara says a model answer aloud: slots become a pause. */
+    fun speakable(answer: String): String = answer.replace(SLOT, "...")
+
     /** Tara's next line for a role-play step: first branch with a heard keyword, else the default reply. */
     fun chooseReply(heard: List<String>, step: Step): String? {
         val words = heard.flatMap { TextNormalizer.words(it) }.toSet()
@@ -60,7 +66,14 @@ object Scorer {
 
     private fun marks(answer: String, heard: List<String>): List<WordMark> {
         val remaining = heard.filter { it !in fillers }.toMutableList()
-        return answer.split(Regex("\\s+")).mapNotNull { token ->
+        val tokens = answer.split(Regex("\\s+"))
+        val answerWords = tokens.filter { it != SLOT }.flatMap { TextNormalizer.words(it) }.toSet()
+        return tokens.mapNotNull { token ->
+            if (token == SLOT) {
+                val i = remaining.indexOfFirst { it !in answerWords }
+                if (i >= 0) remaining.removeAt(i)
+                return@mapNotNull WordMark("___", i >= 0)
+            }
             val display = token.trim { !it.isLetterOrDigit() && it != '\'' }
             if (display.isEmpty()) return@mapNotNull null
             val parts = TextNormalizer.words(token)
