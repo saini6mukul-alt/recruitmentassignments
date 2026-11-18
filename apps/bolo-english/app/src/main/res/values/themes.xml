@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.BoloEnglish" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FF2E7D32</item>
+        <item name="android:windowBackground">#FFFFF8E1</item>
+    </style>
+</resources>
