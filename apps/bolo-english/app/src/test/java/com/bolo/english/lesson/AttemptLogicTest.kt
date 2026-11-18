@@ -18,4 +18,15 @@ class AttemptLogicTest {
         assertEquals(false, AttemptLogic.canSkip(1))
         assertEquals(true, AttemptLogic.canSkip(2))
     }
+
+    @Test fun skipShownAfterRepeatedNotHeard() {
+        assertEquals(false, AttemptLogic.canSkip(0, notHeard = 2))
+        assertEquals(true, AttemptLogic.canSkip(0, notHeard = 3))
+    }
+
+    @Test fun afterTaraTalksPassedStepShowsNext() {
+        assertEquals(com.bolo.english.Phase.FEEDBACK, AttemptLogic.phaseAfterTalk(pass))
+        assertEquals(com.bolo.english.Phase.WAITING, AttemptLogic.phaseAfterTalk(fail))
+        assertEquals(com.bolo.english.Phase.WAITING, AttemptLogic.phaseAfterTalk(null))
+    }
 }

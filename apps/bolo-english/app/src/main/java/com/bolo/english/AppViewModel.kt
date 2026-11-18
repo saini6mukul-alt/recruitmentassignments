@@ -43,6 +43,7 @@ data class LessonRun(
     val lesson: Lesson,
     val index: Int = 0,
     val failed: Int = 0,
+    val notHeard: Int = 0,
     val phase: Phase = Phase.TARA_SPEAKING,
     val bubble: String = "",
     val heard: String = "",
@@ -53,7 +54,7 @@ data class LessonRun(
     val startedAt: Long = SystemClock.elapsedRealtime(),
 ) {
     val step: Step get() = lesson.steps[index]
-    val canSkip: Boolean get() = AttemptLogic.canSkip(failed) && phase == Phase.WAITING
+    val canSkip: Boolean get() = AttemptLogic.canSkip(failed, notHeard) && phase == Phase.WAITING
 }
 
 class AppViewModel(app: Application) : AndroidViewModel(app) {
@@ -127,7 +128,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (r.phase == Phase.LISTENING) return
         val text = if (r.showModel) Scorer.speakable(r.step.answer) else r.step.say
         run = r.copy(phase = Phase.TARA_SPEAKING)
-        say(text) { setPhase(if (r.phase == Phase.FEEDBACK) Phase.FEEDBACK else Phase.WAITING) }
+        say(text) { setPhase(AttemptLogic.phaseAfterTalk(run?.result)) }
     }
 
     fun listen() {
@@ -140,7 +141,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 SpeechEvent.Ready -> Unit
                 is SpeechEvent.Partial -> run = run?.copy(heard = event.text)
                 is SpeechEvent.Results -> handleAttempt(event.alternatives)
-                is SpeechEvent.Error -> handleAttempt(null)
+                is SpeechEvent.Error -> handleAttempt(null, recogniserProblem = !event.noMatch)
             }
         }
     }
@@ -150,7 +151,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (run?.phase == Phase.LISTENING) setPhase(Phase.WAITING)
     }
 
-    private fun handleAttempt(alternatives: List<String>?) {
+    private fun handleAttempt(alternatives: List<String>?, recogniserProblem: Boolean = false) {
         speech.stop()
         val r = run ?: return
         val step = r.step
@@ -158,8 +159,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val heard = alternatives?.firstOrNull() ?: ""
         when (AttemptLogic.next(r.failed, result, progress.settings.hindiHelp)) {
             AttemptOutcome.NOT_HEARD -> {
-                val msg = "I did not hear you. Tap the microphone and try again!"
-                run = r.copy(phase = Phase.TARA_SPEAKING, bubble = msg, heard = "")
+                val notHeard = r.notHeard + 1
+                val msg = when {
+                    recogniserProblem && notHeard >= AttemptLogic.NOT_HEARD_BEFORE_SKIP ->
+                        "I cannot hear you right now. Ask a grown-up to check the internet or the offline English pack. You can tap Skip."
+                    notHeard >= AttemptLogic.NOT_HEARD_BEFORE_SKIP -> "I still did not hear you. Try again, or tap Skip."
+                    else -> "I did not hear you. Tap the microphone and try again!"
+                }
+                run = r.copy(phase = Phase.TARA_SPEAKING, bubble = msg, heard = "", notHeard = notHeard)
                 say(msg) { setPhase(Phase.WAITING) }
             }
             AttemptOutcome.PASS -> {
@@ -208,7 +215,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         voice.stop()
         val r = run ?: return
         if (r.index + 1 < r.lesson.steps.size) {
-            run = r.copy(index = r.index + 1, failed = 0)
+            run = r.copy(index = r.index + 1, failed = 0, notHeard = 0)
             presentStep()
         } else finishLesson(r)
     }
@@ -237,7 +244,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun stopAudio() {
         voice.stop()
         speech.stop()
-        run?.let { if (it.phase == Phase.LISTENING || it.phase == Phase.TARA_SPEAKING) run = it.copy(phase = if (it.result?.passed == true) Phase.FEEDBACK else Phase.WAITING) }
+        run?.let { if (it.phase == Phase.LISTENING || it.phase == Phase.TARA_SPEAKING) run = it.copy(phase = AttemptLogic.phaseAfterTalk(it.result)) }
     }
 
     override fun onCleared() {
