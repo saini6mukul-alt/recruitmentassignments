@@ -45,12 +45,19 @@ fun HomeScreen(vm: AppViewModel) {
                 }
                 TextButton(onClick = { vm.go(Screen.Parent) }) { Text("⚙️\nParent", textAlign = TextAlign.Center) }
             }
-            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            BigCard("🗣️", "हिंदी → English", "कुछ भी हिंदी में बोलो, Tara English सिखाएगी", Sun.copy(alpha = 0.30f)) { vm.openTranslate() }
+            BigCard("💬", "Tara से बातें", "Tara के साथ English में बात करो", Sky.copy(alpha = 0.18f)) { vm.openChat() }
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Card(Modifier.weight(1f).clickable { vm.go(Screen.Sentences) },
+                    colors = CardDefaults.cardColors(containerColor = LeafLight)) {
+                    Text("📚 मेरे वाक्य (${p.savedSentences.size})", Modifier.padding(14.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                }
                 Card(Modifier.weight(1f).clickable { vm.go(Screen.Stickers) },
-                    colors = CardDefaults.cardColors(containerColor = Sun.copy(alpha = 0.25f))) {
-                    Text("📒 My Sticker Book", Modifier.padding(16.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    colors = CardDefaults.cardColors(containerColor = Sun.copy(alpha = 0.18f))) {
+                    Text("📒 Sticker Book", Modifier.padding(14.dp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
+            Text("📖 Lessons", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Leaf, modifier = Modifier.padding(top = 8.dp))
             if (!vm.speechAvailable) {
                 Card(colors = CardDefaults.cardColors(containerColor = Berry.copy(alpha = 0.15f)), modifier = Modifier.padding(bottom = 8.dp)) {
                     Text("Speech recognition is not available on this phone. Please install or enable the Google app, then reopen Bolo English.",
@@ -84,6 +91,20 @@ private fun LessonTile(lesson: Lesson, stars: Int?, modifier: Modifier, onClick:
             Text(lesson.emoji, fontSize = 30.sp)
             Text(lesson.title, fontSize = 12.sp, textAlign = TextAlign.Center, maxLines = 2, lineHeight = 13.sp)
             if (stars != null) StarRow(stars, 12.sp)
+        }
+    }
+}
+
+@Composable
+private fun BigCard(emoji: String, title: String, subtitle: String, color: Color, onClick: () -> Unit) {
+    Card(Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(containerColor = color)) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(emoji, fontSize = 40.sp)
+            Column(Modifier.padding(start = 12.dp)) {
+                Text(title, fontSize = 21.sp, fontWeight = FontWeight.Bold)
+                Text(subtitle, fontSize = 14.sp)
+            }
         }
     }
 }

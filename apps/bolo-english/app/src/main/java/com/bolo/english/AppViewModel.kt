@@ -6,6 +6,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.bolo.english.talk.ChatController
+import com.bolo.english.talk.TranslateController
+import com.bolo.english.translate.GeminiClient
+import com.bolo.english.translate.GeminiException
+import com.bolo.english.translate.MlKitTranslator
+import com.bolo.english.translate.Phrasebook
+import com.bolo.english.translate.TranslationService
+import com.bolo.english.progress.SavedSentence
+import kotlinx.coroutines.launch
 import com.bolo.english.lesson.AttemptLogic
 import com.bolo.english.lesson.AttemptOutcome
 import com.bolo.english.lesson.Lesson
@@ -32,6 +42,9 @@ sealed interface Screen {
     data object Lesson : Screen
     data class LessonDone(val lessonId: String, val stars: Int) : Screen
     data object Stickers : Screen
+    data object Translate : Screen
+    data object Chat : Screen
+    data object Sentences : Screen
     data object Parent : Screen
 }
 
@@ -72,10 +85,61 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val speechAvailable: Boolean get() = speech.isAvailable
     val hindiVoiceAvailable: Boolean get() = voice.hindiAvailable
 
-    init { voice.setSlow(progress.settings.slowSpeech) }
+    // ---------- Hindi -> English and chat ----------
+    private val phrasebook = Phrasebook.parse(app.assets.open("phrasebook.json").bufferedReader().use { it.readText() })
+    private val mlKit = MlKitTranslator()
+    val gemini = GeminiClient(
+        key = { progress.settings.geminiKey },
+        cachedModel = { progress.settings.geminiModel },
+        saveModel = { m -> save(progress.copy(settings = progress.settings.copy(geminiModel = m))) },
+        age = { progress.ageBand },
+    )
+    val translate = TranslateController(viewModelScope, voice, speech,
+        service = { TranslationService(phrasebook, if (gemini.hasKey) gemini.translator else null, mlKit) },
+        progress = { progress }, save = ::save)
+    val chat = ChatController(viewModelScope, voice, speech, gemini, childName = { progress.childName })
+
+    var keyStatus by mutableStateOf("")
+        private set
+
+    init {
+        voice.setSlow(progress.settings.slowSpeech)
+        // Fetch the free on-device Hindi translation model in the background (once, ~30 MB).
+        viewModelScope.launch { runCatching { mlKit.ensureModel() } }
+    }
+
+    fun openTranslate(saved: SavedSentence? = null) { go(Screen.Translate); translate.open(saved) }
+    fun openChat() { go(Screen.Chat); if (chat.hasKey) chat.open() }
+
+    fun setGeminiKey(key: String) {
+        save(progress.copy(settings = progress.settings.copy(geminiKey = key.trim(), geminiModel = "")))
+        keyStatus = ""
+    }
+
+    fun testGeminiKey() {
+        if (!gemini.hasKey) { keyStatus = "पहले key डालकर Save करें।"; return }
+        keyStatus = "जाँच हो रही है…"
+        viewModelScope.launch {
+            keyStatus = try {
+                "✅ Key काम कर रही है (मॉडल: ${gemini.testKey()})"
+            } catch (e: GeminiException) {
+                when (e.problem) {
+                    com.bolo.english.translate.GeminiProblem.BAD_KEY -> "❌ Key सही नहीं है। दोबारा कॉपी करके डालें।"
+                    com.bolo.english.translate.GeminiProblem.OFFLINE -> "❌ इंटरनेट नहीं है।"
+                    com.bolo.english.translate.GeminiProblem.QUOTA -> "⚠️ Key सही है, पर आज की मुफ़्त सीमा पूरी हो गई।"
+                    else -> "❌ जाँच नहीं हो पाई: ${e.message?.take(120)}"
+                }
+            }
+        }
+    }
 
     // ---------- navigation ----------
-    fun go(s: Screen) { stopAudio(); screen = s }
+    fun go(s: Screen) {
+        stopAudio()
+        if (s != Screen.Translate) translate.leave()
+        if (s != Screen.Chat) chat.leave()
+        screen = s
+    }
     fun goHome() { run = null; go(Screen.Home) }
 
     fun isUnlocked(lessonId: String) = ProgressLogic.isUnlocked(book, progress, lessonId)
@@ -241,12 +305,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun stopAudio() {
+        translate.stop()
+        chat.stop()
         voice.stop()
         speech.stop()
         run?.let { if (it.phase == Phase.LISTENING || it.phase == Phase.TARA_SPEAKING) run = it.copy(phase = AttemptLogic.phaseAfterTalk(it.result)) }
     }
 
     override fun onCleared() {
+        mlKit.close()
         speech.destroy()
         voice.shutdown()
     }

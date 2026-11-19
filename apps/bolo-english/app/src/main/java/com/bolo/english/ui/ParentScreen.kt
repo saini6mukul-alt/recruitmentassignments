@@ -28,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bolo.english.AppViewModel
@@ -88,13 +90,35 @@ fun ParentScreen(vm: AppViewModel) {
             Toggle("Hindi help after 2 tries", p.settings.hindiHelp) { vm.updateSettings(p.settings.copy(hindiHelp = it)) }
         }
 
+        Section("✨ Gemini (optional, free)") {
+            Text("Gemini key से \"हिंदी → English\" में बेहतर समझाना और \"Tara से बातें\" चालू होते हैं।", fontSize = 14.sp)
+            Text("Key बनाएँ: फ़ोन के ब्राउज़र में aistudio.google.com/apikey खोलें → Google से साइन-इन → \"Create API key\" → कॉपी करके नीचे पेस्ट करें।",
+                fontSize = 14.sp, color = Color.Gray)
+            var key by remember { mutableStateOf(p.settings.geminiKey) }
+            var show by remember { mutableStateOf(false) }
+            OutlinedTextField(key, { key = it.trim() }, label = { Text("Gemini API key") }, singleLine = true,
+                visualTransformation = if (show) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth())
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { vm.setGeminiKey(key) }, enabled = key != p.settings.geminiKey) { Text("Save") }
+                OutlinedButton(onClick = { vm.testGeminiKey() }, enabled = p.settings.geminiKey.isNotBlank()) { Text("Test key") }
+                TextButton(onClick = { show = !show }) { Text(if (show) "Hide" else "Show") }
+            }
+            if (vm.keyStatus.isNotBlank()) Text(vm.keyStatus)
+            if (p.settings.geminiKey.isNotBlank()) {
+                OutlinedButton(onClick = { key = ""; vm.setGeminiKey("") }) { Text("Remove key") }
+            }
+            Text("Privacy: key होने पर बच्चे के वाक्य Google Gemini को भेजे जाते हैं (मुफ़्त प्लान में Google इन्हें अपने प्रोडक्ट सुधारने में इस्तेमाल कर सकता है)। Key के बिना कुछ भी Gemini को नहीं जाता।",
+                fontSize = 12.sp, color = Color.Gray)
+        }
+
         Section("Tips for best results") {
             Text(if (vm.hindiVoiceAvailable) "✅ Hindi voice is installed." else
                 "ℹ️ Hindi voice not found, so Hindi help is shown as text. To hear it: Settings → System → Languages → Text-to-speech → Google engine → Install voice data → Hindi.")
             Spacer(Modifier.height(6.dp))
             Text("🎤 For private, offline speech recognition: open the Google app → Settings → Voice → Offline speech recognition → download English (India).")
             Spacer(Modifier.height(6.dp))
-            Text("🔒 Bolo English has no internet permission. Progress is saved only on this phone.")
+            Text("🌐 Internet is used only to download the free Hindi translation model once (~30 MB) and for Gemini if you add a key. Lessons and the phrasebook work offline. Progress is saved only on this phone.")
         }
 
         Spacer(Modifier.height(12.dp))
