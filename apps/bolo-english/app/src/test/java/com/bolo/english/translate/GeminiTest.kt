@@ -101,4 +101,12 @@ class GeminiTest {
         assertNull(GeminiJson.pickModel("""{"models":[{"name":"models/text-embedding-004","supportedGenerationMethods":["embedContent"]}]}"""))
         assertNull(GeminiJson.pickModel("garbage"))
     }
+
+    @Test fun classifiesErrors() {
+        assertEquals(GeminiProblem.BAD_KEY, GeminiJson.problemOf(400, """{"error":{"code":400,"message":"API key not valid. Please pass a valid API key.","status":"INVALID_ARGUMENT"}}"""))
+        assertEquals(GeminiProblem.BAD_KEY, GeminiJson.problemOf(403, """{"error":{"code":403,"message":"denied","status":"PERMISSION_DENIED"}}"""))
+        assertEquals(GeminiProblem.QUOTA, GeminiJson.problemOf(429, """{"error":{"code":429,"message":"Quota exceeded","status":"RESOURCE_EXHAUSTED"}}"""))
+        assertEquals(GeminiProblem.MODEL, GeminiJson.problemOf(404, """{"error":{"code":404,"message":"models/x is not found","status":"NOT_FOUND"}}"""))
+        assertEquals(GeminiProblem.OTHER, GeminiJson.problemOf(500, "oops"))
+    }
 }

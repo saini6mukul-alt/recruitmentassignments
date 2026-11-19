@@ -31,6 +31,10 @@ data class TaraReply(val english: String, val hindi: String, val correction: Str
 
 data class GeminiError(val code: Int, val status: String, val message: String)
 
+enum class GeminiProblem { NO_KEY, BAD_KEY, QUOTA, MODEL, OFFLINE, OTHER }
+
+class GeminiException(val problem: GeminiProblem, message: String = problem.name) : Exception(message)
+
 /** Builds Gemini API requests and reads its replies. No networking here. */
 object GeminiJson {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
@@ -115,6 +119,18 @@ object GeminiJson {
         val err = json.parseToJsonElement(response).jsonObject["error"]?.jsonObject ?: return null
         GeminiError(err["code"]?.jsonPrimitive?.intOrNull ?: 0, err.str("status").orEmpty(), err.str("message").orEmpty())
     }.getOrNull()
+
+    fun problemOf(httpCode: Int, body: String): GeminiProblem {
+        val e = errorOf(body)
+        val msg = e?.message.orEmpty().lowercase()
+        return when {
+            httpCode == 429 || e?.status == "RESOURCE_EXHAUSTED" -> GeminiProblem.QUOTA
+            httpCode == 401 || httpCode == 403 || "api key" in msg || e?.status == "PERMISSION_DENIED" ||
+                e?.status == "UNAUTHENTICATED" -> GeminiProblem.BAD_KEY
+            httpCode == 404 || ("model" in msg && "not found" in msg) -> GeminiProblem.MODEL
+            else -> GeminiProblem.OTHER
+        }
+    }
 
     /** Picks the newest stable "flash" text model; falls back to flash-lite, then preview models. */
     fun pickModel(modelsJson: String): String? = runCatching {

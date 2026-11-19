@@ -21,9 +21,10 @@ class SpeechListener(private val context: Context) {
 
     val isAvailable: Boolean get() = SpeechRecognizer.isRecognitionAvailable(context)
 
-    fun start(onEvent: (SpeechEvent) -> Unit) = start(onEvent, preferOffline = true)
+    /** [language] is "en-IN" for English or "hi-IN" for Hindi. */
+    fun start(language: String = ENGLISH, onEvent: (SpeechEvent) -> Unit) = start(language, onEvent, preferOffline = true)
 
-    private fun start(onEvent: (SpeechEvent) -> Unit, preferOffline: Boolean) {
+    private fun start(language: String, onEvent: (SpeechEvent) -> Unit, preferOffline: Boolean) {
         stop()
         val r = SpeechRecognizer.createSpeechRecognizer(context)
         recognizer = r
@@ -40,7 +41,7 @@ class SpeechListener(private val context: Context) {
             override fun onError(error: Int) {
                 // Offline English pack missing: try again online once.
                 if (preferOffline && (error == ERROR_LANGUAGE_NOT_SUPPORTED || error == ERROR_LANGUAGE_UNAVAILABLE)) {
-                    start(onEvent, preferOffline = false)
+                    start(language, onEvent, preferOffline = false)
                     return
                 }
                 val noMatch = error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT
@@ -54,7 +55,7 @@ class SpeechListener(private val context: Context) {
         })
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, preferOffline)
@@ -72,9 +73,12 @@ class SpeechListener(private val context: Context) {
 
     fun destroy() = stop()
 
-    private companion object {
+    companion object {
+        const val ENGLISH = "en-IN"
+        const val HINDI = "hi-IN"
+
         // SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED / ERROR_LANGUAGE_UNAVAILABLE (API 31+), as literals for minSdk 26.
-        const val ERROR_LANGUAGE_NOT_SUPPORTED = 12
-        const val ERROR_LANGUAGE_UNAVAILABLE = 13
+        private const val ERROR_LANGUAGE_NOT_SUPPORTED = 12
+        private const val ERROR_LANGUAGE_UNAVAILABLE = 13
     }
 }
