@@ -43,7 +43,7 @@ fun HomeScreen(vm: AppViewModel) {
                     Text("Hi, ${p.childName}!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Leaf)
                     Text("🔥 ${vm.streak()} day streak   ⭐ ${p.totalStars}", fontSize = 16.sp)
                 }
-                TextButton(onClick = { vm.go(Screen.ParentGate) }) { Text("🔒\nParent", textAlign = TextAlign.Center) }
+                TextButton(onClick = { vm.go(Screen.Parent) }) { Text("⚙️\nParent", textAlign = TextAlign.Center) }
             }
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Card(Modifier.weight(1f).clickable { vm.go(Screen.Stickers) },
@@ -62,7 +62,7 @@ fun HomeScreen(vm: AppViewModel) {
             Text("${theme.emoji} ${theme.title}", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 theme.lessons.forEach { lesson ->
-                    LessonTile(lesson, vm.progress.lessonStars[lesson.id], vm.isUnlocked(lesson.id), Modifier.weight(1f)) {
+                    LessonTile(lesson, vm.progress.lessonStars[lesson.id], Modifier.weight(1f)) {
                         vm.startLesson(lesson)
                     }
                 }
@@ -73,19 +73,15 @@ fun HomeScreen(vm: AppViewModel) {
 }
 
 @Composable
-private fun LessonTile(lesson: Lesson, stars: Int?, unlocked: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val bg = when {
-        !unlocked -> Color(0xFFE0E0E0)
-        stars != null -> LeafLight
-        else -> Color.White
-    }
+private fun LessonTile(lesson: Lesson, stars: Int?, modifier: Modifier, onClick: () -> Unit) {
+    val bg = if (stars != null) LeafLight else Color.White
     Box(
         modifier.aspectRatio(0.8f).clip(RoundedCornerShape(16.dp)).background(bg)
-            .clickable(enabled = unlocked, onClick = onClick).padding(6.dp),
+            .clickable(onClick = onClick).padding(6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(if (unlocked) lesson.emoji else "🔒", fontSize = 30.sp)
+            Text(lesson.emoji, fontSize = 30.sp)
             Text(lesson.title, fontSize = 12.sp, textAlign = TextAlign.Center, maxLines = 2, lineHeight = 13.sp)
             if (stars != null) StarRow(stars, 12.sp)
         }

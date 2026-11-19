@@ -55,13 +55,8 @@ object ProgressLogic {
         return count
     }
 
-    /** The first lesson of each theme is open; each next lesson opens when the previous one is completed. */
-    fun isUnlocked(book: LessonBook, p: Progress, lessonId: String): Boolean {
-        for (theme in book.themes) {
-            val index = theme.lessons.indexOfFirst { it.id == lessonId }
-            if (index == 0) return true
-            if (index > 0) return theme.lessons[index - 1].id in p.lessonStars
-        }
-        return false
-    }
+    /** Every lesson is open from the start (owner's choice: nothing locked). */
+    fun isUnlocked(book: LessonBook, @Suppress("UNUSED_PARAMETER") p: Progress, lessonId: String): Boolean =
+        book.allLessons.any { it.id == lessonId }
+
 }

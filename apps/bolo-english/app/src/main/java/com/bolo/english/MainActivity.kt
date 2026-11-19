@@ -21,7 +21,6 @@ import com.bolo.english.ui.HomeScreen
 import com.bolo.english.ui.LessonDoneScreen
 import com.bolo.english.ui.LessonScreen
 import com.bolo.english.ui.OnboardingScreen
-import com.bolo.english.ui.ParentGate
 import com.bolo.english.ui.ParentScreen
 import com.bolo.english.ui.StickerBookScreen
 
@@ -50,7 +49,6 @@ class MainActivity : ComponentActivity() {
                             Screen.Lesson -> LessonScreen(vm, onMic)
                             is Screen.LessonDone -> LessonDoneScreen(vm, screen.lessonId, screen.stars)
                             Screen.Stickers -> StickerBookScreen(vm)
-                            Screen.ParentGate -> ParentGate(onPass = { vm.go(Screen.Parent) }, onCancel = { vm.goHome() })
                             Screen.Parent -> ParentScreen(vm)
                         }
                     }

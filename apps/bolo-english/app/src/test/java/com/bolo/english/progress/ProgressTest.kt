@@ -53,16 +53,8 @@ class ProgressTest {
         Theme("t2", "B", "🅱", listOf(lesson("b1"), lesson("b2"))),
     ))
 
-    @Test fun firstLessonOfEveryThemeIsUnlocked() {
-        assertTrue(ProgressLogic.isUnlocked(book, Progress(), "a1"))
-        assertTrue(ProgressLogic.isUnlocked(book, Progress(), "b1"))
-        assertFalse(ProgressLogic.isUnlocked(book, Progress(), "a2"))
-    }
-
-    @Test fun nextLessonUnlocksAfterPreviousCompleted() {
-        val p = Progress(lessonStars = mapOf("a1" to 1))
-        assertTrue(ProgressLogic.isUnlocked(book, p, "a2"))
-        assertFalse(ProgressLogic.isUnlocked(book, p, "a3"))
+    @Test fun everyLessonIsUnlockedFromTheStart() {
+        listOf("a1", "a2", "a3", "b1", "b2").forEach { assertTrue(it, ProgressLogic.isUnlocked(book, Progress(), it)) }
     }
 
     @Test fun onboardingFlag() {

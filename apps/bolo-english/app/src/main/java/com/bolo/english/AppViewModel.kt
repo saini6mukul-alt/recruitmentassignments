@@ -32,7 +32,6 @@ sealed interface Screen {
     data object Lesson : Screen
     data class LessonDone(val lessonId: String, val stars: Int) : Screen
     data object Stickers : Screen
-    data object ParentGate : Screen
     data object Parent : Screen
 }
 
