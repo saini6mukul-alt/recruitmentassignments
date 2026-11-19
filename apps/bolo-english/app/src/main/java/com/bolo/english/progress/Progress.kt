@@ -5,7 +5,18 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 @Serializable
-data class Settings(val slowSpeech: Boolean = false, val hindiHelp: Boolean = true)
+data class Settings(
+    val slowSpeech: Boolean = false,
+    val hindiHelp: Boolean = true,
+    /** Optional free Gemini API key for better explanations and "Tara से बातें". */
+    val geminiKey: String = "",
+    /** Gemini model chosen automatically for this key (cached). */
+    val geminiModel: String = "",
+)
+
+/** A sentence the child translated from Hindi, kept for practice. */
+@Serializable
+data class SavedSentence(val hindi: String, val english: String, val stars: Int = 0, val addedAt: Long = 0)
 
 /** Everything the app remembers about the child. Stored only on the phone. */
 @Serializable
@@ -17,12 +28,30 @@ data class Progress(
     val practiceSeconds: Long = 0,
     val missedWords: Map<String, Int> = emptyMap(),
     val settings: Settings = Settings(),
+    val savedSentences: List<SavedSentence> = emptyList(),
 ) {
     val isOnboarded: Boolean get() = childName.isNotBlank()
     val totalStars: Int get() = lessonStars.values.sum()
 }
 
 object ProgressLogic {
+    const val MAX_SAVED = 200
+
+    private fun key(english: String) = english.lowercase().filter { it.isLetterOrDigit() }
+
+    /** Adds [s] at the top; an existing sentence with the same English is replaced, keeping its best stars. */
+    fun saveSentence(p: Progress, s: SavedSentence): Progress {
+        val old = p.savedSentences.firstOrNull { key(it.english) == key(s.english) }
+        val merged = s.copy(stars = maxOf(s.stars, old?.stars ?: 0))
+        val rest = p.savedSentences.filter { key(it.english) != key(s.english) }
+        return p.copy(savedSentences = (listOf(merged) + rest).take(MAX_SAVED))
+    }
+
+    fun updateSentenceStars(p: Progress, english: String, stars: Int): Progress =
+        p.copy(savedSentences = p.savedSentences.map {
+            if (key(it.english) == key(english)) it.copy(stars = maxOf(it.stars, stars)) else it
+        })
+
     fun completeLesson(p: Progress, lessonId: String, stars: Int, today: LocalDate, seconds: Long): Progress =
         p.copy(
             lessonStars = p.lessonStars + (lessonId to maxOf(stars, p.lessonStars[lessonId] ?: 0)),
