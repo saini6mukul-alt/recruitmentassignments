@@ -1,0 +1,1125 @@
+{
+ "phrases": [
+  {
+   "hi": [
+    "नमस्ते",
+    "नमस्कार"
+   ],
+   "en": "Hello.",
+   "tip": "नमस्ते = Hello"
+  },
+  {
+   "hi": [
+    "सुप्रभात"
+   ],
+   "en": "Good morning.",
+   "tip": "सुप्रभात = Good morning"
+  },
+  {
+   "hi": [
+    "शुभ रात्रि"
+   ],
+   "en": "Good night.",
+   "tip": "शुभ रात्रि = Good night"
+  },
+  {
+   "hi": [
+    "आप कैसे हो",
+    "आप कैसे हैं",
+    "आप कैसी हो",
+    "तुम कैसे हो",
+    "तुम कैसी हो"
+   ],
+   "en": "How are you?",
+   "tip": "कैसे हो = How are you"
+  },
+  {
+   "hi": [
+    "मैं ठीक हूँ",
+    "मैं अच्छा हूँ",
+    "मैं अच्छी हूँ"
+   ],
+   "en": "I am fine.",
+   "tip": "ठीक = fine"
+  },
+  {
+   "hi": [
+    "धन्यवाद",
+    "शुक्रिया"
+   ],
+   "en": "Thank you.",
+   "tip": "धन्यवाद = Thank you"
+  },
+  {
+   "hi": [
+    "माफ़ करना",
+    "माफ़ कीजिए",
+    "सॉरी"
+   ],
+   "en": "Sorry.",
+   "tip": "माफ़ करना = Sorry"
+  },
+  {
+   "hi": [
+    "कोई बात नहीं"
+   ],
+   "en": "It is okay.",
+   "tip": "कोई बात नहीं = It is okay"
+  },
+  {
+   "hi": [
+    "फिर मिलेंगे"
+   ],
+   "en": "See you again.",
+   "tip": "फिर मिलेंगे = See you again"
+  },
+  {
+   "hi": [
+    "अलविदा",
+    "बाय"
+   ],
+   "en": "Goodbye.",
+   "tip": "अलविदा = Goodbye"
+  },
+  {
+   "hi": [
+    "आपसे मिलकर अच्छा लगा",
+    "आपसे मिलकर खुशी हुई"
+   ],
+   "en": "Nice to meet you.",
+   "tip": "मिलकर अच्छा लगा = Nice to meet you"
+  },
+  {
+   "hi": [
+    "जन्मदिन मुबारक हो",
+    "हैप्पी बर्थडे"
+   ],
+   "en": "Happy birthday!",
+   "tip": "जन्मदिन = birthday"
+  },
+  {
+   "hi": [
+    "कृपया मेरी मदद करो",
+    "प्लीज मेरी मदद करो",
+    "मेरी मदद करो"
+   ],
+   "en": "Please help me.",
+   "tip": "मदद = help"
+  },
+  {
+   "hi": [
+    "मेरा नाम क्या है"
+   ],
+   "en": "What is my name?",
+   "tip": "नाम = name"
+  },
+  {
+   "hi": [
+    "आपका नाम क्या है",
+    "तुम्हारा नाम क्या है"
+   ],
+   "en": "What is your name?",
+   "tip": "नाम = name"
+  },
+  {
+   "hi": [
+    "मैं सात साल का हूँ",
+    "मैं सात साल की हूँ"
+   ],
+   "en": "I am seven years old.",
+   "tip": "साल = years"
+  },
+  {
+   "hi": [
+    "मैं पाँच साल का हूँ",
+    "मैं पाँच साल की हूँ"
+   ],
+   "en": "I am five years old.",
+   "tip": "पाँच = five"
+  },
+  {
+   "hi": [
+    "मैं छह साल का हूँ",
+    "मैं छह साल की हूँ"
+   ],
+   "en": "I am six years old.",
+   "tip": "छह = six"
+  },
+  {
+   "hi": [
+    "मैं आठ साल का हूँ",
+    "मैं आठ साल की हूँ"
+   ],
+   "en": "I am eight years old.",
+   "tip": "आठ = eight"
+  },
+  {
+   "hi": [
+    "मैं नौ साल का हूँ",
+    "मैं नौ साल की हूँ"
+   ],
+   "en": "I am nine years old.",
+   "tip": "नौ = nine"
+  },
+  {
+   "hi": [
+    "मैं दस साल का हूँ",
+    "मैं दस साल की हूँ"
+   ],
+   "en": "I am ten years old.",
+   "tip": "दस = ten"
+  },
+  {
+   "hi": [
+    "मैं भारत में रहता हूँ",
+    "मैं भारत में रहती हूँ"
+   ],
+   "en": "I live in India.",
+   "tip": "रहता हूँ = live"
+  },
+  {
+   "hi": [
+    "मैं लड़का हूँ"
+   ],
+   "en": "I am a boy.",
+   "tip": "लड़का = boy"
+  },
+  {
+   "hi": [
+    "मैं लड़की हूँ"
+   ],
+   "en": "I am a girl.",
+   "tip": "लड़की = girl"
+  },
+  {
+   "hi": [
+    "मेरा एक भाई है"
+   ],
+   "en": "I have a brother.",
+   "tip": "भाई = brother"
+  },
+  {
+   "hi": [
+    "मेरी एक बहन है"
+   ],
+   "en": "I have a sister.",
+   "tip": "बहन = sister"
+  },
+  {
+   "hi": [
+    "यह मेरी मम्मी हैं"
+   ],
+   "en": "This is my mother.",
+   "tip": "मम्मी = mother"
+  },
+  {
+   "hi": [
+    "यह मेरे पापा हैं"
+   ],
+   "en": "This is my father.",
+   "tip": "पापा = father"
+  },
+  {
+   "hi": [
+    "मैं अपने परिवार से प्यार करता हूँ",
+    "मैं अपने परिवार से प्यार करती हूँ"
+   ],
+   "en": "I love my family.",
+   "tip": "प्यार करना = love"
+  },
+  {
+   "hi": [
+    "मुझे मम्मी की याद आ रही है"
+   ],
+   "en": "I miss my mother.",
+   "tip": "याद आना = miss"
+  },
+  {
+   "hi": [
+    "मुझे पानी चाहिए"
+   ],
+   "en": "I want water.",
+   "tip": "चाहिए = want"
+  },
+  {
+   "hi": [
+    "मुझे पानी नहीं चाहिए"
+   ],
+   "en": "I do not want water.",
+   "tip": "नहीं चाहिए = do not want"
+  },
+  {
+   "hi": [
+    "मुझे भूख लगी है"
+   ],
+   "en": "I am hungry.",
+   "tip": "भूख = hungry"
+  },
+  {
+   "hi": [
+    "मुझे प्यास लगी है"
+   ],
+   "en": "I am thirsty.",
+   "tip": "प्यास = thirsty"
+  },
+  {
+   "hi": [
+    "मुझे नींद आ रही है"
+   ],
+   "en": "I am sleepy.",
+   "tip": "नींद = sleepy"
+  },
+  {
+   "hi": [
+    "मुझे टॉयलेट जाना है",
+    "मुझे बाथरूम जाना है"
+   ],
+   "en": "I need to go to the toilet.",
+   "tip": "जाना है = need to go"
+  },
+  {
+   "hi": [
+    "क्या मैं टॉयलेट जा सकता हूँ",
+    "क्या मैं टॉयलेट जा सकती हूँ"
+   ],
+   "en": "May I go to the toilet?",
+   "tip": "जा सकता हूँ = may I go"
+  },
+  {
+   "hi": [
+    "मुझे दूध चाहिए"
+   ],
+   "en": "I want milk.",
+   "tip": "दूध = milk"
+  },
+  {
+   "hi": [
+    "मुझे खाना चाहिए"
+   ],
+   "en": "I want food.",
+   "tip": "खाना = food"
+  },
+  {
+   "hi": [
+    "मुझे और खाना चाहिए"
+   ],
+   "en": "I want more food.",
+   "tip": "और = more"
+  },
+  {
+   "hi": [
+    "मेरा पेट भर गया"
+   ],
+   "en": "I am full.",
+   "tip": "पेट भर गया = I am full"
+  },
+  {
+   "hi": [
+    "मुझे चॉकलेट चाहिए"
+   ],
+   "en": "I want a chocolate.",
+   "tip": "चॉकलेट = chocolate"
+  },
+  {
+   "hi": [
+    "मुझे आइसक्रीम चाहिए"
+   ],
+   "en": "I want an ice cream.",
+   "tip": "आइसक्रीम = ice cream"
+  },
+  {
+   "hi": [
+    "मुझे सेब चाहिए"
+   ],
+   "en": "I want an apple.",
+   "tip": "सेब = apple"
+  },
+  {
+   "hi": [
+    "मुझे केला चाहिए"
+   ],
+   "en": "I want a banana.",
+   "tip": "केला = banana"
+  },
+  {
+   "hi": [
+    "मुझे ठंड लग रही है"
+   ],
+   "en": "I am feeling cold.",
+   "tip": "ठंड = cold"
+  },
+  {
+   "hi": [
+    "मुझे गर्मी लग रही है"
+   ],
+   "en": "I am feeling hot.",
+   "tip": "गर्मी = hot"
+  },
+  {
+   "hi": [
+    "मुझे चोट लग गई"
+   ],
+   "en": "I got hurt.",
+   "tip": "चोट = hurt"
+  },
+  {
+   "hi": [
+    "मेरे सिर में दर्द है"
+   ],
+   "en": "I have a headache.",
+   "tip": "सिर दर्द = headache"
+  },
+  {
+   "hi": [
+    "मेरे पेट में दर्द है"
+   ],
+   "en": "I have a stomach ache.",
+   "tip": "पेट दर्द = stomach ache"
+  },
+  {
+   "hi": [
+    "मैं बीमार हूँ"
+   ],
+   "en": "I am sick.",
+   "tip": "बीमार = sick"
+  },
+  {
+   "hi": [
+    "मैं थक गया हूँ",
+    "मैं थक गई हूँ"
+   ],
+   "en": "I am tired.",
+   "tip": "थक गया = tired"
+  },
+  {
+   "hi": [
+    "मैं खुश हूँ"
+   ],
+   "en": "I am happy.",
+   "tip": "खुश = happy"
+  },
+  {
+   "hi": [
+    "मैं बहुत खुश हूँ"
+   ],
+   "en": "I am very happy.",
+   "tip": "बहुत = very"
+  },
+  {
+   "hi": [
+    "मैं उदास हूँ"
+   ],
+   "en": "I am sad.",
+   "tip": "उदास = sad"
+  },
+  {
+   "hi": [
+    "मुझे गुस्सा आ रहा है"
+   ],
+   "en": "I am angry.",
+   "tip": "गुस्सा = angry"
+  },
+  {
+   "hi": [
+    "मुझे डर लग रहा है"
+   ],
+   "en": "I am scared.",
+   "tip": "डर = scared"
+  },
+  {
+   "hi": [
+    "मुझे बोरियत हो रही है",
+    "मैं बोर हो रहा हूँ",
+    "मैं बोर हो रही हूँ"
+   ],
+   "en": "I am bored.",
+   "tip": "बोर = bored"
+  },
+  {
+   "hi": [
+    "मुझे यह पसंद है"
+   ],
+   "en": "I like this.",
+   "tip": "पसंद = like"
+  },
+  {
+   "hi": [
+    "मुझे यह पसंद नहीं है"
+   ],
+   "en": "I do not like this.",
+   "tip": "पसंद नहीं = do not like"
+  },
+  {
+   "hi": [
+    "मुझे तुम पसंद हो"
+   ],
+   "en": "I like you.",
+   "tip": "पसंद = like"
+  },
+  {
+   "hi": [
+    "मैं तुमसे प्यार करता हूँ",
+    "मैं तुमसे प्यार करती हूँ"
+   ],
+   "en": "I love you.",
+   "tip": "प्यार = love"
+  },
+  {
+   "hi": [
+    "मम्मी मैं आपसे प्यार करता हूँ",
+    "मम्मी मैं आपसे प्यार करती हूँ"
+   ],
+   "en": "Mummy, I love you.",
+   "tip": "प्यार करना = love"
+  },
+  {
+   "hi": [
+    "चलो खेलते हैं"
+   ],
+   "en": "Let us play.",
+   "tip": "चलो = let us"
+  },
+  {
+   "hi": [
+    "क्या तुम मेरे साथ खेलोगे",
+    "क्या तुम मेरे साथ खेलोगी"
+   ],
+   "en": "Will you play with me?",
+   "tip": "साथ = with"
+  },
+  {
+   "hi": [
+    "मुझे खेलना है"
+   ],
+   "en": "I want to play.",
+   "tip": "खेलना = play"
+  },
+  {
+   "hi": [
+    "मैं बाहर खेलना चाहता हूँ",
+    "मैं बाहर खेलना चाहती हूँ"
+   ],
+   "en": "I want to play outside.",
+   "tip": "बाहर = outside"
+  },
+  {
+   "hi": [
+    "मुझे क्रिकेट खेलना पसंद है"
+   ],
+   "en": "I like to play cricket.",
+   "tip": "खेलना = play"
+  },
+  {
+   "hi": [
+    "मुझे फुटबॉल खेलना पसंद है"
+   ],
+   "en": "I like to play football.",
+   "tip": "फुटबॉल = football"
+  },
+  {
+   "hi": [
+    "मुझे ड्राइंग करना पसंद है"
+   ],
+   "en": "I like drawing.",
+   "tip": "ड्राइंग = drawing"
+  },
+  {
+   "hi": [
+    "मुझे गाना गाना पसंद है"
+   ],
+   "en": "I like singing.",
+   "tip": "गाना गाना = singing"
+  },
+  {
+   "hi": [
+    "मुझे डांस करना पसंद है"
+   ],
+   "en": "I like dancing.",
+   "tip": "डांस = dancing"
+  },
+  {
+   "hi": [
+    "मेरी बारी है"
+   ],
+   "en": "It is my turn.",
+   "tip": "बारी = turn"
+  },
+  {
+   "hi": [
+    "तुम्हारी बारी है"
+   ],
+   "en": "It is your turn.",
+   "tip": "तुम्हारी बारी = your turn"
+  },
+  {
+   "hi": [
+    "मैं जीत गया",
+    "मैं जीत गई"
+   ],
+   "en": "I won.",
+   "tip": "जीत गया = won"
+  },
+  {
+   "hi": [
+    "तुम जीत गए",
+    "तुम जीत गई"
+   ],
+   "en": "You won.",
+   "tip": "जीत = win"
+  },
+  {
+   "hi": [
+    "मेरी गेंद कहाँ है"
+   ],
+   "en": "Where is my ball?",
+   "tip": "कहाँ = where"
+  },
+  {
+   "hi": [
+    "मेरा खिलौना टूट गया"
+   ],
+   "en": "My toy is broken.",
+   "tip": "टूट गया = broken"
+  },
+  {
+   "hi": [
+    "क्या मैं टीवी देख सकता हूँ",
+    "क्या मैं टीवी देख सकती हूँ"
+   ],
+   "en": "Can I watch TV?",
+   "tip": "देख सकता हूँ = can I watch"
+  },
+  {
+   "hi": [
+    "क्या मैं पार्क जा सकता हूँ",
+    "क्या मैं पार्क जा सकती हूँ"
+   ],
+   "en": "Can I go to the park?",
+   "tip": "पार्क = park"
+  },
+  {
+   "hi": [
+    "मुझे कहानी सुनाओ"
+   ],
+   "en": "Tell me a story.",
+   "tip": "कहानी = story"
+  },
+  {
+   "hi": [
+    "मैं स्कूल जा रहा हूँ",
+    "मैं स्कूल जा रही हूँ"
+   ],
+   "en": "I am going to school.",
+   "tip": "जा रहा हूँ = am going"
+  },
+  {
+   "hi": [
+    "मैं स्कूल से आ गया",
+    "मैं स्कूल से आ गई"
+   ],
+   "en": "I am back from school.",
+   "tip": "आ गया = am back"
+  },
+  {
+   "hi": [
+    "मैं कक्षा दो में पढ़ता हूँ",
+    "मैं कक्षा दो में पढ़ती हूँ"
+   ],
+   "en": "I study in class two.",
+   "tip": "कक्षा = class"
+  },
+  {
+   "hi": [
+    "मेरी टीचर बहुत अच्छी हैं"
+   ],
+   "en": "My teacher is very nice.",
+   "tip": "अच्छी = nice"
+  },
+  {
+   "hi": [
+    "मेरा सबसे अच्छा दोस्त राहुल है"
+   ],
+   "en": "My best friend is Rahul.",
+   "tip": "सबसे अच्छा दोस्त = best friend"
+  },
+  {
+   "hi": [
+    "मुझे होमवर्क करना है"
+   ],
+   "en": "I have to do my homework.",
+   "tip": "होमवर्क = homework"
+  },
+  {
+   "hi": [
+    "मैंने अपना होमवर्क कर लिया"
+   ],
+   "en": "I have done my homework.",
+   "tip": "कर लिया = have done"
+  },
+  {
+   "hi": [
+    "मुझे समझ नहीं आया"
+   ],
+   "en": "I did not understand.",
+   "tip": "समझ नहीं आया = did not understand"
+  },
+  {
+   "hi": [
+    "क्या आप दोबारा बता सकते हैं",
+    "क्या आप फिर से बता सकती हैं"
+   ],
+   "en": "Can you please say it again?",
+   "tip": "दोबारा = again"
+  },
+  {
+   "hi": [
+    "क्या मैं अंदर आ सकता हूँ",
+    "क्या मैं अंदर आ सकती हूँ"
+   ],
+   "en": "May I come in?",
+   "tip": "अंदर = in"
+  },
+  {
+   "hi": [
+    "मेरी पेंसिल कहाँ है"
+   ],
+   "en": "Where is my pencil?",
+   "tip": "पेंसिल = pencil"
+  },
+  {
+   "hi": [
+    "मेरी किताब खो गई"
+   ],
+   "en": "I lost my book.",
+   "tip": "खो गई = lost"
+  },
+  {
+   "hi": [
+    "क्या मैं आपकी पेंसिल ले सकता हूँ",
+    "क्या मैं आपकी पेंसिल ले सकती हूँ"
+   ],
+   "en": "May I borrow your pencil?",
+   "tip": "ले सकता हूँ = may I borrow"
+  },
+  {
+   "hi": [
+    "आज छुट्टी है"
+   ],
+   "en": "Today is a holiday.",
+   "tip": "छुट्टी = holiday"
+  },
+  {
+   "hi": [
+    "आज मेरा टेस्ट है"
+   ],
+   "en": "I have a test today.",
+   "tip": "टेस्ट = test"
+  },
+  {
+   "hi": [
+    "मुझे पूरे नंबर मिले"
+   ],
+   "en": "I got full marks.",
+   "tip": "पूरे नंबर = full marks"
+  },
+  {
+   "hi": [
+    "मैं अंग्रेज़ी सीख रहा हूँ",
+    "मैं अंग्रेज़ी सीख रही हूँ"
+   ],
+   "en": "I am learning English.",
+   "tip": "सीख रहा हूँ = am learning"
+  },
+  {
+   "hi": [
+    "मुझे अंग्रेज़ी बोलना है"
+   ],
+   "en": "I want to speak English.",
+   "tip": "बोलना = speak"
+  },
+  {
+   "hi": [
+    "मैं सुबह सात बजे उठता हूँ",
+    "मैं सुबह सात बजे उठती हूँ"
+   ],
+   "en": "I wake up at seven in the morning.",
+   "tip": "उठता हूँ = wake up"
+  },
+  {
+   "hi": [
+    "मैं दाँत साफ़ कर रहा हूँ",
+    "मैं दाँत साफ़ कर रही हूँ"
+   ],
+   "en": "I am brushing my teeth.",
+   "tip": "दाँत साफ़ करना = brush teeth"
+  },
+  {
+   "hi": [
+    "मैं नहा रहा हूँ",
+    "मैं नहा रही हूँ"
+   ],
+   "en": "I am taking a bath.",
+   "tip": "नहाना = take a bath"
+  },
+  {
+   "hi": [
+    "मैं खाना खा रहा हूँ",
+    "मैं खाना खा रही हूँ"
+   ],
+   "en": "I am eating food.",
+   "tip": "खा रहा हूँ = am eating"
+  },
+  {
+   "hi": [
+    "मैंने खाना खा लिया"
+   ],
+   "en": "I have eaten.",
+   "tip": "खा लिया = have eaten"
+  },
+  {
+   "hi": [
+    "मैं सोने जा रहा हूँ",
+    "मैं सोने जा रही हूँ"
+   ],
+   "en": "I am going to sleep.",
+   "tip": "सोना = sleep"
+  },
+  {
+   "hi": [
+    "मैं पढ़ाई कर रहा हूँ",
+    "मैं पढ़ाई कर रही हूँ"
+   ],
+   "en": "I am studying.",
+   "tip": "पढ़ाई = study"
+  },
+  {
+   "hi": [
+    "मैं हाथ धो रहा हूँ",
+    "मैं हाथ धो रही हूँ"
+   ],
+   "en": "I am washing my hands.",
+   "tip": "हाथ धोना = wash hands"
+  },
+  {
+   "hi": [
+    "मैं तैयार हूँ"
+   ],
+   "en": "I am ready.",
+   "tip": "तैयार = ready"
+  },
+  {
+   "hi": [
+    "मैं तैयार नहीं हूँ"
+   ],
+   "en": "I am not ready.",
+   "tip": "तैयार नहीं = not ready"
+  },
+  {
+   "hi": [
+    "अभी कितने बजे हैं",
+    "क्या टाइम हुआ है"
+   ],
+   "en": "What time is it now?",
+   "tip": "कितने बजे = what time"
+  },
+  {
+   "hi": [
+    "आज कौन सा दिन है"
+   ],
+   "en": "What day is it today?",
+   "tip": "दिन = day"
+  },
+  {
+   "hi": [
+    "यह क्या है"
+   ],
+   "en": "What is this?",
+   "tip": "क्या = what"
+  },
+  {
+   "hi": [
+    "वह क्या है"
+   ],
+   "en": "What is that?",
+   "tip": "वह = that"
+  },
+  {
+   "hi": [
+    "यह किसका है"
+   ],
+   "en": "Whose is this?",
+   "tip": "किसका = whose"
+  },
+  {
+   "hi": [
+    "तुम कहाँ हो"
+   ],
+   "en": "Where are you?",
+   "tip": "कहाँ = where"
+  },
+  {
+   "hi": [
+    "मम्मी कहाँ हैं"
+   ],
+   "en": "Where is Mummy?",
+   "tip": "कहाँ = where"
+  },
+  {
+   "hi": [
+    "पापा कब आएंगे"
+   ],
+   "en": "When will Papa come?",
+   "tip": "कब = when"
+  },
+  {
+   "hi": [
+    "हम कहाँ जा रहे हैं"
+   ],
+   "en": "Where are we going?",
+   "tip": "जा रहे हैं = are going"
+  },
+  {
+   "hi": [
+    "क्यों"
+   ],
+   "en": "Why?",
+   "tip": "क्यों = why"
+  },
+  {
+   "hi": [
+    "ऐसा क्यों है"
+   ],
+   "en": "Why is it like this?",
+   "tip": "क्यों = why"
+  },
+  {
+   "hi": [
+    "क्या मैं यह ले सकता हूँ",
+    "क्या मैं यह ले सकती हूँ"
+   ],
+   "en": "Can I take this?",
+   "tip": "ले सकता हूँ = can I take"
+  },
+  {
+   "hi": [
+    "क्या मैं बाहर जा सकता हूँ",
+    "क्या मैं बाहर जा सकती हूँ"
+   ],
+   "en": "Can I go outside?",
+   "tip": "बाहर = outside"
+  },
+  {
+   "hi": [
+    "इसे अंग्रेज़ी में क्या कहते हैं"
+   ],
+   "en": "What do we call this in English?",
+   "tip": "अंग्रेज़ी में = in English"
+  },
+  {
+   "hi": [
+    "दरवाज़ा खोलो"
+   ],
+   "en": "Open the door.",
+   "tip": "खोलो = open"
+  },
+  {
+   "hi": [
+    "दरवाज़ा बंद करो"
+   ],
+   "en": "Close the door.",
+   "tip": "बंद करो = close"
+  },
+  {
+   "hi": [
+    "लाइट जलाओ"
+   ],
+   "en": "Switch on the light.",
+   "tip": "जलाओ = switch on"
+  },
+  {
+   "hi": [
+    "लाइट बंद करो"
+   ],
+   "en": "Switch off the light.",
+   "tip": "बंद करो = switch off"
+  },
+  {
+   "hi": [
+    "पंखा चलाओ"
+   ],
+   "en": "Switch on the fan.",
+   "tip": "पंखा = fan"
+  },
+  {
+   "hi": [
+    "मुझे मेरा बैग दो"
+   ],
+   "en": "Give me my bag.",
+   "tip": "दो = give"
+  },
+  {
+   "hi": [
+    "यह मेरा है"
+   ],
+   "en": "This is mine.",
+   "tip": "मेरा = mine"
+  },
+  {
+   "hi": [
+    "यह तुम्हारा है"
+   ],
+   "en": "This is yours.",
+   "tip": "तुम्हारा = yours"
+  },
+  {
+   "hi": [
+    "बाहर बारिश हो रही है"
+   ],
+   "en": "It is raining outside.",
+   "tip": "बारिश = rain"
+  },
+  {
+   "hi": [
+    "आज बहुत गर्मी है"
+   ],
+   "en": "It is very hot today.",
+   "tip": "गर्मी = hot"
+  },
+  {
+   "hi": [
+    "आज बहुत ठंड है"
+   ],
+   "en": "It is very cold today.",
+   "tip": "ठंड = cold"
+  },
+  {
+   "hi": [
+    "आसमान में चाँद है"
+   ],
+   "en": "The moon is in the sky.",
+   "tip": "चाँद = moon"
+  },
+  {
+   "hi": [
+    "मेरे पास एक कुत्ता है"
+   ],
+   "en": "I have a dog.",
+   "tip": "कुत्ता = dog"
+  },
+  {
+   "hi": [
+    "मेरे पास एक बिल्ली है"
+   ],
+   "en": "I have a cat.",
+   "tip": "बिल्ली = cat"
+  },
+  {
+   "hi": [
+    "मुझे जानवर पसंद हैं"
+   ],
+   "en": "I like animals.",
+   "tip": "जानवर = animals"
+  },
+  {
+   "hi": [
+    "मैं आपकी मदद कर सकता हूँ",
+    "मैं आपकी मदद कर सकती हूँ"
+   ],
+   "en": "I can help you.",
+   "tip": "मदद = help"
+  },
+  {
+   "hi": [
+    "मैं यह कर सकता हूँ",
+    "मैं यह कर सकती हूँ"
+   ],
+   "en": "I can do it.",
+   "tip": "कर सकता हूँ = can do"
+  },
+  {
+   "hi": [
+    "मैं यह नहीं कर सकता",
+    "मैं यह नहीं कर सकती"
+   ],
+   "en": "I cannot do it.",
+   "tip": "नहीं कर सकता = cannot do"
+  },
+  {
+   "hi": [
+    "चलो मिलकर बाँटते हैं"
+   ],
+   "en": "Let us share.",
+   "tip": "बाँटना = share"
+  },
+  {
+   "hi": [
+    "रुको"
+   ],
+   "en": "Wait.",
+   "tip": "रुको = wait"
+  },
+  {
+   "hi": [
+    "जल्दी करो"
+   ],
+   "en": "Hurry up.",
+   "tip": "जल्दी = hurry"
+  },
+  {
+   "hi": [
+    "धीरे बोलो"
+   ],
+   "en": "Speak slowly.",
+   "tip": "धीरे = slowly"
+  },
+  {
+   "hi": [
+    "फिर से बोलो"
+   ],
+   "en": "Say it again.",
+   "tip": "फिर से = again"
+  },
+  {
+   "hi": [
+    "मुझे पता नहीं"
+   ],
+   "en": "I do not know.",
+   "tip": "पता नहीं = do not know"
+  },
+  {
+   "hi": [
+    "मुझे पता है"
+   ],
+   "en": "I know.",
+   "tip": "पता है = know"
+  },
+  {
+   "hi": [
+    "हाँ"
+   ],
+   "en": "Yes.",
+   "tip": "हाँ = yes"
+  },
+  {
+   "hi": [
+    "नहीं"
+   ],
+   "en": "No.",
+   "tip": "नहीं = no"
+  },
+  {
+   "hi": [
+    "ठीक है"
+   ],
+   "en": "Okay.",
+   "tip": "ठीक है = okay"
+  },
+  {
+   "hi": [
+    "बहुत अच्छा"
+   ],
+   "en": "Very good.",
+   "tip": "बहुत अच्छा = very good"
+  }
+ ]
+}
